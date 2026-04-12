@@ -10,22 +10,22 @@ const panel = document.getElementById("panel");
 // --------------------
 // INIT
 // --------------------
-updateAlgaeUI();
-
 if (fishList.length === 0) {
     for (let i = 0; i < 5; i++) {
         fishList.push({
             name: "Fish" + (i + 1),
             age: Math.floor(Math.random() * 5) + 1,
             x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight
+            y: Math.random() * window.innerHeight,
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: (Math.random() - 0.5) * 1.5
         });
     }
 }
 
 save();
 render();
-moveFish();
+animateFish();
 algaeGenerator();
 
 // --------------------
@@ -37,7 +37,7 @@ function save() {
 }
 
 // --------------------
-// UI
+// UI UPDATE (ВАЖНО)
 // --------------------
 function updateAlgaeUI() {
     const el = document.getElementById("algaeCount");
@@ -62,7 +62,7 @@ function toggleResidents() {
 }
 
 // --------------------
-// ВОДОРОСЛИ
+// СБОР ВОДОРОСЛЕЙ
 // --------------------
 function collectAlgae() {
     if (algae <= 0) {
@@ -89,19 +89,21 @@ function algaeGenerator() {
     setInterval(() => {
         algae += fishList.length;
         save();
-        updateAlgaeUI();
+        updateAlgaeUI(); // 🔥 обновление кнопки
     }, 5000);
 }
 
 // --------------------
-// RENDER (БЕЗ ID)
+// RENDER (ОДИН РАЗ)
 // --------------------
 function render() {
     aquarium.innerHTML = "";
 
-    fishList.forEach(f => {
+    fishList.forEach((f, i) => {
         const fish = document.createElement("div");
         fish.className = "fish";
+
+        fish.dataset.index = i;
 
         fish.style.left = f.x + "px";
         fish.style.top = f.y + "px";
@@ -116,38 +118,48 @@ function render() {
 
     aquarium.appendChild(panel);
 
+    // кнопки создаём ОДИН РАЗ
     const bottom = document.createElement("div");
     bottom.id = "bottom";
 
     bottom.innerHTML = `
         <button class="btn" onclick="toggleResidents()">👥 Жители</button>
-        <button class="btn" onclick="collectAlgae()">🌿 Водоросли (${algae})</button>
+        <button class="btn" onclick="collectAlgae()">
+            🌿 Водоросли (<span id="algaeCount">${algae}</span>)
+        </button>
     `;
 
     aquarium.appendChild(bottom);
 }
 
 // --------------------
-// ПЛАВНОЕ ДВИЖЕНИЕ ВСЕХ РЫБ
+// ПЛАВНОЕ ДВИЖЕНИЕ (60 FPS)
 // --------------------
-function moveFish() {
-    setInterval(() => {
+function animateFish() {
+    const loop = () => {
         const fishElements = document.querySelectorAll(".fish");
 
         fishList.forEach((f, i) => {
             const el = fishElements[i];
             if (!el) return;
 
-            const dx = (Math.random() - 0.5) * 70;
-            const dy = (Math.random() - 0.5) * 70;
+            // инерция движения
+            f.x += f.vx;
+            f.y += f.vy;
 
-            f.x = Math.max(0, Math.min(window.innerWidth - 60, f.x + dx));
-            f.y = Math.max(0, Math.min(window.innerHeight - 120, f.y + dy));
+            // отскок от стен
+            if (f.x < 0 || f.x > window.innerWidth - 60) f.vx *= -1;
+            if (f.y < 0 || f.y > window.innerHeight - 120) f.vy *= -1;
+
+            f.x = Math.max(0, Math.min(window.innerWidth - 60, f.x));
+            f.y = Math.max(0, Math.min(window.innerHeight - 120, f.y));
 
             el.style.left = f.x + "px";
             el.style.top = f.y + "px";
         });
 
-        save();
-    }, 1200);
+        requestAnimationFrame(loop);
+    };
+
+    loop();
 }
