@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Рыбка</title>
+</head>
+<body>
+  <h1>🐟 Моя рыбка</h1>
+
+  <input id="name" placeholder="Имя рыбки">
+  <button onclick="createFish()">Создать</button>
+
+  <p id="fish"></p>
+
+  <button onclick="feed()">Покормить</button>
+
+  <script>
+    let size = 1;
+
+    function createFish() {
+      const name = document.getElementById("name").value;
+      localStorage.setItem("fishName", name);
+      localStorage.setItem("fishSize", size);
+      render();
+    }
+
+    function feed() {
+      size = Number(localStorage.getItem("fishSize")) || 1;
+      size += 1;
+      localStorage.setItem("fishSize", size);
+      render();
+    }
+
+    function render() {
+      const name = localStorage.getItem("fishName");
+      const size = localStorage.getItem("fishSize");
+
+      if (name) {
+        document.getElementById("fish").innerText =
+          name + " (размер: " + size + ")";
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>
