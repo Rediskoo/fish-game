@@ -21,7 +21,7 @@ def get_user(user_id):
             "coins": 0,
             "algae": 0,
             "fishes": [
-                {"name": "Fish1", "age": 1}
+                {"name": "Fish1", "age": 1, "type": "common"}
             ]
         }
     return users[user_id]
@@ -31,13 +31,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = get_user(update.effective_user.id)
 
     keyboard = [
-        [InlineKeyboardButton("🎮 Аквариум", web_app=WebAppInfo(WEBAPP_URL))],
+        [InlineKeyboardButton("🎮 Открыть аквариум", web_app=WebAppInfo(WEBAPP_URL))],
         [InlineKeyboardButton("👤 Профиль", callback_data="profile")],
         [InlineKeyboardButton("🏪 Магазин", callback_data="shop")]
     ]
 
     await update.message.reply_text(
-        f"🐟 Привет, {update.effective_user.first_name}!\nДобро пожаловать в аквариум!",
+        f"🐟 Привет, {update.effective_user.first_name}!\n"
+        f"Добро пожаловать в аквариум.",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
@@ -48,18 +49,18 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user = get_user(q.from_user.id)
 
+    keyboard = [
+        [InlineKeyboardButton("🏪 Магазин", callback_data="shop")],
+        [InlineKeyboardButton("🐟 Мои рыбки", callback_data="my_fish")],
+        [InlineKeyboardButton("⬅️ Назад", callback_data="start")]
+    ]
+
     text = (
         f"👤 ПРОФИЛЬ\n\n"
         f"💰 coins: {user['coins']}\n"
         f"🌿 algae: {user['algae']}\n"
         f"🐟 fishes: {len(user['fishes'])}"
     )
-
-    keyboard = [
-        [InlineKeyboardButton("🏪 Магазин", callback_data="shop")],
-        [InlineKeyboardButton("🐟 Рыбки", callback_data="fish")],
-        [InlineKeyboardButton("⬅️ Назад", callback_data="start")]
-    ]
 
     await q.message.edit_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
 
@@ -88,11 +89,15 @@ async def buy_fish(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = get_user(q.from_user.id)
 
     if user["coins"] < 10:
-        await q.answer("❌ Не хватает coins", show_alert=True)
+        await q.answer("Недостаточно coins ❌", show_alert=True)
         return
 
     user["coins"] -= 10
-    user["fishes"].append({"name": f"Fish{len(user['fishes'])+1}", "age": 1})
+    user["fishes"].append({
+        "name": f"Fish{len(user['fishes'])+1}",
+        "age": 1,
+        "type": "common"
+    })
 
     await shop(update, context)
 
@@ -118,7 +123,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif data == "start":
         await start(update, context)
 
-    elif data == "fish":
+    elif data == "my_fish":
         text = "🐟 ТВОИ РЫБКИ:\n\n"
         for f in user["fishes"]:
             text += f"{f['name']} — {f['age']} лет\n"
@@ -126,7 +131,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await q.message.edit_text(text)
 
 # -------------------
-# WEBAPP DATA (ВАЖНО)
+# WEBAPP DATA (ВАЖНО — ИСПРАВЛЕНО)
 # -------------------
 async def webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
@@ -139,14 +144,16 @@ async def webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
             amount = data["amount"]
 
             user["algae"] += amount
-            user["coins"] += amount // 10
+            coins = amount // 10
+            user["coins"] += coins
 
             await update.message.reply_text(
-                f"🌿 Собрано: {amount} водорослей\n💰 +{amount // 10} coins"
+                f"🌿 Собрано: {amount} водорослей\n"
+                f"💰 Получено: {coins} coins"
             )
 
     except Exception as e:
-        print("ERROR:", e)
+        print("WEBAPP ERROR:", e)
 
 # -------------------
 app = ApplicationBuilder().token(TOKEN).build()
@@ -154,7 +161,7 @@ app = ApplicationBuilder().token(TOKEN).build()
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CallbackQueryHandler(buttons))
 
-# 🔥 ВАЖНО (работающий handler)
-app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, webapp_data))
+# 🔥 ВАЖНО: правильный handler
+app.add_handler(MessageHandler(filters.WEB_APP_DATA, webapp_data))
 
 app.run_polling()
