@@ -11,44 +11,101 @@
       margin: 0;
       overflow: hidden;
       background: linear-gradient(to bottom, #4fc3f7, #01579b);
+      font-family: Arial;
     }
 
+    /* верхний блок */
+    #top {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      z-index: 10;
+      color: white;
+    }
+
+    /* аквариум */
     #aquarium {
       position: relative;
       width: 100vw;
       height: 100vh;
     }
 
+    /* рыбка */
     #fish {
       position: absolute;
       width: 80px;
       transition: left 1s linear, top 1s linear;
     }
 
-    #ui {
+    /* низ (кнопка кормить) */
+    #bottom {
       position: absolute;
-      top: 10px;
-      left: 10px;
-      color: white;
-      font-family: Arial;
+      bottom: 15px;
+      left: 15px;
+      right: 15px;
       z-index: 10;
+    }
+
+    #feedBtn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: #ffca28;
+      font-size: 16px;
+    }
+
+    /* кнопка редактирования */
+    #editBtn {
+      margin-top: 8px;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    input {
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      width: 70%;
+    }
+
+    #createBtn {
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
     }
   </style>
 </head>
 
 <body>
-  <div id="aquarium">
-    
-    <div id="ui">
+
+<div id="aquarium">
+
+  <!-- верх -->
+  <div id="top">
+    <div id="createBox">
       <input id="name" placeholder="Имя рыбки">
-      <button onclick="createFish()">Создать</button>
-      <button onclick="feed()">Кормить 🍎</button>
-      <p id="info"></p>
+      <button id="createBtn" onclick="createFish()">Создать</button>
     </div>
 
-    <!-- рыбка -->
-    <img id="fish" src="https://i.imgur.com/4AiXzf8.png">
-    
+    <div id="info"></div>
   </div>
+
+  <!-- рыбка -->
+  <img id="fish" src="https://i.imgur.com/4AiXzf8.png">
+
+  <!-- низ -->
+  <div id="bottom">
+    <button id="feedBtn" onclick="feed()">🍎 Кормить</button>
+    <button id="editBtn" onclick="editFish()" style="display:none;">✏️ изменить / сбросить</button>
+  </div>
+
+</div>
+
 </body>
 </html>
