@@ -54,7 +54,7 @@
       z-index: 20;
     }
 
-    /* НИЖНИЕ КНОПКИ */
+    /* НИЖНИЕ КНОПКИ (ФИКС) */
     #bottom {
       position: absolute;
       bottom: 0;
@@ -62,19 +62,32 @@
       right: 0;
 
       display: flex;
+      gap: 10px;
+
+      padding: 10px;
       z-index: 30;
     }
 
     .btn {
       flex: 1;
+
       padding: 14px;
+
       border: none;
       font-size: 14px;
-      background: rgba(255,255,255,0.9);
+
+      background: rgba(255, 255, 255, 0.92);
+
+      border-radius: 16px;
+
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+
+      transition: 0.15s;
     }
 
     .btn:active {
-      background: rgba(255,255,255,1);
+      transform: scale(0.97);
+      background: rgba(255, 255, 255, 1);
     }
   </style>
 </head>

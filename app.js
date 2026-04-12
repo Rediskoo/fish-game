@@ -6,11 +6,12 @@ let algae = parseInt(localStorage.getItem("algae")) || 0;
 
 const aquarium = document.getElementById("aquarium");
 const panel = document.getElementById("panel");
-const algaeUI = document.getElementById("algaeCount");
 
-algaeUI.textContent = algae;
+updateAlgaeUI();
 
-// стартовые рыбы
+// --------------------
+// СТАРТОВЫЕ РЫБЫ
+// --------------------
 if (fishList.length === 0) {
     for (let i = 0; i < 5; i++) {
         fishList.push({
@@ -28,11 +29,19 @@ moveFish();
 algaeGenerator();
 
 // --------------------
-// СОХРАНЕНИЕ
+// SAVE
 // --------------------
 function save() {
     localStorage.setItem("fishList", JSON.stringify(fishList));
     localStorage.setItem("algae", algae);
+}
+
+// --------------------
+// UI ВОДОРОСЛЕЙ
+// --------------------
+function updateAlgaeUI() {
+    const el = document.getElementById("algaeCount");
+    if (el) el.textContent = algae;
 }
 
 // --------------------
@@ -45,7 +54,6 @@ function toggleResidents() {
     }
 
     panel.style.display = "block";
-
     panel.innerHTML = `<b>🐟 Жители (${fishList.length})</b><br><br>`;
 
     fishList.forEach(f => {
@@ -54,10 +62,13 @@ function toggleResidents() {
 }
 
 // --------------------
-// ВОДОРОСЛИ (отправка в бот)
+// СБОР ВОДОРОСЛЕЙ
 // --------------------
 function collectAlgae() {
-    if (algae <= 0) return;
+    if (algae <= 0) {
+        tg.showAlert("Нет водорослей 🌿");
+        return;
+    }
 
     tg.sendData(JSON.stringify({
         action: "collect_algae",
@@ -65,8 +76,8 @@ function collectAlgae() {
     }));
 
     algae = 0;
-    algaeUI.textContent = algae;
     save();
+    updateAlgaeUI();
 }
 
 // --------------------
@@ -74,9 +85,9 @@ function collectAlgae() {
 // --------------------
 function algaeGenerator() {
     setInterval(() => {
-        algae += fishList.length; // 1 рыба = 1 водоросль
-        algaeUI.textContent = algae;
+        algae += fishList.length;
         save();
+        updateAlgaeUI();
     }, 5000);
 }
 
@@ -100,7 +111,7 @@ function moveFish() {
 }
 
 // --------------------
-// ОТРИСОВКА
+// RENDER
 // --------------------
 function render() {
     aquarium.innerHTML = "";
@@ -126,7 +137,7 @@ function render() {
 
     bottom.innerHTML = `
         <button class="btn" onclick="toggleResidents()">👥 Жители</button>
-        <button class="btn" onclick="collectAlgae()">🌿 Водоросли (<span id="algaeCount">${algae}</span>)</button>
+        <button class="btn" onclick="collectAlgae()">🌿 Водоросли (${algae})</button>
     `;
 
     aquarium.appendChild(bottom);
