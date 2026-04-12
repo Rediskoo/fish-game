@@ -10,8 +10,8 @@
     body {
       margin: 0;
       overflow: hidden;
-      background: linear-gradient(to bottom, #4fc3f7, #01579b);
       font-family: Arial;
+      background: linear-gradient(to bottom, #4fc3f7, #01579b);
     }
 
     #aquarium {
@@ -20,11 +20,11 @@
       height: 100vh;
     }
 
-    /* рыбка + имя */
+    /* 🐟 рыбы */
     .fish {
       position: absolute;
       width: 50px;
-      transition: left 1s linear, top 1s linear;
+      transition: left 1.2s linear, top 1.2s linear;
       text-align: center;
     }
 
@@ -39,7 +39,7 @@
       pointer-events: none;
     }
 
-    /* ПАНЕЛЬ ЖИТЕЛЕЙ */
+    /* 🌊 панель жителей */
     #panel {
       display: none;
       position: absolute;
@@ -54,7 +54,7 @@
       z-index: 20;
     }
 
-    /* НИЖНИЕ КНОПКИ (ФИКС) */
+    /* 🔘 нижние кнопки */
     #bottom {
       position: absolute;
       bottom: 0;
@@ -82,13 +82,14 @@
 
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 
-      transition: 0.15s;
+      transition: 0.15s ease;
     }
 
     .btn:active {
       transform: scale(0.97);
       background: rgba(255, 255, 255, 1);
     }
+
   </style>
 </head>
 
@@ -96,8 +97,10 @@
 
 <div id="aquarium">
 
+  <!-- панель -->
   <div id="panel"></div>
 
+  <!-- кнопки -->
   <div id="bottom">
     <button class="btn" onclick="toggleResidents()">👥 Жители</button>
     <button class="btn" onclick="collectAlgae()">🌿 Водоросли (<span id="algaeCount">0</span>)</button>

@@ -7,14 +7,16 @@ let algae = parseInt(localStorage.getItem("algae")) || 0;
 const aquarium = document.getElementById("aquarium");
 const panel = document.getElementById("panel");
 
+// --------------------
+// INIT UI
+// --------------------
 updateAlgaeUI();
 
-// --------------------
-// СТАРТОВЫЕ РЫБЫ
-// --------------------
+// стартовые рыбы
 if (fishList.length === 0) {
     for (let i = 0; i < 5; i++) {
         fishList.push({
+            id: "fish_" + i,
             name: "Fish" + (i + 1),
             age: Math.floor(Math.random() * 5) + 1,
             x: Math.random() * window.innerWidth,
@@ -37,7 +39,7 @@ function save() {
 }
 
 // --------------------
-// UI ВОДОРОСЛЕЙ
+// UI UPDATE
 // --------------------
 function updateAlgaeUI() {
     const el = document.getElementById("algaeCount");
@@ -78,6 +80,8 @@ function collectAlgae() {
     algae = 0;
     save();
     updateAlgaeUI();
+
+    tg.HapticFeedback?.impactOccurred("light");
 }
 
 // --------------------
@@ -92,26 +96,7 @@ function algaeGenerator() {
 }
 
 // --------------------
-// ДВИЖЕНИЕ РЫБ
-// --------------------
-function moveFish() {
-    setInterval(() => {
-        fishList.forEach(f => {
-            f.x += (Math.random() - 0.5) * 60;
-            f.y += (Math.random() - 0.5) * 60;
-
-            f.x = Math.max(0, Math.min(window.innerWidth - 60, f.x));
-            f.y = Math.max(0, Math.min(window.innerHeight - 120, f.y));
-        });
-
-        save();
-        render();
-
-    }, 1200);
-}
-
-// --------------------
-// RENDER
+// СОЗДАНИЕ РЫБ DOM (ОДИН РАЗ)
 // --------------------
 function render() {
     aquarium.innerHTML = "";
@@ -119,6 +104,8 @@ function render() {
     fishList.forEach(f => {
         const wrap = document.createElement("div");
         wrap.className = "fish";
+        wrap.id = f.id;
+
         wrap.style.left = f.x + "px";
         wrap.style.top = f.y + "px";
 
@@ -137,8 +124,32 @@ function render() {
 
     bottom.innerHTML = `
         <button class="btn" onclick="toggleResidents()">👥 Жители</button>
-        <button class="btn" onclick="collectAlgae()">🌿 Водоросли (${algae})</button>
+        <button class="btn" onclick="collectAlgae()">🌿 Водоросли (<span id="algaeCount">${algae}</span>)</button>
     `;
 
     aquarium.appendChild(bottom);
+}
+
+// --------------------
+// ПЛАВНОЕ ДВИЖЕНИЕ РЫБ (БЕЗ RERENDER)
+// --------------------
+function moveFish() {
+    setInterval(() => {
+        fishList.forEach(f => {
+            const dx = (Math.random() - 0.5) * 80;
+            const dy = (Math.random() - 0.5) * 80;
+
+            f.x = Math.max(0, Math.min(window.innerWidth - 60, f.x + dx));
+            f.y = Math.max(0, Math.min(window.innerHeight - 120, f.y + dy));
+
+            const el = document.getElementById(f.id);
+
+            if (el) {
+                el.style.left = f.x + "px";
+                el.style.top = f.y + "px";
+            }
+        });
+
+        save();
+    }, 1200);
 }
