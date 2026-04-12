@@ -18,7 +18,9 @@ if (fishList.length === 0) {
             name: "Fish" + (i + 1),
             age: Math.floor(Math.random() * 5) + 1,
             x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight
+            y: Math.random() * window.innerHeight,
+            vx: (Math.random() - 0.5) * 2,
+            vy: (Math.random() - 0.5) * 2
         });
     }
 }
@@ -78,7 +80,7 @@ function collectAlgae() {
 }
 
 // --------------------
-// ГЕНЕРАЦИЯ ВОДОРОСЛЕЙ
+// ГЕНЕРАЦИЯ
 // --------------------
 function algaeGenerator() {
     setInterval(() => {
@@ -106,7 +108,6 @@ function render() {
             <img src="https://i.imgur.com/4AiXzf8.png" width="50">
         `;
 
-        // 🐟 drag start
         fish.onpointerdown = (e) => startDrag(e, i);
 
         aquarium.appendChild(fish);
@@ -140,8 +141,14 @@ function moveFish() {
             const el = fishElements[i];
             if (!el) return;
 
-            f.x += (Math.random() - 0.5) * 50;
-            f.y += (Math.random() - 0.5) * 50;
+            // не двигаем если сейчас тянем
+            if (dragging === i) return;
+
+            f.x += f.vx;
+            f.y += f.vy;
+
+            if (f.x <= 0 || f.x >= window.innerWidth - 60) f.vx *= -1;
+            if (f.y <= 0 || f.y >= window.innerHeight - 120) f.vy *= -1;
 
             f.x = Math.max(0, Math.min(window.innerWidth - 60, f.x));
             f.y = Math.max(0, Math.min(window.innerHeight - 120, f.y));
@@ -151,25 +158,28 @@ function moveFish() {
         });
 
         save();
-    }, 1200);
+    }, 40);
 }
 
 // --------------------
-// DRAG SYSTEM
+// DRAG SYSTEM (SMOOTH)
 // --------------------
 let dragging = null;
 let offsetX = 0;
 let offsetY = 0;
 
 function startDrag(e, i) {
-    e.preventDefault();
-
     dragging = i;
 
-    const rect = e.target.closest(".fish").getBoundingClientRect();
+    const el = document.querySelectorAll(".fish")[i];
+    const rect = el.getBoundingClientRect();
 
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
+
+    // стопаем скорость
+    fishList[i].vx = 0;
+    fishList[i].vy = 0;
 
     document.addEventListener("pointermove", onDrag);
     document.addEventListener("pointerup", stopDrag);
@@ -180,21 +190,35 @@ function onDrag(e) {
 
     const f = fishList[dragging];
     const el = document.querySelectorAll(".fish")[dragging];
-    if (!f || !el) return;
+    if (!el) return;
 
-    f.x = e.clientX - offsetX;
-    f.y = e.clientY - offsetY;
+    const rect = aquarium.getBoundingClientRect();
 
-    f.x = Math.max(0, Math.min(window.innerWidth - 60, f.x));
-    f.y = Math.max(0, Math.min(window.innerHeight - 120, f.y));
+    let x = e.clientX - rect.left - offsetX;
+    let y = e.clientY - rect.top - offsetY;
+
+    x = Math.max(0, Math.min(window.innerWidth - 60, x));
+    y = Math.max(0, Math.min(window.innerHeight - 120, y));
+
+    f.x = x;
+    f.y = y;
 
     el.style.transition = "none";
-    el.style.left = f.x + "px";
-    el.style.top = f.y + "px";
+    el.style.left = x + "px";
+    el.style.top = y + "px";
 }
 
 function stopDrag() {
+    if (dragging === null) return;
+
+    const f = fishList[dragging];
+
+    // возвращаем "жизнь"
+    f.vx = (Math.random() - 0.5) * 2;
+    f.vy = (Math.random() - 0.5) * 2;
+
     dragging = null;
+
     document.removeEventListener("pointermove", onDrag);
     document.removeEventListener("pointerup", stopDrag);
 }
