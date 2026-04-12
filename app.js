@@ -1,92 +1,132 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
 
-let fishName = localStorage.getItem("fishName") || "";
-let size = Number(localStorage.getItem("fishSize")) || 1;
+let fishList = JSON.parse(localStorage.getItem("fishList")) || [];
 
-const fish = document.getElementById("fish");
-const info = document.getElementById("info");
-const createBox = document.getElementById("createBox");
-const editBtn = document.getElementById("editBtn");
+const aquarium = document.getElementById("aquarium");
 
-let x = 100;
-let y = 150;
+// --------------------
+// СОХРАНЕНИЕ ЛОКАЛЬНО (рыбы)
+// --------------------
+function saveFish() {
+    localStorage.setItem("fishList", JSON.stringify(fishList));
+}
 
-render();
-moveFish();
-checkUI();
+// --------------------
+// СОЗДАТЬ РЫБУ
+// --------------------
+function createFish(name) {
+    fishList.push({
+        name: name,
+        age: 1,
+        size: 1,
+        x: Math.random() * 200,
+        y: Math.random() * 300
+    });
 
-// создать рыбку
-function createFish() {
-    fishName = document.getElementById("name").value;
-    if (!fishName) return;
-
-    localStorage.setItem("fishName", fishName);
-    localStorage.setItem("fishSize", size);
-
-    checkUI();
+    saveFish();
     render();
 }
 
-// кормить
-function feed() {
-    if (!fishName) return;
+// --------------------
+// КЛИК ПО РЫБЕ = 1 COIN В БОТ
+// --------------------
+function clickFish(index) {
 
-    size += 1;
-    localStorage.setItem("fishSize", size);
+    // отправляем в бот
+    tg.sendData(JSON.stringify({
+        type: "add_coin",
+        amount: 1
+    }));
 
-    render();
+    tg.HapticFeedback?.impactOccurred("light");
 }
 
-// редактировать / сброс
-function editFish() {
-    localStorage.removeItem("fishName");
-    localStorage.removeItem("fishSize");
+// --------------------
+// МЕНЮ
+// --------------------
+function openMenu() {
+    const action = prompt(
+        "1 - добавить рыбу\n2 - сброс"
+    );
 
-    fishName = "";
-    size = 1;
+    if (action === "1") {
+        const name = prompt("Имя рыбы:");
+        if (name) createFish(name);
+    }
 
-    createBox.style.display = "block";
-    editBtn.style.display = "none";
-
-    render();
-}
-
-// UI логика
-function checkUI() {
-    if (fishName) {
-        createBox.style.display = "none";
-        editBtn.style.display = "block";
-    } else {
-        createBox.style.display = "block";
-        editBtn.style.display = "none";
+    if (action === "2") {
+        fishList = [];
+        saveFish();
+        render();
     }
 }
 
-// отображение
-function render() {
-    if (!fishName) {
-        info.innerText = "Создай рыбку 🐟";
-    } else {
-        info.innerText = `${fishName} | размер: ${size}`;
-    }
-}
-
-// движение (НЕ заходит в UI зоны)
+// --------------------
+// ДВИЖЕНИЕ
+// --------------------
 function moveFish() {
     setInterval(() => {
+        fishList.forEach(f => {
+            f.x += (Math.random() - 0.5) * 50;
+            f.y += (Math.random() - 0.5) * 50;
 
-        x += (Math.random() - 0.5) * 80;
-        y += (Math.random() - 0.5) * 80;
+            f.x = Math.max(0, Math.min(window.innerWidth - 80, f.x));
+            f.y = Math.max(60, Math.min(window.innerHeight - 120, f.y));
+        });
 
-        const topLimit = 120;
-        const bottomLimit = window.innerHeight - 120;
-
-        x = Math.max(0, Math.min(window.innerWidth - 80, x));
-        y = Math.max(topLimit, Math.min(bottomLimit, y));
-
-        fish.style.left = x + "px";
-        fish.style.top = y + "px";
-
-    }, 1000);
+        saveFish();
+        render();
+    }, 1200);
 }
+
+// --------------------
+// RENDER
+// --------------------
+function render() {
+    aquarium.innerHTML = "";
+
+    // TOP UI
+    const top = document.createElement("div");
+    top.id = "top";
+    top.innerHTML = `
+        🐟 Fish: ${fishList.length}
+        <button onclick="openMenu()">✏️ меню</button>
+    `;
+    aquarium.appendChild(top);
+
+    // FISH
+    fishList.forEach((f, i) => {
+        const el = document.createElement("div");
+
+        el.style.position = "absolute";
+        el.style.left = f.x + "px";
+        el.style.top = f.y + "px";
+        el.style.textAlign = "center";
+        el.style.color = "white";
+
+        el.innerHTML = `
+            <div>${f.name} (${f.age})</div>
+            <img src="https://i.imgur.com/4AiXzf8.png"
+                 style="width:${40 + f.size * 10}px; cursor:pointer;">
+        `;
+
+        el.querySelector("img").onclick = () => clickFish(i);
+
+        aquarium.appendChild(el);
+    });
+
+    // BOTTOM
+    const bottom = document.createElement("div");
+    bottom.id = "bottom";
+
+    bottom.innerHTML = `
+        <button onclick="openMenu()">✏️ Меню аквариума</button>
+    `;
+
+    aquarium.appendChild(bottom);
+}
+
+// --------------------
+render();
+moveFish();
