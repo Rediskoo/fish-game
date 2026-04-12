@@ -1,8 +1,24 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
 
-let fishList = JSON.parse(localStorage.getItem("fishList")) || [];
-let algae = parseInt(localStorage.getItem("algae")) || 0;
+const FISH_COUNT = 5;
+const FISH_MOVE_INTERVAL_MS = 1200;
+const ALGAE_INTERVAL_MS = 5000;
+const FISH_IMAGE_WIDTH = 50;
+const FISH_BOUND_X = 60;
+const FISH_BOUND_Y = 120;
+
+function parseJSON(value, fallback) {
+    if (!value) return fallback;
+    try {
+        return JSON.parse(value);
+    } catch {
+        return fallback;
+    }
+}
+
+let fishList = parseJSON(localStorage.getItem("fishList"), []);
+let algae = Number.parseInt(localStorage.getItem("algae"), 10) || 0;
 
 const aquarium = document.getElementById("aquarium");
 const panel = document.getElementById("panel");
@@ -13,7 +29,7 @@ const panel = document.getElementById("panel");
 updateAlgaeUI();
 
 if (fishList.length === 0) {
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < FISH_COUNT; i++) {
         fishList.push({
             name: "Fish" + (i + 1),
             age: Math.floor(Math.random() * 5) + 1,
@@ -90,7 +106,7 @@ function algaeGenerator() {
         algae += fishList.length;
         save();
         updateAlgaeUI();
-    }, 5000);
+    }, ALGAE_INTERVAL_MS);
 }
 
 // --------------------
@@ -108,7 +124,7 @@ function render() {
 
         fish.innerHTML = `
             <div class="fish-name">${f.name}</div>
-            <img src="https://i.imgur.com/4AiXzf8.png" width="50">
+            <img src="https://i.imgur.com/4AiXzf8.png" width="${FISH_IMAGE_WIDTH}">
         `;
 
         aquarium.appendChild(fish);
@@ -145,13 +161,13 @@ function moveFish() {
             const dx = (Math.random() - 0.5) * 70;
             const dy = (Math.random() - 0.5) * 70;
 
-            f.x = Math.max(0, Math.min(window.innerWidth - 60, f.x + dx));
-            f.y = Math.max(0, Math.min(window.innerHeight - 120, f.y + dy));
+            f.x = Math.max(0, Math.min(window.innerWidth - FISH_BOUND_X, f.x + dx));
+            f.y = Math.max(0, Math.min(window.innerHeight - FISH_BOUND_Y, f.y + dy));
 
             el.style.left = f.x + "px";
             el.style.top = f.y + "px";
         });
 
         save();
-    }, 1200);
+    }, FISH_MOVE_INTERVAL_MS);
 }
