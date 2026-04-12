@@ -2,7 +2,14 @@
 <html>
 <head>
   <title>Рыбка</title>
+
+  <!-- Telegram WebApp -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- твой JS файл -->
+  <script defer src="app.js"></script>
 </head>
+
 <body>
   <h1>🐟 Моя рыбка</h1>
 
@@ -12,35 +19,5 @@
   <p id="fish"></p>
 
   <button onclick="feed()">Покормить</button>
-
-  <script>
-    let size = 1;
-
-    function createFish() {
-      const name = document.getElementById("name").value;
-      localStorage.setItem("fishName", name);
-      localStorage.setItem("fishSize", size);
-      render();
-    }
-
-    function feed() {
-      size = Number(localStorage.getItem("fishSize")) || 1;
-      size += 1;
-      localStorage.setItem("fishSize", size);
-      render();
-    }
-
-    function render() {
-      const name = localStorage.getItem("fishName");
-      const size = localStorage.getItem("fishSize");
-
-      if (name) {
-        document.getElementById("fish").innerText =
-          name + " (размер: " + size + ")";
-      }
-    }
-
-    render();
-  </script>
 </body>
 </html>
