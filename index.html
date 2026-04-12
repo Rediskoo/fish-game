@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>🐟 Аквариум</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -12,6 +13,9 @@
       overflow: hidden;
       font-family: Arial;
       background: linear-gradient(to bottom, #4fc3f7, #01579b);
+
+      /* 📱 safe area fix */
+      padding-bottom: env(safe-area-inset-bottom);
     }
 
     #aquarium {
@@ -24,8 +28,8 @@
     .fish {
       position: absolute;
       width: 50px;
-      transition: left 1.2s linear, top 1.2s linear;
       text-align: center;
+      transition: left 1.2s linear, top 1.2s linear;
     }
 
     .fish-name {
@@ -66,6 +70,9 @@
 
       padding: 10px;
       z-index: 30;
+
+      /* 📱 safe area */
+      padding-bottom: calc(10px + env(safe-area-inset-bottom));
     }
 
     .btn {
@@ -89,7 +96,6 @@
       transform: scale(0.97);
       background: rgba(255, 255, 255, 1);
     }
-
   </style>
 </head>
 
@@ -97,10 +103,8 @@
 
 <div id="aquarium">
 
-  <!-- панель -->
   <div id="panel"></div>
 
-  <!-- кнопки -->
   <div id="bottom">
     <button class="btn" onclick="toggleResidents()">👥 Жители</button>
     <button class="btn" onclick="collectAlgae()">🌿 Водоросли (<span id="algaeCount">0</span>)</button>

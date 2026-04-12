@@ -8,7 +8,7 @@ const aquarium = document.getElementById("aquarium");
 const panel = document.getElementById("panel");
 
 // --------------------
-// INIT UI
+// INIT
 // --------------------
 updateAlgaeUI();
 
@@ -56,6 +56,7 @@ function toggleResidents() {
     }
 
     panel.style.display = "block";
+
     panel.innerHTML = `<b>🐟 Жители (${fishList.length})</b><br><br>`;
 
     fishList.forEach(f => {
@@ -96,7 +97,7 @@ function algaeGenerator() {
 }
 
 // --------------------
-// СОЗДАНИЕ РЫБ DOM (ОДИН РАЗ)
+// СОЗДАНИЕ РЫБ (ОДИН РАЗ)
 // --------------------
 function render() {
     aquarium.innerHTML = "";
@@ -124,26 +125,25 @@ function render() {
 
     bottom.innerHTML = `
         <button class="btn" onclick="toggleResidents()">👥 Жители</button>
-        <button class="btn" onclick="collectAlgae()">🌿 Водоросли (<span id="algaeCount">${algae}</span>)</button>
+        <button class="btn" onclick="collectAlgae()">🌿 Водоросли (${algae})</button>
     `;
 
     aquarium.appendChild(bottom);
 }
 
 // --------------------
-// ПЛАВНОЕ ДВИЖЕНИЕ РЫБ (БЕЗ RERENDER)
+// ПЛАВНОЕ ДВИЖЕНИЕ РЫБ
 // --------------------
 function moveFish() {
     setInterval(() => {
         fishList.forEach(f => {
-            const dx = (Math.random() - 0.5) * 80;
-            const dy = (Math.random() - 0.5) * 80;
+            const dx = (Math.random() - 0.5) * 70;
+            const dy = (Math.random() - 0.5) * 70;
 
             f.x = Math.max(0, Math.min(window.innerWidth - 60, f.x + dx));
             f.y = Math.max(0, Math.min(window.innerHeight - 120, f.y + dy));
 
             const el = document.getElementById(f.id);
-
             if (el) {
                 el.style.left = f.x + "px";
                 el.style.top = f.y + "px";
