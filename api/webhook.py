@@ -25,14 +25,15 @@ async def on_shutdown():
     await telegram_app.shutdown()
 
 
+@app.get("/")
+@app.get("/health")
 @app.get("/api/health")
 async def health():
     return {"ok": True}
 
 
-@app.post("/api/telegram/{secret}")
-async def telegram_webhook(secret: str, request: Request):
-    if WEBHOOK_SECRET and secret != WEBHOOK_SECRET:
+async def _handle_update(secret: str, request: Request):
+    if WEBHOOK_SECRET and WEBHOOK_SECRET != secret:
         raise HTTPException(status_code=403, detail="Forbidden")
 
     payload = await request.json()
@@ -40,3 +41,15 @@ async def telegram_webhook(secret: str, request: Request):
     if update is not None:
         await telegram_app.process_update(update)
     return {"ok": True}
+
+
+@app.post("/telegram")
+@app.post("/api/telegram")
+async def telegram_webhook_no_secret(request: Request):
+    return await _handle_update("", request)
+
+
+@app.post("/telegram/{secret}")
+@app.post("/api/telegram/{secret}")
+async def telegram_webhook_with_secret(secret: str, request: Request):
+    return await _handle_update(secret, request)

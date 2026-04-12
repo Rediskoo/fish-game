@@ -3,8 +3,8 @@ from bot_logic import build_application
 
 
 def main():
-    token = os.getenv("BOT_TOKEN", "ТВОЙ_ТОКЕН")
-    if token == "ТВОЙ_ТОКЕН":
+    token = os.getenv("BOT_TOKEN", "PUT_BOT_TOKEN_HERE")
+    if token == "PUT_BOT_TOKEN_HERE":
         raise RuntimeError("Set BOT_TOKEN env variable before running bot.py")
 
     app = build_application(token)
