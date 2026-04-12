@@ -18,9 +18,7 @@ if (fishList.length === 0) {
             name: "Fish" + (i + 1),
             age: Math.floor(Math.random() * 5) + 1,
             x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-            vx: (Math.random() - 0.5) * 2,
-            vy: (Math.random() - 0.5) * 2
+            y: Math.random() * window.innerHeight
         });
     }
 }
@@ -80,10 +78,12 @@ function collectAlgae() {
     algae = 0;
     save();
     updateAlgaeUI();
+
+    tg.HapticFeedback?.impactOccurred("light");
 }
 
 // --------------------
-// ГЕНЕРАЦИЯ
+// ГЕНЕРАЦИЯ ВОДОРОСЛЕЙ
 // --------------------
 function algaeGenerator() {
     setInterval(() => {
@@ -99,7 +99,7 @@ function algaeGenerator() {
 function render() {
     aquarium.innerHTML = "";
 
-    fishList.forEach((f, i) => {
+    fishList.forEach(f => {
         const fish = document.createElement("div");
         fish.className = "fish";
 
@@ -111,9 +111,6 @@ function render() {
             <img src="https://i.imgur.com/4AiXzf8.png" width="50">
         `;
 
-        // 🐟 DRAG
-        fish.onpointerdown = (e) => startDrag(e, i);
-
         aquarium.appendChild(fish);
     });
 
@@ -124,14 +121,18 @@ function render() {
 
     bottom.innerHTML = `
         <button class="btn" onclick="toggleResidents()">👥 Жители</button>
-        <button class="btn" onclick="collectAlgae()">🌿 Водоросли (${algae})</button>
+        <button class="btn" onclick="collectAlgae()">
+            🌿 Водоросли (<span id="algaeCount">0</span>)
+        </button>
     `;
 
     aquarium.appendChild(bottom);
+
+    updateAlgaeUI();
 }
 
 // --------------------
-// ПЛАВНОЕ ДВИЖЕНИЕ
+// ДВИЖЕНИЕ
 // --------------------
 function moveFish() {
     setInterval(() => {
@@ -140,9 +141,6 @@ function moveFish() {
         fishList.forEach((f, i) => {
             const el = fishElements[i];
             if (!el) return;
-
-            // ❗ стопаем движение во время drag
-            if (dragging === i) return;
 
             const dx = (Math.random() - 0.5) * 70;
             const dy = (Math.random() - 0.5) * 70;
@@ -156,65 +154,4 @@ function moveFish() {
 
         save();
     }, 1200);
-}
-
-// --------------------
-// DRAG SYSTEM (НОРМАЛЬНЫЙ)
-// --------------------
-let dragging = null;
-let offsetX = 0;
-let offsetY = 0;
-
-function startDrag(e, i) {
-    dragging = i;
-
-    const el = document.querySelectorAll(".fish")[i];
-    const rect = el.getBoundingClientRect();
-
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
-
-    // стопаем рыбу
-    fishList[i].vx = 0;
-    fishList[i].vy = 0;
-
-    el.style.transition = "none";
-
-    document.addEventListener("pointermove", onDrag);
-    document.addEventListener("pointerup", stopDrag);
-}
-
-function onDrag(e) {
-    if (dragging === null) return;
-
-    const f = fishList[dragging];
-    const el = document.querySelectorAll(".fish")[dragging];
-    if (!el) return;
-
-    const rect = aquarium.getBoundingClientRect();
-
-    let x = e.clientX - rect.left - offsetX;
-    let y = e.clientY - rect.top - offsetY;
-
-    x = Math.max(0, Math.min(window.innerWidth - 60, x));
-    y = Math.max(0, Math.min(window.innerHeight - 120, y));
-
-    f.x = x;
-    f.y = y;
-
-    el.style.left = x + "px";
-    el.style.top = y + "px";
-}
-
-function stopDrag() {
-    if (dragging === null) return;
-
-    // возвращаем движение
-    fishList[dragging].vx = (Math.random() - 0.5) * 2;
-    fishList[dragging].vy = (Math.random() - 0.5) * 2;
-
-    dragging = null;
-
-    document.removeEventListener("pointermove", onDrag);
-    document.removeEventListener("pointerup", stopDrag);
 }
