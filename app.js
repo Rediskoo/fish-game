@@ -99,7 +99,7 @@ function algaeGenerator() {
 function render() {
     aquarium.innerHTML = "";
 
-    fishList.forEach(f => {
+    fishList.forEach((f, i) => {
         const fish = document.createElement("div");
         fish.className = "fish";
 
@@ -110,6 +110,9 @@ function render() {
             <div class="fish-name">${f.name}</div>
             <img src="https://i.imgur.com/4AiXzf8.png" width="50">
         `;
+
+        // 🐟 клик по рыбе
+        fish.onclick = () => pushFish(i);
 
         aquarium.appendChild(fish);
     });
@@ -132,7 +135,7 @@ function render() {
 }
 
 // --------------------
-// ДВИЖЕНИЕ
+// ДВИЖЕНИЕ РЫБ
 // --------------------
 function moveFish() {
     setInterval(() => {
@@ -154,4 +157,29 @@ function moveFish() {
 
         save();
     }, 1200);
+}
+
+// --------------------
+// ПИН РЫБЫ (ОТЛЁТ)
+// --------------------
+function pushFish(i) {
+    const f = fishList[i];
+    if (!f) return;
+
+    f.x += (Math.random() - 0.5) * 150;
+    f.y += (Math.random() - 0.5) * 150;
+
+    f.x = Math.max(0, Math.min(window.innerWidth - 60, f.x));
+    f.y = Math.max(0, Math.min(window.innerHeight - 120, f.y));
+
+    const el = document.querySelectorAll(".fish")[i];
+    if (el) {
+        el.style.transition = "left 0.2s ease, top 0.2s ease";
+        el.style.left = f.x + "px";
+        el.style.top = f.y + "px";
+
+        setTimeout(() => {
+            el.style.transition = "left 1.2s linear, top 1.2s linear";
+        }, 200);
+    }
 }
