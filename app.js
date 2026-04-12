@@ -1,5 +1,6 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
+tg.ready(); // 🔥 ОБЯЗАТЕЛЬНО для связи с ботом
 
 let fishList = JSON.parse(localStorage.getItem("fishList")) || [];
 let algae = parseInt(localStorage.getItem("algae")) || 0;
@@ -62,7 +63,7 @@ function toggleResidents() {
 }
 
 // --------------------
-// ВОДОРОСЛИ
+// ВОДОРОСЛИ → БОТ
 // --------------------
 function collectAlgae() {
     if (algae <= 0) {
@@ -70,6 +71,7 @@ function collectAlgae() {
         return;
     }
 
+    // 🔥 отправка в Telegram bot
     tg.sendData(JSON.stringify({
         action: "collect_algae",
         amount: algae
@@ -94,7 +96,7 @@ function algaeGenerator() {
 }
 
 // --------------------
-// RENDER
+// RENDER (ТВОЙ КОД НЕ ТРОГАЮ)
 // --------------------
 function render() {
     aquarium.innerHTML = "";
@@ -122,7 +124,7 @@ function render() {
     bottom.innerHTML = `
         <button class="btn" onclick="toggleResidents()">👥 Жители</button>
         <button class="btn" onclick="collectAlgae()">
-            🌿 Водоросли (<span id="algaeCount">0</span>)
+            🌿 Водоросли (${algae})
         </button>
     `;
 
@@ -132,7 +134,7 @@ function render() {
 }
 
 // --------------------
-// ДВИЖЕНИЕ
+// ДВИЖЕНИЕ (НЕ ТРОГАЮ ЛОГИКУ)
 // --------------------
 function moveFish() {
     setInterval(() => {
