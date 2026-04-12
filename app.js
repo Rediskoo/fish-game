@@ -50,14 +50,17 @@ function updateAlgaeUI() {
 // ЖИТЕЛИ
 // --------------------
 function toggleResidents() {
-    panel.style.display = panel.style.display === "block" ? "none" : "block";
-
     if (panel.style.display === "block") {
-        panel.innerHTML = `<b>🐟 Жители (${fishList.length})</b><br><br>`;
-        fishList.forEach(f => {
-            panel.innerHTML += `${f.name} — ${f.age} лет<br>`;
-        });
+        panel.style.display = "none";
+        return;
     }
+
+    panel.style.display = "block";
+    panel.innerHTML = `<b>🐟 Жители (${fishList.length})</b><br><br>`;
+
+    fishList.forEach(f => {
+        panel.innerHTML += `${f.name} — ${f.age} лет<br>`;
+    });
 }
 
 // --------------------
@@ -108,6 +111,7 @@ function render() {
             <img src="https://i.imgur.com/4AiXzf8.png" width="50">
         `;
 
+        // 🐟 DRAG
         fish.onpointerdown = (e) => startDrag(e, i);
 
         aquarium.appendChild(fish);
@@ -120,14 +124,10 @@ function render() {
 
     bottom.innerHTML = `
         <button class="btn" onclick="toggleResidents()">👥 Жители</button>
-        <button class="btn" onclick="collectAlgae()">
-            🌿 Водоросли (<span id="algaeCount">0</span>)
-        </button>
+        <button class="btn" onclick="collectAlgae()">🌿 Водоросли (${algae})</button>
     `;
 
     aquarium.appendChild(bottom);
-
-    updateAlgaeUI();
 }
 
 // --------------------
@@ -141,28 +141,25 @@ function moveFish() {
             const el = fishElements[i];
             if (!el) return;
 
-            // не двигаем если сейчас тянем
+            // ❗ стопаем движение во время drag
             if (dragging === i) return;
 
-            f.x += f.vx;
-            f.y += f.vy;
+            const dx = (Math.random() - 0.5) * 70;
+            const dy = (Math.random() - 0.5) * 70;
 
-            if (f.x <= 0 || f.x >= window.innerWidth - 60) f.vx *= -1;
-            if (f.y <= 0 || f.y >= window.innerHeight - 120) f.vy *= -1;
-
-            f.x = Math.max(0, Math.min(window.innerWidth - 60, f.x));
-            f.y = Math.max(0, Math.min(window.innerHeight - 120, f.y));
+            f.x = Math.max(0, Math.min(window.innerWidth - 60, f.x + dx));
+            f.y = Math.max(0, Math.min(window.innerHeight - 120, f.y + dy));
 
             el.style.left = f.x + "px";
             el.style.top = f.y + "px";
         });
 
         save();
-    }, 40);
+    }, 1200);
 }
 
 // --------------------
-// DRAG SYSTEM (SMOOTH)
+// DRAG SYSTEM (НОРМАЛЬНЫЙ)
 // --------------------
 let dragging = null;
 let offsetX = 0;
@@ -177,9 +174,11 @@ function startDrag(e, i) {
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
 
-    // стопаем скорость
+    // стопаем рыбу
     fishList[i].vx = 0;
     fishList[i].vy = 0;
+
+    el.style.transition = "none";
 
     document.addEventListener("pointermove", onDrag);
     document.addEventListener("pointerup", stopDrag);
@@ -203,7 +202,6 @@ function onDrag(e) {
     f.x = x;
     f.y = y;
 
-    el.style.transition = "none";
     el.style.left = x + "px";
     el.style.top = y + "px";
 }
@@ -211,11 +209,9 @@ function onDrag(e) {
 function stopDrag() {
     if (dragging === null) return;
 
-    const f = fishList[dragging];
-
-    // возвращаем "жизнь"
-    f.vx = (Math.random() - 0.5) * 2;
-    f.vy = (Math.random() - 0.5) * 2;
+    // возвращаем движение
+    fishList[dragging].vx = (Math.random() - 0.5) * 2;
+    fishList[dragging].vy = (Math.random() - 0.5) * 2;
 
     dragging = null;
 
