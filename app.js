@@ -1,38 +1,58 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
 
-let size = 1;
+let fishName = localStorage.getItem("fishName") || "";
+let size = Number(localStorage.getItem("fishSize")) || 1;
+
+const fish = document.getElementById("fish");
+const info = document.getElementById("info");
+
+// стартовая позиция
+let x = 100;
+let y = 100;
 
 render();
+moveFish();
 
+// создать рыбку
 function createFish() {
-  const name = document.getElementById("name").value;
+    fishName = document.getElementById("name").value;
 
-  localStorage.setItem("fishName", name);
-  localStorage.setItem("fishSize", size);
+    localStorage.setItem("fishName", fishName);
+    localStorage.setItem("fishSize", size);
 
-  render();
+    render();
 }
 
+// кормить
 function feed() {
-  size = Number(localStorage.getItem("fishSize")) || 1;
-  size += 1;
+    size += 1;
+    localStorage.setItem("fishSize", size);
 
-  localStorage.setItem("fishSize", size);
-
-  render();
+    render();
 }
 
+// показать инфо
 function render() {
-  const name = localStorage.getItem("fishName");
-  const size = localStorage.getItem("fishSize");
+    if (!fishName) {
+        info.innerText = "Создай рыбку 🐟";
+    } else {
+        info.innerText = `${fishName} | размер: ${size}`;
+    }
+}
 
-  const el = document.getElementById("fish");
+// движение рыбки
+function moveFish() {
+    setInterval(() => {
+        x += (Math.random() - 0.5) * 100;
+        y += (Math.random() - 0.5) * 100;
 
-  if (!name) {
-    el.innerText = "Создай свою рыбку 🐟";
-    return;
-  }
+        // границы экрана
+        x = Math.max(0, Math.min(window.innerWidth - 80, x));
+        y = Math.max(0, Math.min(window.innerHeight - 80, y));
 
-  el.innerText = `${name} (размер: ${size || 1})`;
+        fish.style.left = x + "px";
+        fish.style.top = y + "px";
+
+    }, 1000);
 }

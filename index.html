@@ -1,23 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Рыбка</title>
+  <title>🐟 Аквариум</title>
 
-  <!-- Telegram WebApp -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <!-- твой JS файл -->
   <script defer src="app.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: linear-gradient(to bottom, #4fc3f7, #01579b);
+    }
+
+    #aquarium {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #fish {
+      position: absolute;
+      width: 80px;
+      transition: left 1s linear, top 1s linear;
+    }
+
+    #ui {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-family: Arial;
+      z-index: 10;
+    }
+  </style>
 </head>
 
 <body>
-  <h1>🐟 Моя рыбка</h1>
+  <div id="aquarium">
+    
+    <div id="ui">
+      <input id="name" placeholder="Имя рыбки">
+      <button onclick="createFish()">Создать</button>
+      <button onclick="feed()">Кормить 🍎</button>
+      <p id="info"></p>
+    </div>
 
-  <input id="name" placeholder="Имя рыбки">
-  <button onclick="createFish()">Создать</button>
-
-  <p id="fish"></p>
-
-  <button onclick="feed()">Покормить</button>
+    <!-- рыбка -->
+    <img id="fish" src="https://i.imgur.com/4AiXzf8.png">
+    
+  </div>
 </body>
 </html>
