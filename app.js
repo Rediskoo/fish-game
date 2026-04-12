@@ -12,11 +12,9 @@ const panel = document.getElementById("panel");
 // --------------------
 updateAlgaeUI();
 
-// стартовые рыбы
 if (fishList.length === 0) {
     for (let i = 0; i < 5; i++) {
         fishList.push({
-            id: "fish_" + i,
             name: "Fish" + (i + 1),
             age: Math.floor(Math.random() * 5) + 1,
             x: Math.random() * window.innerWidth,
@@ -39,7 +37,7 @@ function save() {
 }
 
 // --------------------
-// UI UPDATE
+// UI
 // --------------------
 function updateAlgaeUI() {
     const el = document.getElementById("algaeCount");
@@ -56,7 +54,6 @@ function toggleResidents() {
     }
 
     panel.style.display = "block";
-
     panel.innerHTML = `<b>🐟 Жители (${fishList.length})</b><br><br>`;
 
     fishList.forEach(f => {
@@ -65,7 +62,7 @@ function toggleResidents() {
 }
 
 // --------------------
-// СБОР ВОДОРОСЛЕЙ
+// ВОДОРОСЛИ
 // --------------------
 function collectAlgae() {
     if (algae <= 0) {
@@ -97,25 +94,24 @@ function algaeGenerator() {
 }
 
 // --------------------
-// СОЗДАНИЕ РЫБ (ОДИН РАЗ)
+// RENDER (БЕЗ ID)
 // --------------------
 function render() {
     aquarium.innerHTML = "";
 
     fishList.forEach(f => {
-        const wrap = document.createElement("div");
-        wrap.className = "fish";
-        wrap.id = f.id;
+        const fish = document.createElement("div");
+        fish.className = "fish";
 
-        wrap.style.left = f.x + "px";
-        wrap.style.top = f.y + "px";
+        fish.style.left = f.x + "px";
+        fish.style.top = f.y + "px";
 
-        wrap.innerHTML = `
+        fish.innerHTML = `
             <div class="fish-name">${f.name}</div>
             <img src="https://i.imgur.com/4AiXzf8.png" width="50">
         `;
 
-        aquarium.appendChild(wrap);
+        aquarium.appendChild(fish);
     });
 
     aquarium.appendChild(panel);
@@ -132,22 +128,24 @@ function render() {
 }
 
 // --------------------
-// ПЛАВНОЕ ДВИЖЕНИЕ РЫБ
+// ПЛАВНОЕ ДВИЖЕНИЕ ВСЕХ РЫБ
 // --------------------
 function moveFish() {
     setInterval(() => {
-        fishList.forEach(f => {
+        const fishElements = document.querySelectorAll(".fish");
+
+        fishList.forEach((f, i) => {
+            const el = fishElements[i];
+            if (!el) return;
+
             const dx = (Math.random() - 0.5) * 70;
             const dy = (Math.random() - 0.5) * 70;
 
             f.x = Math.max(0, Math.min(window.innerWidth - 60, f.x + dx));
             f.y = Math.max(0, Math.min(window.innerHeight - 120, f.y + dy));
 
-            const el = document.getElementById(f.id);
-            if (el) {
-                el.style.left = f.x + "px";
-                el.style.top = f.y + "px";
-            }
+            el.style.left = f.x + "px";
+            el.style.top = f.y + "px";
         });
 
         save();
