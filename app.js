@@ -2,8 +2,15 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 
 let fishList = JSON.parse(localStorage.getItem("fishList")) || [];
+let algae = parseInt(localStorage.getItem("algae")) || 0;
 
-// максимум 100 рыб
+const aquarium = document.getElementById("aquarium");
+const panel = document.getElementById("panel");
+const algaeUI = document.getElementById("algaeCount");
+
+algaeUI.textContent = algae;
+
+// стартовые рыбы
 if (fishList.length === 0) {
     for (let i = 0; i < 5; i++) {
         fishList.push({
@@ -15,19 +22,21 @@ if (fishList.length === 0) {
     }
 }
 
-const aquarium = document.getElementById("aquarium");
-const panel = document.getElementById("panel");
-
 save();
 render();
 moveFish();
+algaeGenerator();
 
+// --------------------
+// СОХРАНЕНИЕ
+// --------------------
 function save() {
     localStorage.setItem("fishList", JSON.stringify(fishList));
+    localStorage.setItem("algae", algae);
 }
 
 // --------------------
-// ПОКАЗ ЖИТЕЛЕЙ
+// ЖИТЕЛИ
 // --------------------
 function toggleResidents() {
     if (panel.style.display === "block") {
@@ -37,11 +46,38 @@ function toggleResidents() {
 
     panel.style.display = "block";
 
-    panel.innerHTML = "<b>🐟 Жители аквариума</b><br><br>";
+    panel.innerHTML = `<b>🐟 Жители (${fishList.length})</b><br><br>`;
 
     fishList.forEach(f => {
         panel.innerHTML += `${f.name} — ${f.age} лет<br>`;
     });
+}
+
+// --------------------
+// ВОДОРОСЛИ (отправка в бот)
+// --------------------
+function collectAlgae() {
+    if (algae <= 0) return;
+
+    tg.sendData(JSON.stringify({
+        action: "collect_algae",
+        amount: algae
+    }));
+
+    algae = 0;
+    algaeUI.textContent = algae;
+    save();
+}
+
+// --------------------
+// ГЕНЕРАЦИЯ ВОДОРОСЛЕЙ
+// --------------------
+function algaeGenerator() {
+    setInterval(() => {
+        algae += fishList.length; // 1 рыба = 1 водоросль
+        algaeUI.textContent = algae;
+        save();
+    }, 5000);
 }
 
 // --------------------
@@ -64,35 +100,34 @@ function moveFish() {
 }
 
 // --------------------
-// ОТОБРАЖЕНИЕ
+// ОТРИСОВКА
 // --------------------
 function render() {
     aquarium.innerHTML = "";
 
-    // рисуем рыб
-    fishList.forEach((f, i) => {
-        const el = document.createElement("img");
+    fishList.forEach(f => {
+        const wrap = document.createElement("div");
+        wrap.className = "fish";
+        wrap.style.left = f.x + "px";
+        wrap.style.top = f.y + "px";
 
-        el.src = "https://i.imgur.com/4AiXzf8.png";
+        wrap.innerHTML = `
+            <div class="fish-name">${f.name}</div>
+            <img src="https://i.imgur.com/4AiXzf8.png" width="50">
+        `;
 
-        el.style.position = "absolute";
-        el.style.left = f.x + "px";
-        el.style.top = f.y + "px";
-        el.style.width = "50px";
-
-        aquarium.appendChild(el);
+        aquarium.appendChild(wrap);
     });
 
-    // панель (перерисуем)
     aquarium.appendChild(panel);
 
-    // кнопка
-    const btn = document.createElement("div");
-    btn.id = "btn";
+    const bottom = document.createElement("div");
+    bottom.id = "bottom";
 
-    btn.innerHTML = `
-        <button onclick="toggleResidents()">👥 Жители</button>
+    bottom.innerHTML = `
+        <button class="btn" onclick="toggleResidents()">👥 Жители</button>
+        <button class="btn" onclick="collectAlgae()">🌿 Водоросли (<span id="algaeCount">${algae}</span>)</button>
     `;
 
-    aquarium.appendChild(btn);
+    aquarium.appendChild(bottom);
 }

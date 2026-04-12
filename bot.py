@@ -1,149 +1,123 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, MessageHandler, ContextTypes, filters
 import json
 
 TOKEN = "ТВОЙ_ТОКЕН"
+WEBAPP_URL = "https://fish-game-delta.vercel.app/"
 
 users = {}
-
-WEBAPP_URL = "https://fish-game-delta.vercel.app/"
 
 # -------------------
 def get_user(user_id):
     if user_id not in users:
         users[user_id] = {
             "coins": 0,
-            "food": 0,
-            "fishes": []
+            "algae": 0,
+            "fishes": [
+                {"name": "Fish1", "age": 1, "type": "common"}
+            ]
         }
     return users[user_id]
 
 # -------------------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [
-        [InlineKeyboardButton("🐟 Играть", web_app=WebAppInfo(url=WEBAPP_URL))],
-        [InlineKeyboardButton("🏪 Магазин", callback_data="shop")]
-    ]
+    user = get_user(update.effective_user.id)
 
     await update.message.reply_text(
-        "Добро пожаловать в аквариум 🐟",
-        reply_markup=InlineKeyboardMarkup(keyboard)
+        f"🐟 Привет, {update.effective_user.first_name}!\n"
+        f"Добро пожаловать в твой аквариум.",
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🎮 Открыть аквариум", web_app=WebAppInfo(WEBAPP_URL))],
+            [InlineKeyboardButton("👤 Профиль", callback_data="profile")]
+        ])
     )
 
 # -------------------
-# МАГАЗИН
+async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query
+    user = get_user(q.from_user.id)
+
+    keyboard = [
+        [InlineKeyboardButton("🏪 Магазин", callback_data="shop")],
+        [InlineKeyboardButton("🐟 Мои рыбки", callback_data="my_fish")],
+        [InlineKeyboardButton("🍎 Купить корм", callback_data="buy_food")]
+    ]
+
+    text = (
+        f"👤 Профиль\n"
+        f"💰 coins: {user['coins']}\n"
+        f"🌿 algae: {user['algae']}\n"
+        f"🐟 fishes: {len(user['fishes'])}"
+    )
+
+    await q.message.edit_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
+
 # -------------------
 async def shop(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     user = get_user(q.from_user.id)
 
     keyboard = [
-        [InlineKeyboardButton("🐟 Купить рыбку (10 coins)", callback_data="buy_fish")],
-        [InlineKeyboardButton("🍎 Купить корм (5 coins = 10 еды)", callback_data="buy_food")],
-        [InlineKeyboardButton("⬅️ Назад", callback_data="back")]
+        [InlineKeyboardButton("🐟 Купить рыбу (10 coins)", callback_data="buy_fish")],
+        [InlineKeyboardButton("⬅️ Назад", callback_data="profile")]
     ]
 
     await q.message.edit_text(
-        f"🏪 Магазин\n💰 coins: {user['coins']}\n🍎 food: {user['food']}",
+        f"🏪 Магазин\n💰 coins: {user['coins']}",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
-# -------------------
-# КУПИТЬ РЫБУ
 # -------------------
 async def buy_fish(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     user = get_user(q.from_user.id)
 
     if user["coins"] < 10:
-        await q.answer("Недостаточно coins ❌", show_alert=True)
-        return
-
-    user["coins"] -= 10
-    user["fishes"].append({
-        "name": f"Fish{len(user['fishes'])+1}",
-        "age": 1
-    })
-
-    await q.answer("Рыбка куплена 🐟")
-    await shop(update, context)
-
-# -------------------
-# КУПИТЬ ЕДУ
-# -------------------
-async def buy_food(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    q = update.callback_query
-    user = get_user(q.from_user.id)
-
-    if user["coins"] < 5:
         await q.answer("Нет coins ❌", show_alert=True)
         return
 
-    user["coins"] -= 5
-    user["food"] += 10
+    user["coins"] -= 10
+    user["fishes"].append({"name": "NewFish", "age": 1, "type": "common"})
 
-    await q.answer("Корм куплен 🍎")
-    await shop(update, context)
-
-# -------------------
-# КОРМЛЕНИЕ
-# -------------------
-async def feed_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    q = update.callback_query
-    user = get_user(q.from_user.id)
-
-    keyboard = []
-
-    for i, fish in enumerate(user["fishes"]):
-        keyboard.append([
-            InlineKeyboardButton(
-                f"{fish['name']}",
-                callback_data=f"feed_{i}"
-            )
-        ])
-
-    await q.message.edit_text(
-        "🐟 Выбери рыбу для кормления",
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
+    await q.answer("Рыба куплена 🐟")
+    await profile(update, context)
 
 # -------------------
-# ОБРАБОТКА КНОПОК
+async def webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = get_user(update.effective_user.id)
+
+    data = json.loads(update.message.web_app_data.data)
+
+    if data["action"] == "collect_algae":
+        amount = data["amount"]
+
+        user["algae"] += amount
+        coins = amount // 10
+        user["coins"] += coins
+
+        await update.message.reply_text(
+            f"🌿 Ты собрал {amount} водорослей!\n"
+            f"💰 Получено {coins} coins"
+        )
+
 # -------------------
 async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
-    user = get_user(q.from_user.id)
 
-    data = q.data
+    if q.data == "profile":
+        await profile(update, context)
 
-    if data == "shop":
+    elif q.data == "shop":
         await shop(update, context)
 
-    elif data == "buy_fish":
+    elif q.data == "buy_fish":
         await buy_fish(update, context)
-
-    elif data == "buy_food":
-        await buy_food(update, context)
-
-    elif data == "feed":
-        await feed_menu(update, context)
-
-    elif data.startswith("feed_"):
-        idx = int(data.split("_")[1])
-
-        if user["food"] <= 0:
-            await q.answer("Нет еды ❌", show_alert=True)
-            return
-
-        user["food"] -= 1
-        user["fishes"][idx]["age"] += 1
-
-        await q.answer("Покормил 🐟")
 
 # -------------------
 app = ApplicationBuilder().token(TOKEN).build()
 
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CallbackQueryHandler(buttons))
+app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, webapp_data))
 
 app.run_polling()
