@@ -1,11 +1,8 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import { getPrisma } from "@/lib/db/prisma";
 import { requireEnv } from "@/lib/env";
-import { PlayerService } from "@/server/services/player.service";
 
 const sessionCookieName = "aquarium_session";
-const sharedGuestTelegramId = 1000001;
 
 function getSecret() {
   return new TextEncoder().encode(requireEnv("JWT_SECRET"));
@@ -33,23 +30,14 @@ export async function setSessionCookie(token: string) {
 export async function getSessionUserId() {
   const cookieStore = await cookies();
   const token = cookieStore.get(sessionCookieName)?.value;
-  if (!token) return getSharedGuestUserId();
+  if (!token) return null;
 
   try {
     const result = await jwtVerify(token, getSecret());
     return result.payload.userId as string;
   } catch {
-    return getSharedGuestUserId();
+    return null;
   }
-}
-
-async function getSharedGuestUserId() {
-  const snapshot = await new PlayerService(getPrisma()).syncTelegramUser({
-    id: sharedGuestTelegramId,
-    first_name: "Guest",
-    username: "shared_aquarist"
-  });
-  return snapshot.user.id;
 }
 
 export async function clearSessionCookie() {

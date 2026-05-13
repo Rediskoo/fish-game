@@ -18,7 +18,7 @@ export function ProfileScreen() {
         <Stat icon={<Trophy className="h-5 w-5" />} label="Уровень" value={player.data?.aquarium.level ?? 1} />
       </Panel>
       <Panel>
-        <div className="text-sm text-cyan-100/60">Общий аккаунт</div>
+        <div className="text-sm text-cyan-100/60">Telegram User ID</div>
         <div className="font-mono text-lg">{player.data?.user.telegramId ?? "Загрузка..."}</div>
       </Panel>
     </div>
