@@ -9,7 +9,7 @@ export class RewardsService {
 
   async claimDaily(userId: string) {
     const rewardDate = startOfUtcDay();
-    const amount = 25;
+    const amount = 300;
 
     return this.db.$transaction(async (tx) => {
       const existing = await tx.dailyReward.findUnique({

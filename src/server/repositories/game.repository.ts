@@ -62,7 +62,7 @@ export class GameRepository {
         firstName: input.firstName,
         lastName: input.lastName,
         photoUrl: input.photoUrl,
-        currency: 25,
+        currency: 300,
         aquarium: { create: { name: `${input.firstName ?? "My"} Aquarium` } },
         inventory: { create: { food: 5 } },
         fish: {

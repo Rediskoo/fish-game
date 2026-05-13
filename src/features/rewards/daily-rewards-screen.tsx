@@ -17,7 +17,7 @@ export function DailyRewardsScreen() {
       <Panel className="space-y-4">
         <Gift className="h-10 w-10 text-yellow-200" />
         <div>
-          <div className="text-2xl font-black">+25 водорослей</div>
+          <div className="text-2xl font-black">+300 водорослей</div>
           <div className="text-sm text-cyan-100/60">Можно забрать один раз в UTC-день.</div>
         </div>
         <Button disabled={daily.isPending} onClick={() => daily.mutate()}>
