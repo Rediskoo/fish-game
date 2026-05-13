@@ -1,0 +1,163 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum FishSpecies {
+  GOLDFISH
+  GUPPY
+  BETTA
+  NEON_TETRA
+  ANGELFISH
+}
+
+enum Rarity {
+  COMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+enum TransactionType {
+  INCOME
+  PURCHASE_FISH
+  PURCHASE_FOOD
+  FEED
+  DAILY_REWARD
+  ACHIEVEMENT
+}
+
+model User {
+  id                String        @id @default(cuid())
+  telegramId        BigInt        @unique
+  username          String?
+  firstName         String?
+  lastName          String?
+  photoUrl          String?
+  currency          Int           @default(0)
+  lastLoginAt       DateTime      @default(now())
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  aquarium          Aquarium?
+  fish              Fish[]
+  inventory         Inventory?
+  transactions      Transaction[]
+  dailyRewards      DailyReward[]
+  achievements      UserAchievement[]
+
+  @@map("users")
+}
+
+model Aquarium {
+  id              String   @id @default(cuid())
+  ownerId         String   @unique
+  name            String   @default("My Aquarium")
+  level           Int      @default(1)
+  experience      Int      @default(0)
+  lastIncomeAt    DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  owner           User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@map("aquariums")
+}
+
+model FishType {
+  id                 String      @id @default(cuid())
+  species            FishSpecies
+  rarity             Rarity
+  displayName        String
+  dropChanceBps      Int
+  incomePerSecond    Float
+  swimSpeed          Float
+  color              String
+  glowColor          String
+  createdAt          DateTime    @default(now())
+  fish               Fish[]
+
+  @@unique([species, rarity])
+  @@map("fish_types")
+}
+
+model Fish {
+  id                 String      @id @default(cuid())
+  ownerId            String
+  fishTypeId         String
+  name               String
+  incomeMultiplier   Float       @default(1)
+  swimSpeed          Float
+  hunger             Int         @default(0)
+  animationState     Json        @default("{}")
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  owner              User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  fishType           FishType    @relation(fields: [fishTypeId], references: [id])
+
+  @@index([ownerId])
+  @@map("fish")
+}
+
+model Inventory {
+  id          String   @id @default(cuid())
+  ownerId     String   @unique
+  food        Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@map("inventory")
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  ownerId     String
+  type        TransactionType
+  amount      Int
+  metadata    Json            @default("{}")
+  createdAt   DateTime        @default(now())
+  owner       User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId, createdAt])
+  @@map("transactions")
+}
+
+model DailyReward {
+  id          String   @id @default(cuid())
+  ownerId     String
+  rewardDate  DateTime
+  amount      Int
+  claimedAt   DateTime @default(now())
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@unique([ownerId, rewardDate])
+  @@map("daily_rewards")
+}
+
+model Achievement {
+  id          String            @id @default(cuid())
+  key         String            @unique
+  title       String
+  description String
+  reward      Int
+  createdAt   DateTime          @default(now())
+  users       UserAchievement[]
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id             String      @id @default(cuid())
+  ownerId        String
+  achievementId  String
+  unlockedAt     DateTime    @default(now())
+  owner          User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  achievement    Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([ownerId, achievementId])
+  @@map("user_achievements")
+}
