@@ -1,13 +1,8 @@
 {
+  "framework": "nextjs",
   "functions": {
-    "api/webhook.py": {
-      "runtime": "python3.12"
+    "src/app/api/**/route.ts": {
+      "maxDuration": 30
     }
-  },
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "api/webhook.py"
-    }
-  ]
+  }
 }
