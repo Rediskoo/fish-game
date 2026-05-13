@@ -32,13 +32,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl text-[10px] text-sky-100/60 transition",
+                  "mx-auto flex h-12 w-12 items-center justify-center rounded-xl text-sky-100/60 transition",
                   active && "bg-cyan-300/16 text-cyan-100"
                 )}
                 aria-label={item.label}
+                title={item.label}
               >
                 <Icon className="h-5 w-5" />
-                <span className="w-full truncate text-center">{item.label}</span>
+                <span className="sr-only">{item.label}</span>
               </Link>
             );
           })}

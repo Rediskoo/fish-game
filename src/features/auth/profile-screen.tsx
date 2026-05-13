@@ -1,11 +1,14 @@
 "use client";
 
-import { Fish, Trophy } from "lucide-react";
+import { Fish, Send, Trophy } from "lucide-react";
 import { Panel } from "@/components/ui/panel";
 import { usePlayer } from "@/features/auth/use-player";
 
 export function ProfileScreen() {
   const player = usePlayer();
+  const telegramBotUsername = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME?.replace(/^@/, "").trim();
+  const telegramAuthUrl = telegramBotUsername ? `https://t.me/${telegramBotUsername}` : null;
+  const needsAuth = player.isError || !player.data;
 
   return (
     <div className="space-y-4 p-4">
@@ -20,6 +23,17 @@ export function ProfileScreen() {
       <Panel>
         <div className="text-sm text-cyan-100/60">Telegram User ID</div>
         <div className="font-mono text-lg">{player.data?.user.telegramId ?? "Mini App auth required"}</div>
+        {needsAuth && telegramAuthUrl ? (
+          <a
+            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-300 px-4 py-3 font-bold text-slate-950"
+            href={telegramAuthUrl}
+            rel="noreferrer"
+            target="_blank"
+          >
+            <Send className="h-4 w-4" />
+            Войти через Telegram
+          </a>
+        ) : null}
       </Panel>
     </div>
   );
