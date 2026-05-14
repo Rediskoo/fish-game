@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
 import { QueryProvider } from "@/components/layout/query-provider";
