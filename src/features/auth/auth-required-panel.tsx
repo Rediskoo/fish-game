@@ -5,7 +5,11 @@ import { Panel } from "@/components/ui/panel";
 
 export function AuthRequiredPanel() {
   const telegramBotUsername = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME?.replace(/^@/, "").trim();
-  const telegramAuthUrl = telegramBotUsername ? `https://t.me/${telegramBotUsername}` : null;
+  const miniAppShortName = process.env.NEXT_PUBLIC_TELEGRAM_MINI_APP_SHORT_NAME?.replace(/^\//, "").trim();
+  const telegramMiniAppUrl = process.env.NEXT_PUBLIC_TELEGRAM_MINI_APP_URL?.trim();
+  const telegramAuthUrl =
+    telegramMiniAppUrl ??
+    (telegramBotUsername && miniAppShortName ? `https://t.me/${telegramBotUsername}/${miniAppShortName}` : null);
 
   return (
     <div className="flex min-h-[calc(100dvh-96px-var(--safe-top)-var(--safe-bottom))] items-center p-4">
@@ -25,11 +29,11 @@ export function AuthRequiredPanel() {
             target="_blank"
           >
             <Send className="h-4 w-4" />
-            Открыть в Telegram
+            Открыть Mini App
           </a>
         ) : (
           <p className="rounded-xl border border-yellow-200/20 bg-yellow-200/10 p-3 text-sm text-yellow-100">
-            Не задан NEXT_PUBLIC_TELEGRAM_BOT_USERNAME.
+            Не задана ссылка на Telegram Mini App.
           </p>
         )}
       </Panel>
