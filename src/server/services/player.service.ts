@@ -1,4 +1,4 @@
-import { TransactionType, type PrismaClient } from "@prisma/client";
+import { FishSpecies, Rarity, TransactionType, type PrismaClient } from "@prisma/client";
 import { GameRepository } from "@/server/repositories/game.repository";
 import type { TelegramInitUser } from "@/lib/telegram/validate-init-data";
 import type { AquariumSnapshot } from "@/types/game";
@@ -36,7 +36,7 @@ export class PlayerService {
   }
 
   async getSnapshot(userId: string): Promise<AquariumSnapshot> {
-    const snapshot = await this.repo.findUserSnapshot(userId);
+    const snapshot = await this.ensurePlayerState(userId);
     if (!snapshot?.aquarium || !snapshot.inventory) {
       throw new Error("Player state is incomplete");
     }
@@ -74,6 +74,66 @@ export class PlayerService {
       incomePerSecond,
       offlineIncome: 0
     };
+  }
+
+  private async ensurePlayerState(userId: string) {
+    let snapshot = await this.repo.findUserSnapshot(userId);
+    if (!snapshot) {
+      throw new Error("Player not found");
+    }
+
+    if (snapshot.aquarium && snapshot.inventory && snapshot.fish.length > 0) {
+      return snapshot;
+    }
+
+    const playerName = snapshot.firstName ?? "My";
+    await this.db.$transaction(async (tx) => {
+      const starterType = await tx.fishType.upsert({
+        where: { species_rarity: { species: FishSpecies.GOLDFISH, rarity: Rarity.COMMON } },
+        create: {
+          species: FishSpecies.GOLDFISH,
+          rarity: Rarity.COMMON,
+          displayName: "Common Goldfish",
+          dropChanceBps: 7000,
+          incomePerSecond: 1,
+          swimSpeed: 58,
+          color: "#ffb02e",
+          glowColor: "#9ee7ff"
+        },
+        update: {}
+      });
+
+      await tx.aquarium.upsert({
+        where: { ownerId: userId },
+        create: { ownerId: userId, name: `${playerName} Aquarium` },
+        update: {}
+      });
+
+      await tx.inventory.upsert({
+        where: { ownerId: userId },
+        create: { ownerId: userId, food: 5 },
+        update: {}
+      });
+
+      const fishCount = await tx.fish.count({ where: { ownerId: userId } });
+      if (fishCount === 0) {
+        await tx.fish.create({
+          data: {
+            ownerId: userId,
+            fishTypeId: starterType.id,
+            name: "Bubbles",
+            swimSpeed: starterType.swimSpeed,
+            animationState: { x: 0.3, y: 0.5, direction: 1 }
+          }
+        });
+      }
+    });
+
+    snapshot = await this.repo.findUserSnapshot(userId);
+    if (!snapshot) {
+      throw new Error("Player not found");
+    }
+    return snapshot;
   }
 
   async buyFood(userId: string, amount: number) {
