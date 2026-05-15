@@ -29,12 +29,6 @@ export function AquariumHud() {
           <Metric icon={<Utensils className="h-4 w-4" />} label="Корм" value={(player.data?.inventory.food ?? 0).toString()} />
         </div>
       </header>
-      <!--
-      <div className="glass pointer-events-auto mb-2 rounded-2xl p-3 text-sm text-cyan-50/80">
-        <span className="font-semibold text-cyan-100">+{(player.data?.incomePerSecond ?? 0).toFixed(1)}/сек</span>
-        <span className="ml-2 text-cyan-100/55">offline income начисляется при возвращении</span>
-      </div>
-      -->
     </div>
   );
 }
