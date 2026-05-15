@@ -35,7 +35,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <TelegramBootstrap />
       <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col">{content}</div>
       <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-md px-3 pb-[calc(10px+var(--safe-bottom))]">
-        <div className="glass grid h-16 grid-cols-6 rounded-2xl px-1">
+        <div className="glass flex h-16 items-center justify-around rounded-2xl px-1">
           {navItems.map((item) => {
             const active = pathname === item.href;
             const Icon = item.icon;
