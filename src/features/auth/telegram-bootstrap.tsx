@@ -5,6 +5,13 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api/client";
 import type { AquariumSnapshot } from "@/types/game";
 
+/**
+ * Debug
+ * false = debug-окно скрыто
+ * true = debug-окно снова видно
+ */
+const DEBUG_TELEGRAM_AUTH = false;
+
 declare global {
   interface Window {
     Telegram?: {
@@ -103,6 +110,10 @@ export function TelegramBootstrap() {
       window.clearInterval(interval);
     };
   }, []);
+  
+  if (!DEBUG_TELEGRAM_AUTH) {
+    return null;
+  }
 
   return (
     <pre className="fixed left-2 top-20 z-[9999] max-w-[95vw] whitespace-pre-wrap rounded bg-black/80 p-2 text-xs text-white">
