@@ -37,12 +37,12 @@ export function TelegramBootstrap() {
         body: JSON.stringify({ initData })
       }),
     onSuccess: (snapshot) => {
-      setDebug("✅ Telegram auth success");
+      setDebug("Telegram auth success");
       queryClient.setQueryData(["snapshot"], snapshot);
     },
     onError: (error) => {
       setDebug(
-        "❌ Telegram auth error:\n" +
+        "Telegram auth error:\n" +
           (error instanceof Error ? error.message : String(error))
       );
     }
