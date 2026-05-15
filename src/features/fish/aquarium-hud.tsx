@@ -15,7 +15,6 @@ export function AquariumHud() {
       <header className="glass pointer-events-auto rounded-2xl p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.18em] text-cyan-100/55">Aquarium Idle</p>
             <h1 className="text-xl font-black text-cyan-50 text-glow">
               {player.data?.aquarium.name ?? "Telegram Aquarium"}
             </h1>
@@ -25,16 +24,17 @@ export function AquariumHud() {
           </div>
         </div>
         <div className="mt-4 grid grid-cols-3 gap-2">
-          <Metric icon={<Coins className="h-4 w-4" />} label="водоросль" value={Math.floor(optimisticCurrency).toString()} />
-          <Metric icon={<Fish className="h-4 w-4" />} label="рыбки" value={(player.data?.fish.length ?? 0).toString()} />
-          <Metric icon={<Utensils className="h-4 w-4" />} label="корм" value={(player.data?.inventory.food ?? 0).toString()} />
+          <Metric icon={<Coins className="h-4 w-4" />} label="Водоросль" value={Math.floor(optimisticCurrency).toString()} />
+          <Metric icon={<Fish className="h-4 w-4" />} label="Рыбки" value={(player.data?.fish.length ?? 0).toString()} />
+          <Metric icon={<Utensils className="h-4 w-4" />} label="Корм" value={(player.data?.inventory.food ?? 0).toString()} />
         </div>
       </header>
-
+      <!--
       <div className="glass pointer-events-auto mb-2 rounded-2xl p-3 text-sm text-cyan-50/80">
         <span className="font-semibold text-cyan-100">+{(player.data?.incomePerSecond ?? 0).toFixed(1)}/сек</span>
         <span className="ml-2 text-cyan-100/55">offline income начисляется при возвращении</span>
       </div>
+      -->
     </div>
   );
 }
