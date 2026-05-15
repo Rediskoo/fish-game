@@ -10,7 +10,7 @@ import { usePlayer } from "@/features/auth/use-player";
 
 const navItems = [
   { href: "/aquarium", label: "Аквариум", icon: Home },
-  { href: "/marketplace", label: "Маркет", icon: ShoppingBag },
+  { href: "/marketplace", label: "Маркет", icon: Fish },
   { href: "/inventory", label: "Корм", icon: Package },
   { href: "/daily-rewards", label: "Награды", icon: Gift },
   { href: "/profile", label: "Профиль", icon: User },
