@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
-import type { AquariumSnapshot, FriendsPayload } from "@/types/game";
+import type { AcquiredFish, AquariumSnapshot, FriendsPayload } from "@/types/game";
 
 export function useFriends() {
   return useQuery({
@@ -53,6 +53,21 @@ export function useSendFriendGift() {
       api<{ friends: FriendsPayload; snapshot: AquariumSnapshot }>("/api/friends/gift", {
         method: "POST",
         body: JSON.stringify(input)
+      }),
+    onSuccess: ({ friends, snapshot }) => {
+      queryClient.setQueryData(["friends"], friends);
+      queryClient.setQueryData(["snapshot"], snapshot);
+    }
+  });
+}
+
+export function useClaimFriendGift() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (giftId: string) =>
+      api<{ friends: FriendsPayload; snapshot: AquariumSnapshot; acquiredFish: AcquiredFish | null }>("/api/friends/gift", {
+        method: "PATCH",
+        body: JSON.stringify({ giftId })
       }),
     onSuccess: ({ friends, snapshot }) => {
       queryClient.setQueryData(["friends"], friends);

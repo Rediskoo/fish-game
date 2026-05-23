@@ -223,10 +223,12 @@ model FriendGift {
   receiverId  String
   type        GiftType
   amount      Int      @default(0)
+  claimedAt   DateTime?
   createdAt   DateTime @default(now())
   sender      User     @relation("SentFriendGifts", fields: [senderId], references: [id], onDelete: Cascade)
   receiver    User     @relation("ReceivedFriendGifts", fields: [receiverId], references: [id], onDelete: Cascade)
 
   @@index([senderId, receiverId, createdAt])
+  @@index([receiverId, claimedAt])
   @@map("friend_gifts")
 }

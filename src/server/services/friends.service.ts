@@ -1,6 +1,6 @@
 import { FriendRequestStatus, GiftType, TransactionType, type FishType, type PrismaClient } from "@prisma/client";
 import type { FriendRequestView, FriendView } from "@/types/game";
-import { addAquariumExperience } from "@/server/services/fish.service";
+import { addAquariumExperience, fishToAcquiredView, fishToView } from "@/server/services/fish.service";
 import { fishCost } from "@/server/services/marketplace.service";
 
 const algaeGiftAmounts: Partial<Record<GiftType, number>> = {
@@ -27,11 +27,24 @@ function toFriendView(friend: {
     username: string | null;
     firstName: string | null;
     aquarium: { level: number } | null;
-    fish: Array<{ id: string }>;
+    fish: Array<Parameters<typeof fishToView>[0]>;
     receivedGifts: Array<{ createdAt: Date }>;
+    sentGifts: Array<{
+      id: string;
+      type: GiftType;
+      amount: number;
+      createdAt: Date;
+      sender: {
+        id: string;
+        telegramId: bigint;
+        username: string | null;
+        firstName: string | null;
+      };
+    }>;
   };
   createdAt: Date;
 }): FriendView {
+  const pendingGift = friend.friend.sentGifts[0] ?? null;
   return {
     id: friend.friend.id,
     telegramId: friend.friend.telegramId.toString(),
@@ -40,7 +53,22 @@ function toFriendView(friend: {
     fishCount: friend.friend.fish.length,
     level: friend.friend.aquarium?.level ?? 1,
     friendsSince: friend.createdAt.toISOString(),
-    lastGiftAt: friend.friend.receivedGifts[0]?.createdAt.toISOString() ?? null
+    lastGiftAt: friend.friend.receivedGifts[0]?.createdAt.toISOString() ?? null,
+    pendingGift: pendingGift
+      ? {
+          id: pendingGift.id,
+          type: pendingGift.type,
+          amount: pendingGift.amount,
+          createdAt: pendingGift.createdAt.toISOString(),
+          sender: {
+            id: pendingGift.sender.id,
+            telegramId: pendingGift.sender.telegramId.toString(),
+            username: pendingGift.sender.username,
+            firstName: pendingGift.sender.firstName
+          }
+        }
+      : null,
+    fish: friend.friend.fish.map(fishToView)
   };
 }
 
@@ -74,9 +102,17 @@ export class FriendsService {
           friend: {
             include: {
               aquarium: true,
-              fish: { select: { id: true } },
+              fish: { include: { fishType: true }, orderBy: { createdAt: "asc" } },
               receivedGifts: {
                 where: { senderId: userId },
+                orderBy: { createdAt: "desc" },
+                take: 1
+              },
+              sentGifts: {
+                where: { receiverId: userId, claimedAt: null },
+                include: {
+                  sender: { select: { id: true, telegramId: true, username: true, firstName: true } }
+                },
                 orderBy: { createdAt: "desc" },
                 take: 1
               }
@@ -183,32 +219,58 @@ export class FriendsService {
 
       await tx.user.update({ where: { id: userId }, data: { currency: { decrement: cost } } });
 
-      if (type === GiftType.FISH_CASE) {
-        const types = await tx.fishType.findMany();
-        const selected = pickWeighted(types);
-        await tx.fish.create({
-          data: {
-            ownerId: friendId,
-            fishTypeId: selected.id,
-            name: selected.displayName.split(" ").at(-1) ?? "Fish",
-            swimSpeed: selected.swimSpeed,
-            animationState: { x: Math.random(), y: Math.random(), direction: Math.random() > 0.5 ? 1 : -1 }
-          }
-        });
-        await addAquariumExperience(tx, friendId, selected.experienceReward);
-      } else {
-        await tx.user.update({ where: { id: friendId }, data: { currency: { increment: amount } } });
-      }
-
       await tx.friendGift.create({ data: { senderId: userId, receiverId: friendId, type, amount } });
       await tx.transaction.create({
         data: { ownerId: userId, type: TransactionType.GIFT_SENT, amount: -cost, metadata: { friendId, giftType: type } }
       });
-      await tx.transaction.create({
-        data: { ownerId: friendId, type: TransactionType.GIFT_RECEIVED, amount, metadata: { senderId: userId, giftType: type } }
-      });
     });
 
     return this.getFriendsPayload(userId);
+  }
+
+  async claimGift(userId: string, giftId: string) {
+    const result = await this.db.$transaction(async (tx) => {
+      const gift = await tx.friendGift.findFirstOrThrow({
+        where: { id: giftId, receiverId: userId, claimedAt: null }
+      });
+      const now = new Date();
+      let acquiredFish = null;
+
+      if (gift.type === GiftType.FISH_CASE) {
+        const types = await tx.fishType.findMany();
+        const selected = pickWeighted(types);
+        const fish = await tx.fish.create({
+          data: {
+            ownerId: userId,
+            fishTypeId: selected.id,
+            name: selected.displayName.split(" ").at(-1) ?? "Fish",
+            swimSpeed: selected.swimSpeed,
+            animationState: { x: Math.random(), y: Math.random(), direction: Math.random() > 0.5 ? 1 : -1 }
+          },
+          include: { fishType: true }
+        });
+        await addAquariumExperience(tx, userId, selected.experienceReward);
+        acquiredFish = fishToAcquiredView(fish);
+      } else {
+        await tx.user.update({ where: { id: userId }, data: { currency: { increment: gift.amount } } });
+      }
+
+      await tx.friendGift.update({ where: { id: gift.id }, data: { claimedAt: now } });
+      await tx.transaction.create({
+        data: {
+          ownerId: userId,
+          type: TransactionType.GIFT_RECEIVED,
+          amount: gift.type === GiftType.FISH_CASE ? 0 : gift.amount,
+          metadata: { senderId: gift.senderId, giftType: gift.type, giftId: gift.id }
+        }
+      });
+
+      return { acquiredFish };
+    });
+
+    return {
+      friends: await this.getFriendsPayload(userId),
+      acquiredFish: result.acquiredFish
+    };
   }
 }

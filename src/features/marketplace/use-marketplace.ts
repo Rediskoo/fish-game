@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
-import type { AquariumSnapshot, MarketplaceFish } from "@/types/game";
+import type { AcquiredFish, AquariumSnapshot, MarketplaceFish } from "@/types/game";
 
 export function useMarketplace() {
   return useQuery({
@@ -15,10 +15,10 @@ export function usePurchase() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: { item: "fish" | "food"; amount?: number }) =>
-      api<AquariumSnapshot>("/api/marketplace/purchase", {
+      api<{ snapshot: AquariumSnapshot; acquiredFish: AcquiredFish | null }>("/api/marketplace/purchase", {
         method: "POST",
         body: JSON.stringify(input)
       }),
-    onSuccess: (snapshot) => queryClient.setQueryData(["snapshot"], snapshot)
+    onSuccess: ({ snapshot }) => queryClient.setQueryData(["snapshot"], snapshot)
   });
 }

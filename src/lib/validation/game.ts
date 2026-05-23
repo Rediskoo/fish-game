@@ -26,3 +26,7 @@ export const friendGiftSchema = z.object({
   friendId: z.string().cuid(),
   type: z.enum(GiftType)
 });
+
+export const claimFriendGiftSchema = z.object({
+  giftId: z.string().cuid()
+});

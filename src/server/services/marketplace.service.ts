@@ -1,5 +1,5 @@
 import { TransactionType, type FishType, type PrismaClient } from "@prisma/client";
-import { addAquariumExperience } from "@/server/services/fish.service";
+import { addAquariumExperience, fishToAcquiredView } from "@/server/services/fish.service";
 
 export const fishCost = 100;
 
@@ -56,7 +56,7 @@ export class MarketplaceService {
           }
         }
       });
-      return fish;
+      return fishToAcquiredView(fish);
     });
   }
 }

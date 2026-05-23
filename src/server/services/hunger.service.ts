@@ -1,6 +1,6 @@
 import { type Prisma, type PrismaClient } from "@prisma/client";
 
-const feedAmount = 100;
+const feedAmount = 10;
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 

@@ -59,6 +59,25 @@ export type MarketplaceFish = {
   glowColor: string;
 };
 
+export type AcquiredFish = FishView & {
+  displayName: string;
+  dropChanceBps: number;
+  message: string;
+};
+
+export type PendingGiftView = {
+  id: string;
+  type: GiftType;
+  amount: number;
+  createdAt: string;
+  sender: {
+    id: string;
+    telegramId: string;
+    username: string | null;
+    firstName: string | null;
+  };
+};
+
 export type FriendView = {
   id: string;
   telegramId: string;
@@ -68,6 +87,8 @@ export type FriendView = {
   level: number;
   friendsSince: string;
   lastGiftAt: string | null;
+  pendingGift: PendingGiftView | null;
+  fish: FishView[];
 };
 
 export type FriendRequestView = {

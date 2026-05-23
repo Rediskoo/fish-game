@@ -1,10 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { Fish, ShoppingBag, Utensils } from "lucide-react";
+import { FishRevealModal } from "@/components/fish/fish-reveal-modal";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { usePlayer } from "@/features/auth/use-player";
+import { useSellFish } from "@/features/inventory/use-fish-actions";
 import { useMarketplace, usePurchase } from "@/features/marketplace/use-marketplace";
+import type { AcquiredFish } from "@/types/game";
 
 const rarityLabel: Record<string, string> = {
   COMMON: "Common",
@@ -17,6 +21,8 @@ export function MarketplaceScreen() {
   const player = usePlayer();
   const marketplace = useMarketplace();
   const purchase = usePurchase();
+  const sellFish = useSellFish();
+  const [revealedFish, setRevealedFish] = useState<AcquiredFish | null>(null);
 
   return (
     <div className="space-y-4 p-4">
@@ -31,7 +37,17 @@ export function MarketplaceScreen() {
             <div className="text-sm text-cyan-100/65">Баланс</div>
             <div className="text-2xl font-black">{player.data?.user.currency ?? 0} водорослей</div>
           </div>
-          <Button disabled={purchase.isPending} onClick={() => purchase.mutate({ item: "fish" })}>
+          <Button
+            disabled={purchase.isPending}
+            onClick={() =>
+              purchase.mutate(
+                { item: "fish" },
+                {
+                  onSuccess: ({ acquiredFish }) => setRevealedFish(acquiredFish)
+                }
+              )
+            }
+          >
             <ShoppingBag className="h-4 w-4" /> Купить рыбку · 100
           </Button>
         </div>
@@ -64,6 +80,20 @@ export function MarketplaceScreen() {
           </div>
         ))}
       </div>
+
+      {revealedFish ? (
+        <FishRevealModal
+          fish={revealedFish}
+          isBusy={sellFish.isPending}
+          error={sellFish.error?.message}
+          onClose={() => setRevealedFish(null)}
+          onSell={() =>
+            sellFish.mutate(revealedFish.id, {
+              onSuccess: () => setRevealedFish(null)
+            })
+          }
+        />
+      ) : null}
     </div>
   );
 }

@@ -4,10 +4,11 @@ import { useEffect, useRef } from "react";
 import type { Container, Text } from "pixi.js";
 import type { FishView } from "@/types/game";
 import { createFishAgent, updateFishAgent, type FishAgent } from "@/components/aquarium/fish-ai";
+import { cn } from "@/lib/cn";
 
 type PixiModule = typeof import("pixi.js");
 
-export function AquariumRenderer({ fish }: { fish: FishView[] }) {
+export function AquariumRenderer({ fish, className }: { fish: FishView[]; className?: string }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const fishRef = useRef(fish);
   fishRef.current = fish;
@@ -32,7 +33,7 @@ export function AquariumRenderer({ fish }: { fish: FishView[] }) {
     };
   }, []);
 
-  return <div ref={hostRef} className="h-full min-h-[540px] w-full overflow-hidden rounded-b-[28px]" />;
+  return <div ref={hostRef} className={cn("h-full min-h-[540px] w-full overflow-hidden rounded-b-[28px]", className)} />;
 }
 
 async function createScene(

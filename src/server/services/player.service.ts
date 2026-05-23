@@ -4,6 +4,7 @@ import type { TelegramInitUser } from "@/lib/telegram/validate-init-data";
 import type { AquariumSnapshot } from "@/types/game";
 import { applyHungerDecay } from "@/server/services/hunger.service";
 import { calculateFishIncome, claimOfflineIncome } from "@/server/services/income.service";
+import { fishToView } from "@/server/services/fish.service";
 
 const dailyRewardAmount = 100;
 
@@ -84,21 +85,7 @@ export class PlayerService {
         claimedToday,
         nextClaimAt: nextClaimAt.toISOString()
       },
-      fish: snapshot.fish.map((fish) => ({
-        id: fish.id,
-        name: fish.name,
-        ageSeconds: Math.floor((Date.now() - fish.createdAt.getTime()) / 1000),
-        species: fish.fishType.species,
-        rarity: fish.fishType.rarity,
-        typeName: fish.fishType.displayName,
-        incomePerSecond: fish.fishType.incomePerSecond * fish.incomeMultiplier,
-        swimSpeed: fish.swimSpeed,
-        hunger: fish.hunger,
-        maxHunger: fish.fishType.maxHunger,
-        color: fish.fishType.color,
-        glowColor: fish.fishType.glowColor,
-        animationState: fish.animationState
-      })),
+      fish: snapshot.fish.map(fishToView),
       incomePerSecond,
       offlineIncome: 0
     };

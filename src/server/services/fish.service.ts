@@ -1,6 +1,7 @@
-import { TransactionType, type Prisma, type PrismaClient } from "@prisma/client";
+import { TransactionType, type Fish, type FishType, type Prisma, type PrismaClient } from "@prisma/client";
+import type { AcquiredFish, FishView } from "@/types/game";
 
-const fishSalePrice = 50;
+export const fishSalePrice = 50;
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -18,6 +19,52 @@ export async function addAquariumExperience(db: DbClient, userId: string, amount
       level: Math.max(aquarium.level, calculateLevel(nextExperience))
     }
   });
+}
+
+export function fishToView(fish: Fish & { fishType: FishType }): FishView {
+  return {
+    id: fish.id,
+    name: fish.name,
+    ageSeconds: Math.floor((Date.now() - fish.createdAt.getTime()) / 1000),
+    species: fish.fishType.species,
+    rarity: fish.fishType.rarity,
+    typeName: fish.fishType.displayName,
+    incomePerSecond: fish.fishType.incomePerSecond * fish.incomeMultiplier,
+    swimSpeed: fish.swimSpeed,
+    hunger: fish.hunger,
+    maxHunger: fish.fishType.maxHunger,
+    color: fish.fishType.color,
+    glowColor: fish.fishType.glowColor,
+    animationState: fish.animationState
+  };
+}
+
+export function fishAcquisitionMessage(fishType: FishType) {
+  const speciesMessages = {
+    GOLDFISH: "Солнечный малыш уже ищет лучший угол аквариума.",
+    GUPPY: "Шустрый хвостик принес в воду праздник.",
+    BETTA: "Настоящая звезда выплыла на сцену.",
+    NEON_TETRA: "Неоновая искра теперь светится у тебя.",
+    ANGELFISH: "Грациозный ангел добавил аквариуму шарма."
+  } satisfies Record<FishType["species"], string>;
+
+  const rarityMessages = {
+    COMMON: "Милая находка для уютной стаи.",
+    RARE: "Редкий улов, который хочется рассматривать.",
+    EPIC: "Эпичный заплыв начинается прямо сейчас.",
+    LEGENDARY: "Легенда всплыла. Вот это удача."
+  } satisfies Record<FishType["rarity"], string>;
+
+  return `${rarityMessages[fishType.rarity]} ${speciesMessages[fishType.species]}`;
+}
+
+export function fishToAcquiredView(fish: Fish & { fishType: FishType }): AcquiredFish {
+  return {
+    ...fishToView(fish),
+    displayName: fish.fishType.displayName,
+    dropChanceBps: fish.fishType.dropChanceBps,
+    message: fishAcquisitionMessage(fish.fishType)
+  };
 }
 
 export class FishService {
