@@ -50,6 +50,9 @@ export class GameRepository {
           dropChanceBps: 7000,
           incomePerSecond: 1,
           swimSpeed: 58,
+          hungerPerMinute: 1,
+          maxHunger: 100,
+          experienceReward: 10,
           color: "#ffb02e",
           glowColor: "#9ee7ff"
         }

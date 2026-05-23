@@ -11,3 +11,7 @@ export const renameFishSchema = z.object({
 export const feedFishSchema = z.object({
   fishId: z.string().cuid()
 });
+
+export const addFriendSchema = z.object({
+  telegramId: z.string().trim().regex(/^\d{5,20}$/, "Invalid Telegram User ID")
+});

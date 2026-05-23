@@ -1,17 +1,20 @@
 import { TransactionType, type PrismaClient } from "@prisma/client";
+import { applyHungerDecay, feedFishHunger } from "@/server/services/hunger.service";
 
 export class InventoryService {
   constructor(private readonly db: PrismaClient) {}
 
   async feedFish(userId: string, fishId: string) {
     return this.db.$transaction(async (tx) => {
+      await applyHungerDecay(tx, userId);
+
       const inventory = await tx.inventory.findUniqueOrThrow({ where: { ownerId: userId } });
       if (inventory.food <= 0) throw new Error("No food in inventory");
 
       const fish = await tx.fish.findFirstOrThrow({ where: { id: fishId, ownerId: userId } });
       const updatedFish = await tx.fish.update({
         where: { id: fish.id },
-        data: { hunger: Math.max(0, fish.hunger - 35) },
+        data: { hunger: feedFishHunger(fish.hunger), hungerUpdatedAt: new Date() },
         include: { fishType: true }
       });
 

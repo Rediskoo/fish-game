@@ -49,6 +49,8 @@ model User {
   transactions      Transaction[]
   dailyRewards      DailyReward[]
   achievements      UserAchievement[]
+  friends           Friend[]          @relation("UserFriends")
+  friendOf          Friend[]          @relation("FriendOf")
 
   @@map("users")
 }
@@ -75,6 +77,9 @@ model FishType {
   dropChanceBps      Int
   incomePerSecond    Float
   swimSpeed          Float
+  hungerPerMinute    Int         @default(1)
+  maxHunger          Int         @default(100)
+  experienceReward   Int         @default(10)
   color              String
   glowColor          String
   createdAt          DateTime    @default(now())
@@ -92,6 +97,7 @@ model Fish {
   incomeMultiplier   Float       @default(1)
   swimSpeed          Float
   hunger             Int         @default(0)
+  hungerUpdatedAt    DateTime    @default(now())
   animationState     Json        @default("{}")
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
@@ -160,4 +166,17 @@ model UserAchievement {
 
   @@unique([ownerId, achievementId])
   @@map("user_achievements")
+}
+
+model Friend {
+  id          String   @id @default(cuid())
+  ownerId     String
+  friendId    String
+  createdAt   DateTime @default(now())
+  owner       User     @relation("UserFriends", fields: [ownerId], references: [id], onDelete: Cascade)
+  friend      User     @relation("FriendOf", fields: [friendId], references: [id], onDelete: Cascade)
+
+  @@unique([ownerId, friendId])
+  @@index([friendId])
+  @@map("friends")
 }

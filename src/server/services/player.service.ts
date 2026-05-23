@@ -2,7 +2,20 @@ import { FishSpecies, Rarity, TransactionType, type PrismaClient } from "@prisma
 import { GameRepository } from "@/server/repositories/game.repository";
 import type { TelegramInitUser } from "@/lib/telegram/validate-init-data";
 import type { AquariumSnapshot } from "@/types/game";
+import { applyHungerDecay } from "@/server/services/hunger.service";
 import { calculateFishIncome, claimOfflineIncome } from "@/server/services/income.service";
+
+const dailyRewardAmount = 100;
+
+function startOfUtcDay(date = new Date()) {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+}
+
+function nextUtcDay(date = new Date()) {
+  const start = startOfUtcDay(date);
+  start.setUTCDate(start.getUTCDate() + 1);
+  return start;
+}
 
 export class PlayerService {
   private readonly repo: GameRepository;
@@ -36,10 +49,16 @@ export class PlayerService {
   }
 
   async getSnapshot(userId: string): Promise<AquariumSnapshot> {
+    await applyHungerDecay(this.db, userId);
     const snapshot = await this.ensurePlayerState(userId);
     if (!snapshot?.aquarium || !snapshot.inventory) {
       throw new Error("Player state is incomplete");
     }
+
+    const today = startOfUtcDay();
+    const dailyReward = await this.db.dailyReward.findUnique({
+      where: { ownerId_rewardDate: { ownerId: userId, rewardDate: today } }
+    });
 
     const incomePerSecond = calculateFishIncome(snapshot.fish);
     return {
@@ -58,6 +77,11 @@ export class PlayerService {
         lastIncomeAt: snapshot.aquarium.lastIncomeAt.toISOString()
       },
       inventory: { food: snapshot.inventory.food },
+      dailyReward: {
+        amount: dailyRewardAmount,
+        claimedToday: Boolean(dailyReward),
+        nextClaimAt: nextUtcDay().toISOString()
+      },
       fish: snapshot.fish.map((fish) => ({
         id: fish.id,
         name: fish.name,
@@ -67,6 +91,7 @@ export class PlayerService {
         incomePerSecond: fish.fishType.incomePerSecond * fish.incomeMultiplier,
         swimSpeed: fish.swimSpeed,
         hunger: fish.hunger,
+        maxHunger: fish.fishType.maxHunger,
         color: fish.fishType.color,
         glowColor: fish.fishType.glowColor,
         animationState: fish.animationState
@@ -97,6 +122,9 @@ export class PlayerService {
           dropChanceBps: 7000,
           incomePerSecond: 1,
           swimSpeed: 58,
+          hungerPerMinute: 1,
+          maxHunger: 100,
+          experienceReward: 10,
           color: "#ffb02e",
           glowColor: "#9ee7ff"
         },

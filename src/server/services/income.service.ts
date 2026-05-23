@@ -1,15 +1,19 @@
 import { TransactionType, type PrismaClient } from "@prisma/client";
+import { applyHungerDecay } from "@/server/services/hunger.service";
 
 const maxOfflineSeconds = 60 * 60 * 24 * 7;
 
-export function calculateFishIncome(fish: Array<{ fishType: { incomePerSecond: number }; hunger: number; incomeMultiplier: number }>) {
+export function calculateFishIncome(fish: Array<{ fishType: { incomePerSecond: number; maxHunger: number }; hunger: number; incomeMultiplier: number }>) {
   return fish.reduce((sum, item) => {
-    const hungerPenalty = item.hunger >= 90 ? 0.25 : item.hunger >= 70 ? 0.6 : 1;
+    const hungerPercent = (item.hunger / item.fishType.maxHunger) * 100;
+    const hungerPenalty = hungerPercent >= 90 ? 0.25 : hungerPercent >= 70 ? 0.6 : 1;
     return sum + item.fishType.incomePerSecond * item.incomeMultiplier * hungerPenalty;
   }, 0);
 }
 
 export async function claimOfflineIncome(db: PrismaClient, userId: string) {
+  await applyHungerDecay(db, userId);
+
   const snapshot = await db.user.findUnique({
     where: { id: userId },
     include: {

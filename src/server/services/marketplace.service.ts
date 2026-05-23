@@ -30,6 +30,18 @@ export class MarketplaceService {
       }
 
       await tx.user.update({ where: { id: userId }, data: { currency: { decrement: fishCost } } });
+      const currentAquarium = await tx.aquarium.findUniqueOrThrow({ where: { ownerId: userId } });
+      const nextExperience = currentAquarium.experience + selected.experienceReward;
+      const nextLevel = Math.max(currentAquarium.level, Math.floor(nextExperience / 100) + 1);
+
+      await tx.aquarium.update({
+        where: { ownerId: userId },
+        data: {
+          experience: { increment: selected.experienceReward },
+          level: nextLevel
+        }
+      });
+
       const fish = await tx.fish.create({
         data: {
           ownerId: userId,
@@ -45,7 +57,12 @@ export class MarketplaceService {
           ownerId: userId,
           type: TransactionType.PURCHASE_FISH,
           amount: -fishCost,
-          metadata: { fishId: fish.id, fishTypeId: selected.id, rarity: selected.rarity }
+          metadata: {
+            fishId: fish.id,
+            fishTypeId: selected.id,
+            rarity: selected.rarity,
+            experienceReward: selected.experienceReward
+          }
         }
       });
       return fish;

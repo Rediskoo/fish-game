@@ -3,11 +3,11 @@ import { PrismaClient, FishSpecies, Rarity } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const rarityConfig = {
-  COMMON: { chance: 7000, income: 1, speed: 58, glow: "#9ee7ff" },
-  RARE: { chance: 2200, income: 1.8, speed: 72, glow: "#63ffb3" },
-  EPIC: { chance: 700, income: 3.4, speed: 88, glow: "#b987ff" },
-  LEGENDARY: { chance: 100, income: 7, speed: 108, glow: "#ffd166" }
-} satisfies Record<Rarity, { chance: number; income: number; speed: number; glow: string }>;
+  COMMON: { chance: 7000, income: 1, speed: 58, glow: "#9ee7ff", hunger: 1, maxHunger: 100, xp: 10 },
+  RARE: { chance: 2200, income: 1.8, speed: 72, glow: "#63ffb3", hunger: 1, maxHunger: 120, xp: 25 },
+  EPIC: { chance: 700, income: 3.4, speed: 88, glow: "#b987ff", hunger: 2, maxHunger: 150, xp: 55 },
+  LEGENDARY: { chance: 100, income: 7, speed: 108, glow: "#ffd166", hunger: 2, maxHunger: 200, xp: 120 }
+} satisfies Record<Rarity, { chance: number; income: number; speed: number; glow: string; hunger: number; maxHunger: number; xp: number }>;
 
 const species = [
   { species: FishSpecies.GOLDFISH, displayName: "Goldfish", color: "#ffb02e" },
@@ -30,6 +30,9 @@ async function main() {
           dropChanceBps: config.chance,
           incomePerSecond: config.income,
           swimSpeed: config.speed,
+          hungerPerMinute: config.hunger,
+          maxHunger: config.maxHunger,
+          experienceReward: config.xp,
           color: fish.color,
           glowColor: config.glow
         },
@@ -37,6 +40,9 @@ async function main() {
           dropChanceBps: config.chance,
           incomePerSecond: config.income,
           swimSpeed: config.speed,
+          hungerPerMinute: config.hunger,
+          maxHunger: config.maxHunger,
+          experienceReward: config.xp,
           color: fish.color,
           glowColor: config.glow
         }
