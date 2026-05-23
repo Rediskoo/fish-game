@@ -30,6 +30,23 @@ enum TransactionType {
   FEED
   DAILY_REWARD
   ACHIEVEMENT
+  SELL_FISH
+  GIFT_SENT
+  GIFT_RECEIVED
+}
+
+enum FriendRequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum GiftType {
+  FISH_CASE
+  ALGAE_25
+  ALGAE_50
+  ALGAE_75
+  ALGAE_100
 }
 
 model User {
@@ -51,6 +68,10 @@ model User {
   achievements      UserAchievement[]
   friends           Friend[]          @relation("UserFriends")
   friendOf          Friend[]          @relation("FriendOf")
+  sentFriendRequests     FriendRequest[] @relation("SentFriendRequests")
+  receivedFriendRequests FriendRequest[] @relation("ReceivedFriendRequests")
+  sentGifts              FriendGift[]    @relation("SentFriendGifts")
+  receivedGifts          FriendGift[]    @relation("ReceivedFriendGifts")
 
   @@map("users")
 }
@@ -179,4 +200,33 @@ model Friend {
   @@unique([ownerId, friendId])
   @@index([friendId])
   @@map("friends")
+}
+
+model FriendRequest {
+  id          String              @id @default(cuid())
+  senderId    String
+  receiverId  String
+  status      FriendRequestStatus @default(PENDING)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  sender      User                @relation("SentFriendRequests", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver    User                @relation("ReceivedFriendRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@index([receiverId, status])
+  @@map("friend_requests")
+}
+
+model FriendGift {
+  id          String   @id @default(cuid())
+  senderId    String
+  receiverId  String
+  type        GiftType
+  amount      Int      @default(0)
+  createdAt   DateTime @default(now())
+  sender      User     @relation("SentFriendGifts", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver    User     @relation("ReceivedFriendGifts", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId, receiverId, createdAt])
+  @@map("friend_gifts")
 }

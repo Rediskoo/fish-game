@@ -7,11 +7,24 @@ import { cn } from "@/lib/cn";
 import { usePlayer } from "@/features/auth/use-player";
 import { useDailyReward } from "@/features/rewards/use-daily-reward";
 
+function formatClaimTime(value?: string) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime()) || date.getTime() === 0) return "";
+  return date.toLocaleString("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
 export function DailyRewardsScreen() {
   const player = usePlayer();
   const daily = useDailyReward();
   const claimedToday = player.data?.dailyReward.claimedToday ?? false;
   const rewardAmount = player.data?.dailyReward.amount ?? 100;
+  const nextClaimTime = formatClaimTime(player.data?.dailyReward.nextClaimAt);
 
   return (
     <div className="space-y-4 p-4">
@@ -24,7 +37,9 @@ export function DailyRewardsScreen() {
         <div>
           <div className="text-2xl font-black">+{rewardAmount} водорослей</div>
           <div className="text-sm text-cyan-100/60">
-            {claimedToday ? "Бонус уже забран сегодня. Новый лимит откроется завтра по UTC." : "Можно забрать один раз в UTC-день."}
+            {claimedToday && nextClaimTime
+              ? `Бонус уже забран. Следующий подарок будет доступен ${nextClaimTime}.`
+              : "Можно забрать один раз в 24 часа."}
           </div>
         </div>
         <Button className={claimedToday ? "bg-slate-700 text-cyan-100 shadow-none" : undefined} disabled={daily.isPending || claimedToday} onClick={() => daily.mutate()}>

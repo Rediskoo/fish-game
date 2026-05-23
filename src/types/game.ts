@@ -1,4 +1,4 @@
-import type { FishSpecies, Rarity } from "@prisma/client";
+import type { FishSpecies, GiftType, Rarity } from "@prisma/client";
 
 export type FishView = {
   id: string;
@@ -6,6 +6,7 @@ export type FishView = {
   ageSeconds: number;
   species: FishSpecies;
   rarity: Rarity;
+  typeName: string;
   incomePerSecond: number;
   swimSpeed: number;
   hunger: number;
@@ -65,4 +66,26 @@ export type FriendView = {
   firstName: string | null;
   fishCount: number;
   level: number;
+  friendsSince: string;
+  lastGiftAt: string | null;
+};
+
+export type FriendRequestView = {
+  id: string;
+  direction: "incoming" | "outgoing";
+  telegramId: string;
+  username: string | null;
+  firstName: string | null;
+  createdAt: string;
+};
+
+export type FriendsPayload = {
+  friends: FriendView[];
+  requests: FriendRequestView[];
+};
+
+export type FriendGiftOption = {
+  type: GiftType;
+  label: string;
+  cost: number;
 };

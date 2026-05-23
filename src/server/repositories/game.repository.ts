@@ -52,7 +52,7 @@ export class GameRepository {
           swimSpeed: 58,
           hungerPerMinute: 1,
           maxHunger: 100,
-          experienceReward: 10,
+          experienceReward: 25,
           color: "#ffb02e",
           glowColor: "#9ee7ff"
         }

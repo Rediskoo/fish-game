@@ -1,6 +1,7 @@
 import { TransactionType, type FishType, type PrismaClient } from "@prisma/client";
+import { addAquariumExperience } from "@/server/services/fish.service";
 
-const fishCost = 100;
+export const fishCost = 100;
 
 function pickWeighted(types: FishType[]) {
   const total = types.reduce((sum, type) => sum + type.dropChanceBps, 0);
@@ -30,17 +31,7 @@ export class MarketplaceService {
       }
 
       await tx.user.update({ where: { id: userId }, data: { currency: { decrement: fishCost } } });
-      const currentAquarium = await tx.aquarium.findUniqueOrThrow({ where: { ownerId: userId } });
-      const nextExperience = currentAquarium.experience + selected.experienceReward;
-      const nextLevel = Math.max(currentAquarium.level, Math.floor(nextExperience / 100) + 1);
-
-      await tx.aquarium.update({
-        where: { ownerId: userId },
-        data: {
-          experience: { increment: selected.experienceReward },
-          level: nextLevel
-        }
-      });
+      await addAquariumExperience(tx, userId, selected.experienceReward);
 
       const fish = await tx.fish.create({
         data: {

@@ -12,9 +12,9 @@ function startOfUtcDay(date = new Date()) {
 }
 
 function nextUtcDay(date = new Date()) {
-  const start = startOfUtcDay(date);
-  start.setUTCDate(start.getUTCDate() + 1);
-  return start;
+  const next = new Date(date);
+  next.setUTCDate(next.getUTCDate() + 1);
+  return next;
 }
 
 export class PlayerService {
@@ -55,10 +55,12 @@ export class PlayerService {
       throw new Error("Player state is incomplete");
     }
 
-    const today = startOfUtcDay();
-    const dailyReward = await this.db.dailyReward.findUnique({
-      where: { ownerId_rewardDate: { ownerId: userId, rewardDate: today } }
+    const lastDailyReward = await this.db.dailyReward.findFirst({
+      where: { ownerId: userId },
+      orderBy: { claimedAt: "desc" }
     });
+    const nextClaimAt = lastDailyReward ? nextUtcDay(lastDailyReward.claimedAt) : new Date(0);
+    const claimedToday = nextClaimAt.getTime() > Date.now();
 
     const incomePerSecond = calculateFishIncome(snapshot.fish);
     return {
@@ -79,8 +81,8 @@ export class PlayerService {
       inventory: { food: snapshot.inventory.food },
       dailyReward: {
         amount: dailyRewardAmount,
-        claimedToday: Boolean(dailyReward),
-        nextClaimAt: nextUtcDay().toISOString()
+        claimedToday,
+        nextClaimAt: nextClaimAt.toISOString()
       },
       fish: snapshot.fish.map((fish) => ({
         id: fish.id,
@@ -88,6 +90,7 @@ export class PlayerService {
         ageSeconds: Math.floor((Date.now() - fish.createdAt.getTime()) / 1000),
         species: fish.fishType.species,
         rarity: fish.fishType.rarity,
+        typeName: fish.fishType.displayName,
         incomePerSecond: fish.fishType.incomePerSecond * fish.incomeMultiplier,
         swimSpeed: fish.swimSpeed,
         hunger: fish.hunger,
@@ -124,7 +127,7 @@ export class PlayerService {
           swimSpeed: 58,
           hungerPerMinute: 1,
           maxHunger: 100,
-          experienceReward: 10,
+          experienceReward: 25,
           color: "#ffb02e",
           glowColor: "#9ee7ff"
         },

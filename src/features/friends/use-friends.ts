@@ -2,12 +2,12 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
-import type { FriendView } from "@/types/game";
+import type { AquariumSnapshot, FriendsPayload } from "@/types/game";
 
 export function useFriends() {
   return useQuery({
     queryKey: ["friends"],
-    queryFn: () => api<{ friends: FriendView[] }>("/api/friends")
+    queryFn: () => api<FriendsPayload>("/api/friends")
   });
 }
 
@@ -15,10 +15,48 @@ export function useAddFriend() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (telegramId: string) =>
-      api<{ friends: FriendView[] }>("/api/friends", {
+      api<FriendsPayload>("/api/friends", {
         method: "POST",
         body: JSON.stringify({ telegramId })
       }),
     onSuccess: (data) => queryClient.setQueryData(["friends"], data)
+  });
+}
+
+export function useFriendRequestAction() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { requestId: string; action: "accept" | "decline" }) =>
+      api<FriendsPayload>("/api/friends", {
+        method: "PATCH",
+        body: JSON.stringify(input)
+      }),
+    onSuccess: (data) => queryClient.setQueryData(["friends"], data)
+  });
+}
+
+export function useRemoveFriend() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (friendId: string) =>
+      api<FriendsPayload>(`/api/friends?friendId=${friendId}`, {
+        method: "DELETE"
+      }),
+    onSuccess: (data) => queryClient.setQueryData(["friends"], data)
+  });
+}
+
+export function useSendFriendGift() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { friendId: string; type: string }) =>
+      api<{ friends: FriendsPayload; snapshot: AquariumSnapshot }>("/api/friends/gift", {
+        method: "POST",
+        body: JSON.stringify(input)
+      }),
+    onSuccess: ({ friends, snapshot }) => {
+      queryClient.setQueryData(["friends"], friends);
+      queryClient.setQueryData(["snapshot"], snapshot);
+    }
   });
 }

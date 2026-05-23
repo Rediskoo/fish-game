@@ -8,16 +8,20 @@ export class RewardsService {
   constructor(private readonly db: PrismaClient) {}
 
   async claimDaily(userId: string) {
+    const now = new Date();
     const rewardDate = startOfUtcDay();
     const amount = 100;
 
     return this.db.$transaction(async (tx) => {
-      const existing = await tx.dailyReward.findUnique({
-        where: { ownerId_rewardDate: { ownerId: userId, rewardDate } }
+      const lastReward = await tx.dailyReward.findFirst({
+        where: { ownerId: userId },
+        orderBy: { claimedAt: "desc" }
       });
-      if (existing) throw new Error("Daily reward already claimed");
+      if (lastReward && now.getTime() - lastReward.claimedAt.getTime() < 24 * 60 * 60 * 1000) {
+        throw new Error("Daily reward already claimed");
+      }
 
-      await tx.dailyReward.create({ data: { ownerId: userId, rewardDate, amount } });
+      await tx.dailyReward.create({ data: { ownerId: userId, rewardDate, amount, claimedAt: now } });
       await tx.user.update({ where: { id: userId }, data: { currency: { increment: amount } } });
       await tx.transaction.create({
         data: { ownerId: userId, type: TransactionType.DAILY_REWARD, amount, metadata: { rewardDate } }
