@@ -1,4 +1,4 @@
-import type { FishSpecies, GiftType, Rarity } from "@prisma/client";
+import type { FishPersonality, FishSpecies, GiftType, Rarity } from "@prisma/client";
 
 export type FishView = {
   id: string;
@@ -7,6 +7,14 @@ export type FishView = {
   species: FishSpecies;
   rarity: Rarity;
   typeName: string;
+  displayName: string;
+  isFavorite: boolean;
+  personality: FishPersonality;
+  personalityLabel: string;
+  birthday: string;
+  description: string;
+  rarityLabel: string;
+  rarityColor: string;
   incomePerSecond: number;
   swimSpeed: number;
   hunger: number;
@@ -23,6 +31,7 @@ export type AquariumSnapshot = {
     username: string | null;
     firstName: string | null;
     currency: number;
+    createdAt: string;
   };
   aquarium: {
     id: string;
@@ -39,6 +48,7 @@ export type AquariumSnapshot = {
     claimedToday: boolean;
     nextClaimAt: string;
   };
+  achievements: AchievementView[];
   fish: FishView[];
   incomePerSecond: number;
   offlineIncome: number;
@@ -65,10 +75,29 @@ export type AcquiredFish = FishView & {
   message: string;
 };
 
+export type CaseTapeItem = {
+  key: string;
+  displayName: string;
+  rarity: Rarity;
+  rarityLabel: string;
+  rarityColor: string;
+  color: string;
+  glowColor: string;
+};
+
+export type CaseResult = {
+  fish: AcquiredFish;
+  tape: CaseTapeItem[];
+  winningIndex: number;
+  durationMs: number;
+};
+
 export type PendingGiftView = {
   id: string;
   type: GiftType;
   amount: number;
+  fishId: string | null;
+  fish: AcquiredFish | null;
   createdAt: string;
   sender: {
     id: string;
@@ -109,4 +138,13 @@ export type FriendGiftOption = {
   type: GiftType;
   label: string;
   cost: number;
+};
+
+export type AchievementView = {
+  id: string;
+  key: string;
+  title: string;
+  description: string;
+  reward: number;
+  unlockedAt: string | null;
 };

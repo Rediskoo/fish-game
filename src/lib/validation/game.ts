@@ -6,7 +6,10 @@ export const telegramAuthSchema = z.object({
 });
 
 export const renameFishSchema = z.object({
-  name: z.string().trim().min(2).max(18)
+  name: z.string().trim().min(2).max(18).optional(),
+  isFavorite: z.boolean().optional()
+}).refine((value) => value.name !== undefined || value.isFavorite !== undefined, {
+  message: "Nothing to update"
 });
 
 export const feedFishSchema = z.object({
@@ -24,7 +27,8 @@ export const friendRequestActionSchema = z.object({
 
 export const friendGiftSchema = z.object({
   friendId: z.string().cuid(),
-  type: z.enum(GiftType)
+  type: z.enum(GiftType),
+  fishId: z.string().cuid().optional()
 });
 
 export const claimFriendGiftSchema = z.object({

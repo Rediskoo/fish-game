@@ -1,6 +1,6 @@
 import { FriendRequestStatus, GiftType, TransactionType, type FishType, type PrismaClient } from "@prisma/client";
 import type { FriendRequestView, FriendView } from "@/types/game";
-import { addAquariumExperience, fishToAcquiredView, fishToView } from "@/server/services/fish.service";
+import { createOwnedFish, fishToAcquiredView, fishToView } from "@/server/services/fish.service";
 import { fishCost } from "@/server/services/marketplace.service";
 
 const algaeGiftAmounts: Partial<Record<GiftType, number>> = {
@@ -33,7 +33,9 @@ function toFriendView(friend: {
       id: string;
       type: GiftType;
       amount: number;
+      fishId: string | null;
       createdAt: Date;
+      fish: Parameters<typeof fishToAcquiredView>[0] | null;
       sender: {
         id: string;
         telegramId: bigint;
@@ -59,6 +61,8 @@ function toFriendView(friend: {
           id: pendingGift.id,
           type: pendingGift.type,
           amount: pendingGift.amount,
+          fishId: pendingGift.fishId,
+          fish: pendingGift.fish ? fishToAcquiredView(pendingGift.fish) : null,
           createdAt: pendingGift.createdAt.toISOString(),
           sender: {
             id: pendingGift.sender.id,
@@ -102,7 +106,7 @@ export class FriendsService {
           friend: {
             include: {
               aquarium: true,
-              fish: { include: { fishType: true }, orderBy: { createdAt: "asc" } },
+              fish: { where: { isGiftLocked: false }, include: { fishType: true }, orderBy: { createdAt: "asc" } },
               receivedGifts: {
                 where: { senderId: userId },
                 orderBy: { createdAt: "desc" },
@@ -111,6 +115,7 @@ export class FriendsService {
               sentGifts: {
                 where: { receiverId: userId, claimedAt: null },
                 include: {
+                  fish: { include: { fishType: true } },
                   sender: { select: { id: true, telegramId: true, username: true, firstName: true } }
                 },
                 orderBy: { createdAt: "desc" },
@@ -207,21 +212,32 @@ export class FriendsService {
     return this.getFriendsPayload(userId);
   }
 
-  async sendGift(userId: string, friendId: string, type: GiftType) {
+  async sendGift(userId: string, friendId: string, type: GiftType, fishId?: string) {
     await this.db.$transaction(async (tx) => {
       const friendship = await tx.friend.findUnique({ where: { ownerId_friendId: { ownerId: userId, friendId } } });
       if (!friendship) throw new Error("This user is not your friend");
 
       const amount = algaeGiftAmounts[type] ?? 0;
       const cost = type === GiftType.FISH_CASE ? fishCost : amount;
-      const sender = await tx.user.findUniqueOrThrow({ where: { id: userId } });
-      if (sender.currency < cost) throw new Error("Not enough algae for this gift");
+      let giftFishId: string | undefined;
 
-      await tx.user.update({ where: { id: userId }, data: { currency: { decrement: cost } } });
+      if (type === GiftType.OWNED_FISH) {
+        if (!fishId) throw new Error("fishId is required for fish gift");
+        const fishCount = await tx.fish.count({ where: { ownerId: userId, isGiftLocked: false } });
+        if (fishCount <= 1) throw new Error("You cannot gift your last fish");
+        const fish = await tx.fish.findFirst({ where: { id: fishId, ownerId: userId, isGiftLocked: false } });
+        if (!fish) throw new Error("Fish not found");
+        await tx.fish.update({ where: { id: fish.id }, data: { isGiftLocked: true } });
+        giftFishId = fish.id;
+      } else {
+        const sender = await tx.user.findUniqueOrThrow({ where: { id: userId } });
+        if (sender.currency < cost) throw new Error("Not enough algae for this gift");
+        await tx.user.update({ where: { id: userId }, data: { currency: { decrement: cost } } });
+      }
 
-      await tx.friendGift.create({ data: { senderId: userId, receiverId: friendId, type, amount } });
+      await tx.friendGift.create({ data: { senderId: userId, receiverId: friendId, type, amount, fishId: giftFishId } });
       await tx.transaction.create({
-        data: { ownerId: userId, type: TransactionType.GIFT_SENT, amount: -cost, metadata: { friendId, giftType: type } }
+        data: { ownerId: userId, type: TransactionType.GIFT_SENT, amount: -cost, metadata: { friendId, giftType: type, fishId: giftFishId } }
       });
     });
 
@@ -239,17 +255,20 @@ export class FriendsService {
       if (gift.type === GiftType.FISH_CASE) {
         const types = await tx.fishType.findMany();
         const selected = pickWeighted(types);
-        const fish = await tx.fish.create({
+        const fish = await createOwnedFish(tx, userId, selected);
+        acquiredFish = fishToAcquiredView(fish);
+      } else if (gift.type === GiftType.OWNED_FISH) {
+        if (!gift.fishId) throw new Error("Gift fish was not found");
+        const fish = await tx.fish.update({
+          where: { id: gift.fishId },
           data: {
             ownerId: userId,
-            fishTypeId: selected.id,
-            name: selected.displayName.split(" ").at(-1) ?? "Fish",
-            swimSpeed: selected.swimSpeed,
+            isGiftLocked: false,
+            isFavorite: false,
             animationState: { x: Math.random(), y: Math.random(), direction: Math.random() > 0.5 ? 1 : -1 }
           },
           include: { fishType: true }
         });
-        await addAquariumExperience(tx, userId, selected.experienceReward);
         acquiredFish = fishToAcquiredView(fish);
       } else {
         await tx.user.update({ where: { id: userId }, data: { currency: { increment: gift.amount } } });

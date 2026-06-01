@@ -28,8 +28,7 @@ export function DailyRewardsScreen() {
 
   return (
     <div className="space-y-4 p-4">
-      <header className="pt-4">
-        <p className="text-xs uppercase tracking-[0.18em] text-cyan-100/55">Daily Rewards</p>
+      <header className="pt-14">
         <h1 className="text-3xl font-black text-cyan-50 text-glow">Ежедневный бонус</h1>
       </header>
       <Panel className="space-y-4">

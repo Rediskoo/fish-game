@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
   try {
     const body = friendGiftSchema.parse(await request.json());
-    const friends = await new FriendsService(getPrisma()).sendGift(userId, body.friendId, body.type);
+    const friends = await new FriendsService(getPrisma()).sendGift(userId, body.friendId, body.type, body.fishId);
     const snapshot = await new PlayerService(getPrisma()).getSnapshot(userId);
     return ok({ friends, snapshot });
   } catch (error) {

@@ -3,12 +3,13 @@
 import { useEffect, useRef } from "react";
 import type { Container, Text } from "pixi.js";
 import type { FishView } from "@/types/game";
-import { createFishAgent, updateFishAgent, type FishAgent } from "@/components/aquarium/fish-ai";
+import { createFishAgent, reactToFishClick, updateFishAgent, type FishAgent } from "@/components/aquarium/fish-ai";
 import { cn } from "@/lib/cn";
+import { playTone } from "@/stores/sound-store";
 
 type PixiModule = typeof import("pixi.js");
 
-export function AquariumRenderer({ fish, className }: { fish: FishView[]; className?: string }) {
+export function AquariumRenderer({ fish, className, interactive = false }: { fish: FishView[]; className?: string; interactive?: boolean }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const fishRef = useRef(fish);
   fishRef.current = fish;
@@ -23,7 +24,7 @@ export function AquariumRenderer({ fish, className }: { fish: FishView[]; classN
       const PIXI = await import("pixi.js");
       if (cancelled) return;
 
-      cleanup = await createScene(PIXI, host, fishRef);
+      cleanup = await createScene(PIXI, host, fishRef, interactive);
     }
 
     mount();
@@ -31,7 +32,7 @@ export function AquariumRenderer({ fish, className }: { fish: FishView[]; classN
       cancelled = true;
       cleanup?.();
     };
-  }, []);
+  }, [interactive]);
 
   return <div ref={hostRef} className={cn("h-full min-h-[540px] w-full overflow-hidden rounded-b-[28px]", className)} />;
 }
@@ -39,7 +40,8 @@ export function AquariumRenderer({ fish, className }: { fish: FishView[]; classN
 async function createScene(
   PIXI: PixiModule,
   host: HTMLDivElement,
-  fishRef: React.MutableRefObject<FishView[]>
+  fishRef: React.MutableRefObject<FishView[]>,
+  interactive: boolean
 ) {
   const app = new PIXI.Application();
   await app.init({
@@ -57,7 +59,9 @@ async function createScene(
   const fishLayer = new PIXI.Container();
   const labelLayer = new PIXI.Container();
   const particleLayer = new PIXI.Container();
-  app.stage.addChild(background, particleLayer, fishLayer, labelLayer);
+  const world = new PIXI.Container();
+  app.stage.addChild(world);
+  world.addChild(background, particleLayer, fishLayer, labelLayer);
 
   const agents = new Map<string, { agent: FishAgent; node: Container; label: Text }>();
   const bubbles = Array.from({ length: 34 }, () => createBubble(PIXI, app.screen.width, app.screen.height));
@@ -119,6 +123,21 @@ async function createScene(
     }
   }
 
+  function addReactionBubbles(x: number, y: number) {
+    for (let i = 0; i < 8; i += 1) {
+      const bubble = createBubble(PIXI, app.screen.width, app.screen.height);
+      bubble.x = x + (Math.random() - 0.5) * 34;
+      bubble.y = y + (Math.random() - 0.5) * 24;
+      particleLayer.addChild(bubble);
+      window.setTimeout(() => {
+        if (!bubble.destroyed) {
+          particleLayer.removeChild(bubble);
+          bubble.destroy();
+        }
+      }, 1400);
+    }
+  }
+
   drawBackground();
   let elapsed = 0;
   app.ticker.add((ticker) => {
@@ -149,6 +168,72 @@ async function createScene(
 
   const onResize = () => drawBackground();
   window.addEventListener("resize", onResize);
+
+  if (interactive) {
+    let scale = 1;
+    let dragging = false;
+    let lastX = 0;
+    let lastY = 0;
+    let startX = 0;
+    let startY = 0;
+    const clampWorld = () => {
+      world.scale.set(scale);
+      world.x = Math.min(app.screen.width * 0.3, Math.max(app.screen.width * (1 - scale) - app.screen.width * 0.3, world.x));
+      world.y = Math.min(app.screen.height * 0.3, Math.max(app.screen.height * (1 - scale) - app.screen.height * 0.3, world.y));
+    };
+    const toWorld = (clientX: number, clientY: number) => {
+      const rect = app.canvas.getBoundingClientRect();
+      return {
+        x: (clientX - rect.left - world.x) / scale,
+        y: (clientY - rect.top - world.y) / scale
+      };
+    };
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      scale = Math.max(0.75, Math.min(2.5, scale + (event.deltaY > 0 ? -0.08 : 0.08)));
+      clampWorld();
+    };
+    const onPointerDown = (event: PointerEvent) => {
+      dragging = true;
+      lastX = event.clientX;
+      lastY = event.clientY;
+      startX = event.clientX;
+      startY = event.clientY;
+    };
+    const onPointerMove = (event: PointerEvent) => {
+      if (!dragging) return;
+      world.x += event.clientX - lastX;
+      world.y += event.clientY - lastY;
+      lastX = event.clientX;
+      lastY = event.clientY;
+      clampWorld();
+    };
+    const onPointerUp = (event: PointerEvent) => {
+      const moved = Math.hypot(event.clientX - startX, event.clientY - startY);
+      dragging = false;
+      if (moved > 8) return;
+      const point = toWorld(event.clientX, event.clientY);
+      const entries = [...agents.values()];
+      const target = entries.find((entry) => Math.hypot(entry.agent.x - point.x, entry.agent.y - point.y) < 54);
+      if (target) {
+        reactToFishClick(target.agent, point.x, point.y, entries.map((entry) => entry.agent));
+        addReactionBubbles(target.agent.x, target.agent.y);
+        playTone("fish");
+      }
+    };
+    app.canvas.addEventListener("wheel", onWheel, { passive: false });
+    app.canvas.addEventListener("pointerdown", onPointerDown);
+    app.canvas.addEventListener("pointermove", onPointerMove);
+    app.canvas.addEventListener("pointerup", onPointerUp);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      app.canvas.removeEventListener("wheel", onWheel);
+      app.canvas.removeEventListener("pointerdown", onPointerDown);
+      app.canvas.removeEventListener("pointermove", onPointerMove);
+      app.canvas.removeEventListener("pointerup", onPointerUp);
+      app.destroy(true);
+    };
+  }
 
   return () => {
     window.removeEventListener("resize", onResize);

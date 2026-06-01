@@ -1,4 +1,4 @@
-import { FishSpecies, Rarity, TransactionType, type PrismaClient } from "@prisma/client";
+import { FishPersonality, FishSpecies, Rarity, TransactionType, type PrismaClient } from "@prisma/client";
 import { GameRepository } from "@/server/repositories/game.repository";
 import type { TelegramInitUser } from "@/lib/telegram/validate-init-data";
 import type { AquariumSnapshot } from "@/types/game";
@@ -64,13 +64,19 @@ export class PlayerService {
     const claimedToday = nextClaimAt.getTime() > Date.now();
 
     const incomePerSecond = calculateFishIncome(snapshot.fish);
+    const achievements = await this.db.achievement.findMany({
+      include: { users: { where: { ownerId: userId }, take: 1 } },
+      orderBy: { createdAt: "asc" }
+    });
+
     return {
       user: {
         id: snapshot.id,
         telegramId: snapshot.telegramId.toString(),
         username: snapshot.username,
         firstName: snapshot.firstName,
-        currency: snapshot.currency
+        currency: snapshot.currency,
+        createdAt: snapshot.createdAt.toISOString()
       },
       aquarium: {
         id: snapshot.aquarium.id,
@@ -85,6 +91,14 @@ export class PlayerService {
         claimedToday,
         nextClaimAt: nextClaimAt.toISOString()
       },
+      achievements: achievements.map((achievement) => ({
+        id: achievement.id,
+        key: achievement.key,
+        title: achievement.title,
+        description: achievement.description,
+        reward: achievement.reward,
+        unlockedAt: achievement.users[0]?.unlockedAt.toISOString() ?? null
+      })),
       fish: snapshot.fish.map(fishToView),
       incomePerSecond,
       offlineIncome: 0
@@ -108,15 +122,15 @@ export class PlayerService {
         create: {
           species: FishSpecies.GOLDFISH,
           rarity: Rarity.COMMON,
-          displayName: "Common Goldfish",
-          dropChanceBps: 7000,
-          incomePerSecond: 1,
+          displayName: "Золотая рыбка",
+          dropChanceBps: 2500,
+          incomePerSecond: 1.2,
           swimSpeed: 58,
           hungerPerMinute: 1,
           maxHunger: 100,
           experienceReward: 25,
           color: "#ffb02e",
-          glowColor: "#9ee7ff"
+          glowColor: "#ffd166"
         },
         update: {}
       });
@@ -133,7 +147,7 @@ export class PlayerService {
         update: {}
       });
 
-      const fishCount = await tx.fish.count({ where: { ownerId: userId } });
+      const fishCount = await tx.fish.count({ where: { ownerId: userId, isGiftLocked: false } });
       if (fishCount === 0) {
         await tx.fish.create({
           data: {
@@ -141,6 +155,7 @@ export class PlayerService {
             fishTypeId: starterType.id,
             name: "Bubbles",
             swimSpeed: starterType.swimSpeed,
+            personality: FishPersonality.CURIOUS,
             animationState: { x: 0.3, y: 0.5, direction: 1 }
           }
         });

@@ -16,6 +16,18 @@ export function useRenameFish() {
   });
 }
 
+export function useToggleFavoriteFish() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { fishId: string; isFavorite: boolean }) =>
+      api<AquariumSnapshot>(`/api/fish?fishId=${input.fishId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ isFavorite: input.isFavorite })
+      }),
+    onSuccess: (snapshot) => queryClient.setQueryData(["snapshot"], snapshot)
+  });
+}
+
 export function useSellFish() {
   const queryClient = useQueryClient();
   return useMutation({

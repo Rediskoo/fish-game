@@ -17,7 +17,7 @@ export async function PATCH(request: Request) {
     if (!fishId) return fail("fishId is required");
 
     const body = renameFishSchema.parse(await request.json());
-    await new FishService(getPrisma()).renameFish(userId, fishId, body.name);
+    await new FishService(getPrisma()).updateFish(userId, fishId, body);
     const snapshot = await new PlayerService(getPrisma()).getSnapshot(userId);
     return ok(snapshot);
   } catch (error) {

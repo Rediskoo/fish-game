@@ -69,10 +69,18 @@ export function TelegramBootstrap() {
 
       const webApp = window.Telegram?.WebApp;
 
-      webApp?.ready?.();
-      webApp?.expand?.();
-      webApp?.requestFullscreen?.();
-      webApp?.enableClosingConfirmation?.();
+      for (const action of [
+        () => webApp?.ready?.(),
+        () => webApp?.expand?.(),
+        () => webApp?.requestFullscreen?.(),
+        () => webApp?.enableClosingConfirmation?.()
+      ]) {
+        try {
+          action();
+        } catch {
+          // Telegram WebApp methods are version-gated; unsupported calls should not block auth.
+        }
+      }
 
       const info = {
         attempt: attempts,

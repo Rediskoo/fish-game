@@ -12,14 +12,14 @@ export async function POST(request: Request) {
 
   try {
     const body = (await request.json().catch(() => ({}))) as { item?: string; amount?: number };
-    let acquiredFish = null;
+    let caseResult = null;
     if (body.item === "food") {
       await new PlayerService(getPrisma()).buyFood(userId, body.amount ?? 1);
     } else {
-      acquiredFish = await new MarketplaceService(getPrisma()).purchaseFish(userId);
+      caseResult = await new MarketplaceService(getPrisma()).purchaseFish(userId);
     }
     const snapshot = await new PlayerService(getPrisma()).getSnapshot(userId);
-    return ok({ snapshot, acquiredFish });
+    return ok({ snapshot, caseResult });
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Purchase failed");
   }

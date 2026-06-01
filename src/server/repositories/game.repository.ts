@@ -1,5 +1,5 @@
 import type { PrismaClient } from "@prisma/client";
-import { FishSpecies, Rarity, TransactionType } from "@prisma/client";
+import { FishPersonality, FishSpecies, Rarity, TransactionType } from "@prisma/client";
 
 export class GameRepository {
   constructor(private readonly db: PrismaClient) {}
@@ -18,8 +18,9 @@ export class GameRepository {
         aquarium: true,
         inventory: true,
         fish: {
+          where: { isGiftLocked: false },
           include: { fishType: true },
-          orderBy: { createdAt: "asc" }
+          orderBy: [{ isFavorite: "desc" }, { createdAt: "asc" }]
         }
       }
     });
@@ -46,15 +47,15 @@ export class GameRepository {
         data: {
           species: FishSpecies.GOLDFISH,
           rarity: Rarity.COMMON,
-          displayName: "Common Goldfish",
-          dropChanceBps: 7000,
-          incomePerSecond: 1,
+          displayName: "Золотая рыбка",
+          dropChanceBps: 2500,
+          incomePerSecond: 1.2,
           swimSpeed: 58,
           hungerPerMinute: 1,
           maxHunger: 100,
           experienceReward: 25,
           color: "#ffb02e",
-          glowColor: "#9ee7ff"
+          glowColor: "#ffd166"
         }
       }));
 
@@ -73,6 +74,7 @@ export class GameRepository {
             fishTypeId: starterType.id,
             name: "Bubbles",
             swimSpeed: starterType.swimSpeed,
+            personality: FishPersonality.CURIOUS,
             animationState: { x: 0.3, y: 0.5, direction: 1 }
           }
         }

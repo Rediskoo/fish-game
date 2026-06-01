@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, type ReactNode, useMemo, useState } from "react";
-import { Eye, Fish, Gift, MoreHorizontal, Trash2, Trophy, UserCheck, UserPlus, UserX, Users, X } from "lucide-react";
+import { Eye, Fish, Gift, MoreHorizontal, Send, Trash2, Trophy, UserCheck, UserPlus, UserX, Users, X } from "lucide-react";
 import { AquariumRenderer } from "@/components/aquarium/aquarium-renderer";
 import { FishRevealModal } from "@/components/fish/fish-reveal-modal";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import {
   useSendFriendGift
 } from "@/features/friends/use-friends";
 import { useSellFish } from "@/features/inventory/use-fish-actions";
-import type { AcquiredFish, FriendView, PendingGiftView } from "@/types/game";
+import type { AcquiredFish, FishView, FriendView, PendingGiftView } from "@/types/game";
 
 const giftOptions = [
   { type: "FISH_CASE", label: "Кейс с рыбкой", cost: 100 },
@@ -28,6 +28,7 @@ const giftOptions = [
 
 const giftLabel: Record<string, string> = {
   FISH_CASE: "кейс с рыбкой",
+  OWNED_FISH: "своя рыбка",
   ALGAE_25: "25 водорослей",
   ALGAE_50: "50 водорослей",
   ALGAE_75: "75 водорослей",
@@ -52,6 +53,11 @@ function formatFriendDuration(value: string) {
   const hours = Math.floor((diff % 86400000) / 3600000);
   if (days > 0) return `${days} д. ${hours} ч.`;
   return `${hours} ч.`;
+}
+
+function formatGameSince(value?: string) {
+  if (!value) return "загрузка";
+  return `${new Date(value).toLocaleDateString("ru-RU")} · ${formatFriendDuration(value)}`;
 }
 
 export function ProfileScreen() {
@@ -85,8 +91,7 @@ export function ProfileScreen() {
 
   return (
     <div className="space-y-4 p-4">
-      <header className="pt-4">
-        <p className="text-xs uppercase tracking-[0.18em] text-cyan-100/55">Profile</p>
+      <header className="pt-14">
         <h1 className="text-3xl font-black text-cyan-50 text-glow">{player.data?.user.firstName ?? "Игрок"}</h1>
       </header>
 
@@ -98,6 +103,27 @@ export function ProfileScreen() {
       <Panel>
         <div className="text-sm text-cyan-100/60">Telegram User ID</div>
         <div className="font-mono text-lg">{player.data?.user.telegramId ?? "Загрузка..."}</div>
+        <div className="mt-2 text-sm text-cyan-100/60">В игре с {formatGameSince(player.data?.user.createdAt)}</div>
+      </Panel>
+
+      <Panel className="space-y-3">
+        <div className="flex items-center gap-2 font-bold">
+          <Trophy className="h-5 w-5 text-amber-200" />
+          Достижения
+        </div>
+        <div className="grid gap-2">
+          {player.data?.achievements.map((achievement) => (
+            <div key={achievement.id} className={`rounded-xl p-3 ${achievement.unlockedAt ? "bg-amber-300/15" : "bg-slate-950/30 opacity-65"}`}>
+              <div className="flex items-center justify-between gap-2">
+                <div className="truncate font-bold">{achievement.title}</div>
+                <div className="text-xs text-cyan-100/55">{achievement.reward}</div>
+              </div>
+              <div className="mt-1 text-xs text-cyan-100/60">
+                {achievement.unlockedAt ? `Открыто ${formatDate(achievement.unlockedAt)}` : achievement.description}
+              </div>
+            </div>
+          ))}
+        </div>
       </Panel>
 
       <Panel className="space-y-3">
@@ -187,6 +213,8 @@ export function ProfileScreen() {
             })
           }
           onGift={(type) => sendGift.mutate({ friendId: selectedFriend.id, type })}
+          ownFish={player.data?.fish ?? []}
+          onGiftFish={(fishId) => sendGift.mutate({ friendId: selectedFriend.id, type: "OWNED_FISH", fishId })}
         />
       ) : null}
 
@@ -230,7 +258,9 @@ function FriendModal({
   error,
   onClose,
   onRemove,
-  onGift
+  onGift,
+  ownFish,
+  onGiftFish
 }: {
   friend: FriendView;
   isBusy: boolean;
@@ -238,8 +268,11 @@ function FriendModal({
   onClose: () => void;
   onRemove: () => void;
   onGift: (type: string) => void;
+  ownFish: FishView[];
+  onGiftFish: (fishId: string) => void;
 }) {
   const [showAquarium, setShowAquarium] = useState(false);
+  const [giftFishId, setGiftFishId] = useState("");
 
   return (
     <div className="fixed inset-0 z-[60] grid place-items-end bg-slate-950/70 px-3 pb-[calc(14px+var(--safe-bottom))] pt-[var(--safe-top)]">
@@ -256,7 +289,7 @@ function FriendModal({
 
         {showAquarium ? (
           <div className="space-y-3">
-            <div className="h-64 overflow-hidden rounded-xl border border-cyan-100/15">
+            <div className="h-80 overflow-hidden rounded-xl border border-cyan-100/15">
               <AquariumRenderer fish={friend.fish} className="min-h-0 rounded-none" />
             </div>
             <Button className="w-full" onClick={() => setShowAquarium(false)}>
@@ -286,6 +319,28 @@ function FriendModal({
                   <span>{gift.cost}</span>
                 </Button>
               ))}
+              <div className="rounded-xl bg-slate-950/30 p-3">
+                <div className="mb-2 flex items-center gap-2 text-sm font-bold">
+                  <Fish className="h-4 w-4" /> Подарить свою рыбку
+                </div>
+                <div className="flex gap-2">
+                  <select
+                    className="min-w-0 flex-1 rounded-xl border border-cyan-100/10 bg-slate-950/45 px-3 text-sm text-cyan-50 outline-none"
+                    value={giftFishId}
+                    onChange={(event) => setGiftFishId(event.target.value)}
+                  >
+                    <option value="">Выбрать рыбку</option>
+                    {ownFish.map((fish) => (
+                      <option key={fish.id} value={fish.id}>
+                        {fish.name} · {fish.displayName}
+                      </option>
+                    ))}
+                  </select>
+                  <Button className="h-10 bg-emerald-300 px-3" disabled={isBusy || !giftFishId || ownFish.length <= 1} onClick={() => onGiftFish(giftFishId)}>
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             </div>
 
             {error ? <p className="text-sm text-yellow-100">{error}</p> : null}
@@ -332,7 +387,7 @@ function GiftModal({
 
         <div className="rounded-xl bg-amber-300/14 p-4 text-center">
           <Gift className="mx-auto h-12 w-12 text-amber-200" />
-          <div className="mt-3 text-lg font-black text-cyan-50">{giftLabel[gift.type]}</div>
+          <div className="mt-3 text-lg font-black text-cyan-50">{gift.fish?.displayName ?? giftLabel[gift.type]}</div>
           <div className="mt-1 text-sm text-cyan-100/65">Подарен {formatDate(gift.createdAt)}</div>
         </div>
 

@@ -49,7 +49,7 @@ export function useRemoveFriend() {
 export function useSendFriendGift() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: { friendId: string; type: string }) =>
+    mutationFn: (input: { friendId: string; type: string; fishId?: string }) =>
       api<{ friends: FriendsPayload; snapshot: AquariumSnapshot }>("/api/friends/gift", {
         method: "POST",
         body: JSON.stringify(input)

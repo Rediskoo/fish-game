@@ -1,41 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import { Fish, ShoppingBag, Utensils } from "lucide-react";
-import { FishRevealModal } from "@/components/fish/fish-reveal-modal";
+import { Fish, PackageOpen, Utensils } from "lucide-react";
+import { CaseRevealModal } from "@/components/fish/fish-reveal-modal";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
-import { usePlayer } from "@/features/auth/use-player";
-import { useSellFish } from "@/features/inventory/use-fish-actions";
+import { useRenameFish, useSellFish } from "@/features/inventory/use-fish-actions";
 import { useMarketplace, usePurchase } from "@/features/marketplace/use-marketplace";
-import type { AcquiredFish } from "@/types/game";
-
-const rarityLabel: Record<string, string> = {
-  COMMON: "Common",
-  RARE: "Rare",
-  EPIC: "Epic",
-  LEGENDARY: "Legendary"
-};
+import type { CaseResult } from "@/types/game";
 
 export function MarketplaceScreen() {
-  const player = usePlayer();
   const marketplace = useMarketplace();
   const purchase = usePurchase();
   const sellFish = useSellFish();
-  const [revealedFish, setRevealedFish] = useState<AcquiredFish | null>(null);
+  const renameFish = useRenameFish();
+  const [caseResult, setCaseResult] = useState<CaseResult | null>(null);
 
   return (
     <div className="space-y-4 p-4">
-      <header className="pt-4">
-        <p className="text-xs uppercase tracking-[0.18em] text-cyan-100/55">Marketplace</p>
-        <h1 className="text-3xl font-black text-cyan-50 text-glow">Новые жители</h1>
+      <header className="pt-14">
+        <h1 className="text-3xl font-black text-cyan-50 text-glow">Кейсы</h1>
       </header>
 
       <Panel>
         <div className="flex items-center justify-between gap-3">
           <div>
-            <div className="text-sm text-cyan-100/65">Баланс</div>
-            <div className="text-2xl font-black">{player.data?.user.currency ?? 0} водорослей</div>
+            <div className="text-sm text-cyan-100/65">Рыбный кейс</div>
+            <div className="text-2xl font-black">100 водорослей</div>
           </div>
           <Button
             disabled={purchase.isPending}
@@ -43,12 +34,12 @@ export function MarketplaceScreen() {
               purchase.mutate(
                 { item: "fish" },
                 {
-                  onSuccess: ({ acquiredFish }) => setRevealedFish(acquiredFish)
+                  onSuccess: ({ caseResult }) => setCaseResult(caseResult)
                 }
               )
             }
           >
-            <ShoppingBag className="h-4 w-4" /> Купить рыбку · 100
+            <PackageOpen className="h-4 w-4" /> Открыть
           </Button>
         </div>
       </Panel>
@@ -74,22 +65,23 @@ export function MarketplaceScreen() {
             <div className="min-w-0 flex-1">
               <div className="truncate font-bold">{fish.displayName}</div>
               <div className="text-xs text-cyan-100/60">
-                {rarityLabel[fish.rarity]} · шанс {(fish.dropChanceBps / 100).toFixed(1)}% · +{fish.incomePerSecond}/сек
+                шанс {(fish.dropChanceBps / 100).toFixed(2)}% · +{fish.incomePerSecond}/сек
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {revealedFish ? (
-        <FishRevealModal
-          fish={revealedFish}
-          isBusy={sellFish.isPending}
-          error={sellFish.error?.message}
-          onClose={() => setRevealedFish(null)}
+      {caseResult ? (
+        <CaseRevealModal
+          result={caseResult}
+          isBusy={sellFish.isPending || renameFish.isPending}
+          error={sellFish.error?.message ?? renameFish.error?.message}
+          onClose={() => setCaseResult(null)}
+          onRename={(name) => renameFish.mutate({ fishId: caseResult.fish.id, name })}
           onSell={() =>
-            sellFish.mutate(revealedFish.id, {
-              onSuccess: () => setRevealedFish(null)
+            sellFish.mutate(caseResult.fish.id, {
+              onSuccess: () => setCaseResult(null)
             })
           }
         />

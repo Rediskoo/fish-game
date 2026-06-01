@@ -14,6 +14,9 @@ enum FishSpecies {
   BETTA
   NEON_TETRA
   ANGELFISH
+  DISCUS
+  MANDARINFISH
+  DRAGON_KOI
 }
 
 enum Rarity {
@@ -43,10 +46,21 @@ enum FriendRequestStatus {
 
 enum GiftType {
   FISH_CASE
+  OWNED_FISH
   ALGAE_25
   ALGAE_50
   ALGAE_75
   ALGAE_100
+}
+
+enum FishPersonality {
+  CURIOUS
+  CALM
+  LAZY
+  SOCIAL
+  SHY
+  AGGRESSIVE
+  PLAYFUL
 }
 
 model User {
@@ -115,6 +129,10 @@ model Fish {
   ownerId            String
   fishTypeId         String
   name               String
+  isFavorite         Boolean     @default(false)
+  isGiftLocked       Boolean     @default(false)
+  personality        FishPersonality @default(CURIOUS)
+  descriptionSeed    Int         @default(0)
   incomeMultiplier   Float       @default(1)
   swimSpeed          Float
   hunger             Int         @default(0)
@@ -124,6 +142,7 @@ model Fish {
   updatedAt          DateTime    @updatedAt
   owner              User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   fishType           FishType    @relation(fields: [fishTypeId], references: [id])
+  giftedIn           FriendGift[]
 
   @@index([ownerId])
   @@map("fish")
@@ -223,10 +242,12 @@ model FriendGift {
   receiverId  String
   type        GiftType
   amount      Int      @default(0)
+  fishId      String?
   claimedAt   DateTime?
   createdAt   DateTime @default(now())
   sender      User     @relation("SentFriendGifts", fields: [senderId], references: [id], onDelete: Cascade)
   receiver    User     @relation("ReceivedFriendGifts", fields: [receiverId], references: [id], onDelete: Cascade)
+  fish        Fish?    @relation(fields: [fishId], references: [id], onDelete: SetNull)
 
   @@index([senderId, receiverId, createdAt])
   @@index([receiverId, claimedAt])

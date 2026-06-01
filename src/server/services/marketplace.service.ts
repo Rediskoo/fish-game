@@ -1,5 +1,6 @@
 import { TransactionType, type FishType, type PrismaClient } from "@prisma/client";
-import { addAquariumExperience, fishToAcquiredView } from "@/server/services/fish.service";
+import type { CaseTapeItem } from "@/types/game";
+import { createOwnedFish, fishCatalogOrder, fishRarityMeta, fishToAcquiredView } from "@/server/services/fish.service";
 
 export const fishCost = 100;
 
@@ -13,11 +14,27 @@ function pickWeighted(types: FishType[]) {
   return types[0];
 }
 
+function toTapeItem(type: FishType, key: string): CaseTapeItem {
+  const meta = fishRarityMeta(type.rarity);
+  return {
+    key,
+    displayName: type.displayName,
+    rarity: type.rarity,
+    rarityLabel: meta.label,
+    rarityColor: meta.color,
+    color: type.color,
+    glowColor: type.glowColor
+  };
+}
+
 export class MarketplaceService {
   constructor(private readonly db: PrismaClient) {}
 
   listFishTypes() {
-    return this.db.fishType.findMany({ orderBy: [{ rarity: "asc" }, { species: "asc" }] });
+    return this.db.fishType.findMany({
+      where: { OR: fishCatalogOrder },
+      orderBy: [{ rarity: "asc" }, { dropChanceBps: "desc" }]
+    });
   }
 
   async purchaseFish(userId: string) {
@@ -31,18 +48,8 @@ export class MarketplaceService {
       }
 
       await tx.user.update({ where: { id: userId }, data: { currency: { decrement: fishCost } } });
-      await addAquariumExperience(tx, userId, selected.experienceReward);
 
-      const fish = await tx.fish.create({
-        data: {
-          ownerId: userId,
-          fishTypeId: selected.id,
-          name: selected.displayName.split(" ").at(-1) ?? "Fish",
-          swimSpeed: selected.swimSpeed,
-          animationState: { x: Math.random(), y: Math.random(), direction: Math.random() > 0.5 ? 1 : -1 }
-        },
-        include: { fishType: true }
-      });
+      const fish = await createOwnedFish(tx, userId, selected);
       await tx.transaction.create({
         data: {
           ownerId: userId,
@@ -56,7 +63,19 @@ export class MarketplaceService {
           }
         }
       });
-      return fishToAcquiredView(fish);
+
+      const winningIndex = 29;
+      const tape = Array.from({ length: 42 }, (_, index) => {
+        const type = index === winningIndex ? selected : types[Math.floor(Math.random() * types.length)] ?? selected;
+        return toTapeItem(type, `${index}-${type.id}`);
+      });
+
+      return {
+        fish: fishToAcquiredView(fish),
+        tape,
+        winningIndex,
+        durationMs: 4800 + Math.floor(Math.random() * 900)
+      };
     });
   }
 }

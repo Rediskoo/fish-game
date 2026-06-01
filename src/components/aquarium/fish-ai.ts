@@ -10,6 +10,7 @@ export type FishAgent = {
   direction: 1 | -1;
   phase: number;
   nextDecision: number;
+  burstUntil: number;
 };
 
 export function createFishAgent(fish: FishView, width: number, height: number): FishAgent {
@@ -25,8 +26,45 @@ export function createFishAgent(fish: FishView, width: number, height: number): 
     targetY: Math.random() * height,
     direction: state?.direction ?? 1,
     phase: Math.random() * Math.PI * 2,
-    nextDecision: Math.random() * 2
+    nextDecision: Math.random() * 2,
+    burstUntil: 0
   };
+}
+
+export function reactToFishClick(agent: FishAgent, x: number, y: number, agents: FishAgent[]) {
+  const margin = 42;
+  const dx = agent.x - x;
+  const dy = agent.y - y;
+  const len = Math.max(1, Math.hypot(dx, dy));
+  if (agent.fish.personality === "CURIOUS") {
+    agent.targetX = x;
+    agent.targetY = y;
+  } else if (agent.fish.personality === "CALM") {
+    agent.targetX = agent.x + Math.cos(agent.phase) * 90;
+    agent.targetY = agent.y + Math.sin(agent.phase) * 60;
+  } else if (agent.fish.personality === "LAZY") {
+    agent.targetX = agent.x + (dx / len) * 70;
+    agent.targetY = agent.y + (dy / len) * 45;
+  } else if (agent.fish.personality === "SOCIAL") {
+    for (const other of agents.slice(0, 4)) {
+      other.targetX = x + (Math.random() - 0.5) * 120;
+      other.targetY = y + (Math.random() - 0.5) * 90;
+      other.nextDecision = 1.2;
+    }
+  } else if (agent.fish.personality === "SHY") {
+    agent.targetX = agent.x + (dx / len) * 180;
+    agent.targetY = agent.y + (dy / len) * 140;
+    agent.burstUntil = 0.7;
+  } else if (agent.fish.personality === "AGGRESSIVE") {
+    agent.targetX = x - (dx / len) * margin;
+    agent.targetY = y - (dy / len) * margin;
+    agent.burstUntil = 0.45;
+  } else {
+    agent.targetX = x + Math.sin(agent.phase) * 80;
+    agent.targetY = y + Math.cos(agent.phase) * 80;
+    agent.burstUntil = 0.6;
+  }
+  agent.nextDecision = 1.4;
 }
 
 export function updateFishAgent(agent: FishAgent, deltaSeconds: number, width: number, height: number) {
@@ -44,13 +82,15 @@ export function updateFishAgent(agent: FishAgent, deltaSeconds: number, width: n
   const dy = agent.targetY - agent.y;
   const len = Math.max(1, Math.hypot(dx, dy));
   const speed = agent.fish.swimSpeed * hungerSlowdown;
+  const burst = agent.burstUntil > 0 ? 2.3 : 1;
   const easing = Math.min(1, (speed * deltaSeconds) / len);
 
-  agent.x += dx * easing;
-  agent.y += dy * easing;
+  agent.x += dx * easing * burst;
+  agent.y += dy * easing * burst;
   agent.y += Math.sin(agent.phase) * 0.12;
   agent.phase += deltaSeconds * 4.6;
   agent.direction = dx >= 0 ? 1 : -1;
+  agent.burstUntil = Math.max(0, agent.burstUntil - deltaSeconds);
   agent.x = clamp(agent.x, margin, width - margin);
   agent.y = clamp(agent.y, margin, height - margin);
 }
