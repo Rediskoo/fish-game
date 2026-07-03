@@ -28,7 +28,7 @@ export function AquariumClient() {
       {observeMode ? (
         <div className="fixed inset-0 z-[70] bg-[#031018]">
           <AquariumRenderer fish={fish} className="min-h-dvh rounded-none" interactive />
-          <Button className="absolute right-4 top-[calc(14px+var(--safe-top))] z-10 h-11 w-11 bg-cyan-100 px-0" onClick={() => setObserveMode(false)} aria-label="Выйти из режима наблюдения">
+          <Button className="absolute right-4 top-[calc(28px+var(--safe-top))] z-10 h-11 w-11 bg-cyan-100 px-0" onClick={() => setObserveMode(false)} aria-label="Выйти из режима наблюдения">
             <X className="h-5 w-5" />
           </Button>
         </div>

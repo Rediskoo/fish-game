@@ -2,6 +2,7 @@ import { FriendRequestStatus, GiftType, TransactionType, type FishType, type Pri
 import type { FriendRequestView, FriendView } from "@/types/game";
 import { createOwnedFish, fishToAcquiredView, fishToView } from "@/server/services/fish.service";
 import { fishCost } from "@/server/services/marketplace.service";
+import { evaluateAchievements } from "@/server/services/rewards.service";
 
 const algaeGiftAmounts: Partial<Record<GiftType, number>> = {
   ALGAE_25: 25,
@@ -192,6 +193,8 @@ export class FriendsService {
         create: { ownerId: request.receiverId, friendId: request.senderId },
         update: {}
       });
+      await evaluateAchievements(tx, request.senderId);
+      await evaluateAchievements(tx, request.receiverId);
     });
 
     return this.getFriendsPayload(userId);
@@ -239,6 +242,7 @@ export class FriendsService {
       await tx.transaction.create({
         data: { ownerId: userId, type: TransactionType.GIFT_SENT, amount: -cost, metadata: { friendId, giftType: type, fishId: giftFishId } }
       });
+      await evaluateAchievements(tx, userId);
     });
 
     return this.getFriendsPayload(userId);
@@ -283,6 +287,7 @@ export class FriendsService {
           metadata: { senderId: gift.senderId, giftType: gift.type, giftId: gift.id }
         }
       });
+      await evaluateAchievements(tx, userId);
 
       return { acquiredFish };
     });

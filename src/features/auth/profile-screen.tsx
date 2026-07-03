@@ -91,7 +91,7 @@ export function ProfileScreen() {
 
   return (
     <div className="space-y-4 p-4">
-      <header className="pt-14">
+      <header className="pt-20">
         <h1 className="text-3xl font-black text-cyan-50 text-glow">{player.data?.user.firstName ?? "Игрок"}</h1>
       </header>
 
@@ -104,26 +104,6 @@ export function ProfileScreen() {
         <div className="text-sm text-cyan-100/60">Telegram User ID</div>
         <div className="font-mono text-lg">{player.data?.user.telegramId ?? "Загрузка..."}</div>
         <div className="mt-2 text-sm text-cyan-100/60">В игре с {formatGameSince(player.data?.user.createdAt)}</div>
-      </Panel>
-
-      <Panel className="space-y-3">
-        <div className="flex items-center gap-2 font-bold">
-          <Trophy className="h-5 w-5 text-amber-200" />
-          Достижения
-        </div>
-        <div className="grid gap-2">
-          {player.data?.achievements.map((achievement) => (
-            <div key={achievement.id} className={`rounded-xl p-3 ${achievement.unlockedAt ? "bg-amber-300/15" : "bg-slate-950/30 opacity-65"}`}>
-              <div className="flex items-center justify-between gap-2">
-                <div className="truncate font-bold">{achievement.title}</div>
-                <div className="text-xs text-cyan-100/55">{achievement.reward}</div>
-              </div>
-              <div className="mt-1 text-xs text-cyan-100/60">
-                {achievement.unlockedAt ? `Открыто ${formatDate(achievement.unlockedAt)}` : achievement.description}
-              </div>
-            </div>
-          ))}
-        </div>
       </Panel>
 
       <Panel className="space-y-3">
@@ -275,8 +255,8 @@ function FriendModal({
   const [giftFishId, setGiftFishId] = useState("");
 
   return (
-    <div className="fixed inset-0 z-[60] grid place-items-end bg-slate-950/70 px-3 pb-[calc(14px+var(--safe-bottom))] pt-[var(--safe-top)]">
-      <div className="glass w-full max-w-md space-y-4 rounded-2xl p-4 shadow-2xl">
+    <div className="fixed inset-0 z-[60] grid place-items-end bg-slate-950/70 px-3 pb-[calc(14px+var(--safe-bottom))] pt-[var(--safe-top)] sm:place-items-center">
+      <div className="glass max-h-[calc(100dvh-28px-var(--safe-top)-var(--safe-bottom))] w-full max-w-md space-y-4 overflow-y-auto rounded-2xl p-4 shadow-2xl">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="truncate text-2xl font-black text-cyan-50">{friend.firstName ?? friend.username ?? `ID ${friend.telegramId}`}</div>
@@ -289,8 +269,8 @@ function FriendModal({
 
         {showAquarium ? (
           <div className="space-y-3">
-            <div className="h-80 overflow-hidden rounded-xl border border-cyan-100/15">
-              <AquariumRenderer fish={friend.fish} className="min-h-0 rounded-none" />
+            <div className="h-[min(64dvh,520px)] min-h-[420px] overflow-hidden rounded-xl border border-cyan-100/15">
+              <AquariumRenderer fish={friend.fish} className="h-full min-h-0 rounded-none" />
             </div>
             <Button className="w-full" onClick={() => setShowAquarium(false)}>
               Закрыть просмотр

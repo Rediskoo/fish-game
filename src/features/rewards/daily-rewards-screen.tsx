@@ -1,6 +1,6 @@
 "use client";
 
-import { Gift } from "lucide-react";
+import { Gift, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { cn } from "@/lib/cn";
@@ -19,6 +19,17 @@ function formatClaimTime(value?: string) {
   });
 }
 
+function formatAchievementTime(value: string | null) {
+  if (!value) return "";
+  return new Date(value).toLocaleString("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
 export function DailyRewardsScreen() {
   const player = usePlayer();
   const daily = useDailyReward();
@@ -28,7 +39,7 @@ export function DailyRewardsScreen() {
 
   return (
     <div className="space-y-4 p-4">
-      <header className="pt-14">
+      <header className="pt-20">
         <h1 className="text-3xl font-black text-cyan-50 text-glow">Ежедневный бонус</h1>
       </header>
       <Panel className="space-y-4">
@@ -45,6 +56,26 @@ export function DailyRewardsScreen() {
           {claimedToday ? "Уже забрано" : "Забрать"}
         </Button>
         {daily.error ? <p className="text-sm text-yellow-100">{daily.error.message}</p> : null}
+      </Panel>
+
+      <Panel className="space-y-3">
+        <div className="flex items-center gap-2 font-bold">
+          <Trophy className="h-5 w-5 text-amber-200" />
+          Достижения
+        </div>
+        <div className="grid gap-2">
+          {player.data?.achievements.map((achievement) => (
+            <div key={achievement.id} className={cn("rounded-xl p-3", achievement.unlockedAt ? "bg-amber-300/15" : "bg-slate-950/30 opacity-65")}>
+              <div className="flex items-center justify-between gap-2">
+                <div className="truncate font-bold">{achievement.title}</div>
+                <div className="text-xs text-cyan-100/55">+{achievement.reward}</div>
+              </div>
+              <div className="mt-1 text-xs text-cyan-100/60">
+                {achievement.unlockedAt ? `Открыто ${formatAchievementTime(achievement.unlockedAt)}` : achievement.description}
+              </div>
+            </div>
+          ))}
+        </div>
       </Panel>
     </div>
   );

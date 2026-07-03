@@ -1,6 +1,7 @@
 import { TransactionType, type FishType, type PrismaClient } from "@prisma/client";
 import type { CaseTapeItem } from "@/types/game";
 import { createOwnedFish, fishCatalogOrder, fishRarityMeta, fishToAcquiredView } from "@/server/services/fish.service";
+import { evaluateAchievements } from "@/server/services/rewards.service";
 
 export const fishCost = 100;
 
@@ -63,6 +64,7 @@ export class MarketplaceService {
           }
         }
       });
+      await evaluateAchievements(tx, userId);
 
       const winningIndex = 29;
       const tape = Array.from({ length: 42 }, (_, index) => {

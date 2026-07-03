@@ -5,6 +5,7 @@ import type { AquariumSnapshot } from "@/types/game";
 import { applyHungerDecay } from "@/server/services/hunger.service";
 import { calculateFishIncome, claimOfflineIncome } from "@/server/services/income.service";
 import { fishToView } from "@/server/services/fish.service";
+import { evaluateAchievements } from "@/server/services/rewards.service";
 
 const dailyRewardAmount = 100;
 
@@ -55,6 +56,7 @@ export class PlayerService {
     if (!snapshot?.aquarium || !snapshot.inventory) {
       throw new Error("Player state is incomplete");
     }
+    await evaluateAchievements(this.db, userId);
 
     const lastDailyReward = await this.db.dailyReward.findFirst({
       where: { ownerId: userId },

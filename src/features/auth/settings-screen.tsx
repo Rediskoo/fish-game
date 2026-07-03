@@ -9,7 +9,7 @@ export function SettingsScreen() {
 
   return (
     <div className="space-y-4 p-4">
-      <header className="pt-14">
+      <header className="pt-20">
         <h1 className="text-3xl font-black text-cyan-50 text-glow">Настройки</h1>
       </header>
       <Panel className="space-y-3">

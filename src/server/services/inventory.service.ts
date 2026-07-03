@@ -1,5 +1,6 @@
 import { TransactionType, type PrismaClient } from "@prisma/client";
 import { applyHungerDecay, feedFishHunger } from "@/server/services/hunger.service";
+import { evaluateAchievements } from "@/server/services/rewards.service";
 
 export class InventoryService {
   constructor(private readonly db: PrismaClient) {}
@@ -22,6 +23,7 @@ export class InventoryService {
       await tx.transaction.create({
         data: { ownerId: userId, type: TransactionType.FEED, amount: -1, metadata: { fishId } }
       });
+      await evaluateAchievements(tx, userId);
 
       return updatedFish;
     });

@@ -170,38 +170,99 @@ async function createScene(
   window.addEventListener("resize", onResize);
 
   if (interactive) {
+    host.style.touchAction = "none";
+
     let scale = 1;
-    let dragging = false;
-    let lastX = 0;
-    let lastY = 0;
     let startX = 0;
     let startY = 0;
+    let lastX = 0;
+    let lastY = 0;
+    let pinchStartDistance = 0;
+    let pinchStartScale = 1;
+    const pointers = new Map<number, { x: number; y: number }>();
+
     const clampWorld = () => {
+      scale = Math.max(1, Math.min(3, scale));
       world.scale.set(scale);
-      world.x = Math.min(app.screen.width * 0.3, Math.max(app.screen.width * (1 - scale) - app.screen.width * 0.3, world.x));
-      world.y = Math.min(app.screen.height * 0.3, Math.max(app.screen.height * (1 - scale) - app.screen.height * 0.3, world.y));
+
+      const overflowX = Math.max(0, app.screen.width * scale - app.screen.width);
+      const overflowY = Math.max(0, app.screen.height * scale - app.screen.height);
+      const paddingX = Math.min(app.screen.width * 0.12, overflowX * 0.5);
+      const paddingY = Math.min(app.screen.height * 0.12, overflowY * 0.5);
+      world.x = Math.min(paddingX, Math.max(-overflowX - paddingX, world.x));
+      world.y = Math.min(paddingY, Math.max(-overflowY - paddingY, world.y));
     };
-    const toWorld = (clientX: number, clientY: number) => {
+
+    const canvasPoint = (clientX: number, clientY: number) => {
       const rect = app.canvas.getBoundingClientRect();
       return {
-        x: (clientX - rect.left - world.x) / scale,
-        y: (clientY - rect.top - world.y) / scale
+        x: clientX - rect.left,
+        y: clientY - rect.top
       };
     };
-    const onWheel = (event: WheelEvent) => {
-      event.preventDefault();
-      scale = Math.max(0.75, Math.min(2.5, scale + (event.deltaY > 0 ? -0.08 : 0.08)));
+
+    const toWorld = (clientX: number, clientY: number) => {
+      const point = canvasPoint(clientX, clientY);
+      return {
+        x: (point.x - world.x) / scale,
+        y: (point.y - world.y) / scale
+      };
+    };
+
+    const zoomAt = (nextScale: number, clientX: number, clientY: number) => {
+      const point = canvasPoint(clientX, clientY);
+      const before = {
+        x: (point.x - world.x) / scale,
+        y: (point.y - world.y) / scale
+      };
+      scale = Math.max(1, Math.min(3, nextScale));
+      world.x = point.x - before.x * scale;
+      world.y = point.y - before.y * scale;
       clampWorld();
     };
+
+    const pointerPair = () => [...pointers.values()].slice(0, 2);
+    const pointerDistance = () => {
+      const pair = pointerPair();
+      if (pair.length < 2) return 0;
+      return Math.hypot(pair[0].x - pair[1].x, pair[0].y - pair[1].y);
+    };
+    const pointerCenter = () => {
+      const pair = pointerPair();
+      return {
+        x: pair.reduce((sum, point) => sum + point.x, 0) / pair.length,
+        y: pair.reduce((sum, point) => sum + point.y, 0) / pair.length
+      };
+    };
+
+    const onResizeInteractive = () => clampWorld();
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      zoomAt(scale * (event.deltaY > 0 ? 0.9 : 1.1), event.clientX, event.clientY);
+    };
     const onPointerDown = (event: PointerEvent) => {
-      dragging = true;
-      lastX = event.clientX;
-      lastY = event.clientY;
+      app.canvas.setPointerCapture?.(event.pointerId);
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
       startX = event.clientX;
       startY = event.clientY;
+      lastX = event.clientX;
+      lastY = event.clientY;
+      if (pointers.size === 2) {
+        pinchStartDistance = pointerDistance();
+        pinchStartScale = scale;
+      }
     };
     const onPointerMove = (event: PointerEvent) => {
-      if (!dragging) return;
+      if (!pointers.has(event.pointerId)) return;
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+      if (pointers.size >= 2) {
+        const center = pointerCenter();
+        const distance = pointerDistance();
+        if (pinchStartDistance > 0) zoomAt(pinchStartScale * (distance / pinchStartDistance), center.x, center.y);
+        return;
+      }
+
       world.x += event.clientX - lastX;
       world.y += event.clientY - lastY;
       lastX = event.clientX;
@@ -210,8 +271,13 @@ async function createScene(
     };
     const onPointerUp = (event: PointerEvent) => {
       const moved = Math.hypot(event.clientX - startX, event.clientY - startY);
-      dragging = false;
-      if (moved > 8) return;
+      pointers.delete(event.pointerId);
+      app.canvas.releasePointerCapture?.(event.pointerId);
+      if (pointers.size < 2) {
+        pinchStartDistance = 0;
+        pinchStartScale = scale;
+      }
+      if (moved > 8 || pointers.size > 0) return;
       const point = toWorld(event.clientX, event.clientY);
       const entries = [...agents.values()];
       const target = entries.find((entry) => Math.hypot(entry.agent.x - point.x, entry.agent.y - point.y) < 54);
@@ -225,12 +291,17 @@ async function createScene(
     app.canvas.addEventListener("pointerdown", onPointerDown);
     app.canvas.addEventListener("pointermove", onPointerMove);
     app.canvas.addEventListener("pointerup", onPointerUp);
+    app.canvas.addEventListener("pointercancel", onPointerUp);
+    window.addEventListener("resize", onResizeInteractive);
     return () => {
+      host.style.touchAction = "";
       window.removeEventListener("resize", onResize);
+      window.removeEventListener("resize", onResizeInteractive);
       app.canvas.removeEventListener("wheel", onWheel);
       app.canvas.removeEventListener("pointerdown", onPointerDown);
       app.canvas.removeEventListener("pointermove", onPointerMove);
       app.canvas.removeEventListener("pointerup", onPointerUp);
+      app.canvas.removeEventListener("pointercancel", onPointerUp);
       app.destroy(true);
     };
   }
