@@ -208,6 +208,14 @@ model UserAchievement {
   @@map("user_achievements")
 }
 
+model BotNotification {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  createdAt DateTime @default(now())
+
+  @@map("bot_notifications")
+}
+
 model Friend {
   id          String   @id @default(cuid())
   ownerId     String

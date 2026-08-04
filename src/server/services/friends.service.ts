@@ -3,6 +3,7 @@ import type { FriendRequestView, FriendView } from "@/types/game";
 import { createOwnedFish, fishToAcquiredView, fishToView } from "@/server/services/fish.service";
 import { fishCost } from "@/server/services/marketplace.service";
 import { evaluateAchievements } from "@/server/services/rewards.service";
+import { notifyAquariumVisit, notifyFriendRequest, notifyGift } from "@/lib/telegram/bot";
 
 const algaeGiftAmounts: Partial<Record<GiftType, number>> = {
   ALGAE_25: 25,
@@ -10,6 +11,19 @@ const algaeGiftAmounts: Partial<Record<GiftType, number>> = {
   ALGAE_75: 75,
   ALGAE_100: 100
 };
+
+const giftNotificationLabels: Record<GiftType, string> = {
+  FISH_CASE: "кейс с рыбкой",
+  OWNED_FISH: "рыбка из аквариума",
+  ALGAE_25: "25 водорослей",
+  ALGAE_50: "50 водорослей",
+  ALGAE_75: "75 водорослей",
+  ALGAE_100: "100 водорослей"
+};
+
+function displayName(user: { firstName: string | null; username: string | null }) {
+  return user.firstName ?? (user.username ? `@${user.username}` : "Друг");
+}
 
 function pickWeighted(types: FishType[]) {
   const total = types.reduce((sum, type) => sum + type.dropChanceBps, 0);
@@ -172,6 +186,7 @@ export class FriendsService {
       create: { senderId: userId, receiverId: target.id },
       update: { status: FriendRequestStatus.PENDING }
     });
+    await notifyFriendRequest(target.telegramId, displayName(currentUser));
 
     return this.getFriendsPayload(userId);
   }
@@ -216,9 +231,13 @@ export class FriendsService {
   }
 
   async sendGift(userId: string, friendId: string, type: GiftType, fishId?: string) {
-    await this.db.$transaction(async (tx) => {
+    const notification = await this.db.$transaction(async (tx) => {
       const friendship = await tx.friend.findUnique({ where: { ownerId_friendId: { ownerId: userId, friendId } } });
       if (!friendship) throw new Error("This user is not your friend");
+      const [sender, receiver] = await Promise.all([
+        tx.user.findUniqueOrThrow({ where: { id: userId }, select: { firstName: true, username: true } }),
+        tx.user.findUniqueOrThrow({ where: { id: friendId }, select: { telegramId: true } })
+      ]);
 
       const amount = algaeGiftAmounts[type] ?? 0;
       const cost = type === GiftType.FISH_CASE ? fishCost : amount;
@@ -233,8 +252,8 @@ export class FriendsService {
         await tx.fish.update({ where: { id: fish.id }, data: { isGiftLocked: true } });
         giftFishId = fish.id;
       } else {
-        const sender = await tx.user.findUniqueOrThrow({ where: { id: userId } });
-        if (sender.currency < cost) throw new Error("Not enough algae for this gift");
+        const senderBalance = await tx.user.findUniqueOrThrow({ where: { id: userId } });
+        if (senderBalance.currency < cost) throw new Error("Not enough algae for this gift");
         await tx.user.update({ where: { id: userId }, data: { currency: { decrement: cost } } });
       }
 
@@ -243,9 +262,33 @@ export class FriendsService {
         data: { ownerId: userId, type: TransactionType.GIFT_SENT, amount: -cost, metadata: { friendId, giftType: type, fishId: giftFishId } }
       });
       await evaluateAchievements(tx, userId);
+      return { targetTelegramId: receiver.telegramId, senderName: displayName(sender) };
     });
 
+    await notifyGift(notification.targetTelegramId, notification.senderName, giftNotificationLabels[type]);
+
     return this.getFriendsPayload(userId);
+  }
+
+  async recordAquariumVisit(visitorId: string, ownerId: string) {
+    if (visitorId === ownerId) throw new Error("You cannot visit your own aquarium");
+    const friendship = await this.db.friend.findUnique({ where: { ownerId_friendId: { ownerId: visitorId, friendId: ownerId } } });
+    if (!friendship) throw new Error("This user is not your friend");
+
+    const [visitor, owner] = await Promise.all([
+      this.db.user.findUniqueOrThrow({ where: { id: visitorId }, select: { firstName: true, username: true } }),
+      this.db.user.findUniqueOrThrow({ where: { id: ownerId }, select: { telegramId: true } })
+    ]);
+    const period = Math.floor(Date.now() / (6 * 60 * 60 * 1000));
+    const key = `visit:${visitorId}:${ownerId}:${period}`;
+    try {
+      await this.db.botNotification.create({ data: { key } });
+    } catch {
+      return;
+    }
+    if (!(await notifyAquariumVisit(owner.telegramId, displayName(visitor)))) {
+      await this.db.botNotification.delete({ where: { key } }).catch(() => undefined);
+    }
   }
 
   async claimGift(userId: string, giftId: string) {

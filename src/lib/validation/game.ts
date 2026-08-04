@@ -34,3 +34,7 @@ export const friendGiftSchema = z.object({
 export const claimFriendGiftSchema = z.object({
   giftId: z.string().cuid()
 });
+
+export const visitFriendSchema = z.object({
+  friendId: z.string().cuid()
+});

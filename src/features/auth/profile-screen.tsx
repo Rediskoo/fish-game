@@ -13,7 +13,8 @@ import {
   useFriendRequestAction,
   useFriends,
   useRemoveFriend,
-  useSendFriendGift
+  useSendFriendGift,
+  useVisitFriendAquarium
 } from "@/features/friends/use-friends";
 import { useSellFish } from "@/features/inventory/use-fish-actions";
 import type { AcquiredFish, FishView, FriendView, PendingGiftView } from "@/types/game";
@@ -69,6 +70,7 @@ export function ProfileScreen() {
   const sendGift = useSendFriendGift();
   const claimGift = useClaimFriendGift();
   const sellFish = useSellFish();
+  const visitAquarium = useVisitFriendAquarium();
   const [telegramId, setTelegramId] = useState("");
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
   const [selectedGiftFriendId, setSelectedGiftFriendId] = useState<string | null>(null);
@@ -195,6 +197,7 @@ export function ProfileScreen() {
           onGift={(type) => sendGift.mutate({ friendId: selectedFriend.id, type })}
           ownFish={player.data?.fish ?? []}
           onGiftFish={(fishId) => sendGift.mutate({ friendId: selectedFriend.id, type: "OWNED_FISH", fishId })}
+          onVisit={() => visitAquarium.mutate(selectedFriend.id)}
         />
       ) : null}
 
@@ -240,7 +243,8 @@ function FriendModal({
   onRemove,
   onGift,
   ownFish,
-  onGiftFish
+  onGiftFish,
+  onVisit
 }: {
   friend: FriendView;
   isBusy: boolean;
@@ -250,6 +254,7 @@ function FriendModal({
   onGift: (type: string) => void;
   ownFish: FishView[];
   onGiftFish: (fishId: string) => void;
+  onVisit: () => void;
 }) {
   const [showAquarium, setShowAquarium] = useState(false);
   const [giftFishId, setGiftFishId] = useState("");
@@ -285,7 +290,7 @@ function FriendModal({
               <FriendInfo label="Последний подарок" value={formatDate(friend.lastGiftAt)} />
             </div>
 
-            <Button className="w-full bg-sky-300" onClick={() => setShowAquarium(true)}>
+            <Button className="w-full bg-sky-300" onClick={() => { setShowAquarium(true); onVisit(); }}>
               <Eye className="h-4 w-4" /> Аквариум друга
             </Button>
 

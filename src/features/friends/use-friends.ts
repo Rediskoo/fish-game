@@ -75,3 +75,13 @@ export function useClaimFriendGift() {
     }
   });
 }
+
+export function useVisitFriendAquarium() {
+  return useMutation({
+    mutationFn: (friendId: string) =>
+      api<{ notified: boolean }>("/api/friends/visit", {
+        method: "POST",
+        body: JSON.stringify({ friendId })
+      })
+  });
+}
