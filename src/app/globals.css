@@ -44,6 +44,12 @@ input {
   text-shadow: 0 0 18px rgba(103, 232, 249, 0.44);
 }
 
+@keyframes casino-prize {
+  0% { opacity: 0; transform: scale(.72); }
+  70% { transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

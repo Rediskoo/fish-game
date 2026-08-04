@@ -37,7 +37,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <main className="min-h-dvh bg-[radial-gradient(circle_at_20%_0%,rgba(30,168,220,.26),transparent_35%),linear-gradient(180deg,#04121d,#06283a_50%,#031018)] pb-[calc(76px+var(--safe-bottom))] pt-[var(--safe-top)]">
       <TelegramBootstrap />
-      <div className="pointer-events-none fixed inset-x-0 top-[calc(104px+var(--safe-top))] z-40 flex justify-center">
+      <div className="pointer-events-none fixed inset-x-0 top-[calc(56px+var(--safe-top))] z-40 flex justify-center">
         <div className="glass inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-black text-cyan-50 shadow-lg">
           <Coins className="h-4 w-4 text-amber-200" />
           {Math.floor(optimisticCurrency || player.data?.user.currency || 0)}

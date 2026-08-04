@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Fish, PackageOpen, Utensils } from "lucide-react";
-import { CaseRevealModal } from "@/components/fish/fish-reveal-modal";
+import { CasinoRevealModal } from "@/components/fish/casino-reveal-modal";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { useRenameFish, useSellFish } from "@/features/inventory/use-fish-actions";
@@ -73,14 +73,14 @@ export function MarketplaceScreen() {
       </div>
 
       {caseResult ? (
-        <CaseRevealModal
+        <CasinoRevealModal
           result={caseResult}
           isBusy={sellFish.isPending || renameFish.isPending}
           error={sellFish.error?.message ?? renameFish.error?.message}
           onClose={() => setCaseResult(null)}
-          onRename={(name) => renameFish.mutate({ fishId: caseResult.fish.id, name })}
+          onRename={(name) => caseResult.reward.kind === "fish" && renameFish.mutate({ fishId: caseResult.reward.fish.id, name })}
           onSell={() =>
-            sellFish.mutate(caseResult.fish.id, {
+            caseResult.reward.kind === "fish" && sellFish.mutate(caseResult.reward.fish.id, {
               onSuccess: () => setCaseResult(null)
             })
           }
