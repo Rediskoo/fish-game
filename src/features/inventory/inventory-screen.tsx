@@ -128,18 +128,18 @@ function FishModal({
 
   return (
     <div className="fixed inset-0 z-[60] grid place-items-end bg-slate-950/70 px-3 pb-[calc(14px+var(--safe-bottom))] pt-[var(--safe-top)] sm:place-items-center">
-      <div className="glass w-full max-w-md space-y-4 rounded-2xl p-4 shadow-2xl">
+      <div className="glass w-full min-w-0 max-w-[calc(100dvw-1.5rem)] space-y-4 overflow-x-hidden rounded-2xl p-4 shadow-2xl">
         <div className="flex items-start justify-between gap-2">
-          <form className="flex min-w-0 flex-1 gap-2" onSubmit={handleRename}>
+          <form className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] gap-2" onSubmit={handleRename}>
             <input className="min-w-0 flex-1 rounded-xl border border-cyan-100/10 bg-slate-950/45 px-3 text-lg font-black text-cyan-50 outline-none focus:border-cyan-200/45" maxLength={18} minLength={2} value={name} onChange={(event) => setName(event.target.value)} />
-            <Button disabled={isBusy || name.trim().length < 2 || name.trim() === fish.name} type="submit" aria-label="Переименовать">
+            <Button className="h-11 w-11 shrink-0 px-0" disabled={isBusy || name.trim().length < 2 || name.trim() === fish.name} type="submit" aria-label="Переименовать">
               <Pencil className="h-4 w-4" />
             </Button>
           </form>
-          <Button className="h-11 w-11 bg-rose-300 px-0" disabled={isBusy} onClick={onSell} aria-label="Продать">
+          <Button className="h-11 w-11 shrink-0 bg-rose-300 px-0" disabled={isBusy} onClick={onSell} aria-label="Продать">
             <Trash2 className="h-4 w-4" />
           </Button>
-          <button className="grid h-11 w-11 place-items-center rounded-xl bg-slate-950/40 text-cyan-100" onClick={onClose} aria-label="Закрыть">
+          <button className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-slate-950/40 text-cyan-100" onClick={onClose} aria-label="Закрыть">
             <X className="h-5 w-5" />
           </button>
         </div>
