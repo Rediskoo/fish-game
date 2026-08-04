@@ -34,10 +34,16 @@ input {
 }
 
 .glass {
-  border: 1px solid rgba(148, 211, 255, 0.2);
-  background: rgba(8, 31, 49, 0.62);
-  box-shadow: 0 16px 60px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(148, 211, 255, 0.24);
+  background: linear-gradient(145deg, rgba(13, 54, 77, 0.78), rgba(4, 24, 39, 0.72));
+  box-shadow: 0 16px 60px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 34px rgba(34, 211, 238, 0.04);
   backdrop-filter: blur(18px);
+}
+
+.ocean-shell {
+  background: radial-gradient(circle at 18% 4%, rgba(66, 210, 233, .25), transparent 29%), radial-gradient(circle at 86% 38%, rgba(52, 117, 213, .18), transparent 31%), linear-gradient(180deg, #031e2d, #062d42 48%, #03131e);
+  background-size: 140% 140%;
+  animation: ocean-drift 18s ease-in-out infinite alternate;
 }
 
 .text-glow {
@@ -48,6 +54,11 @@ input {
   0% { opacity: 0; transform: scale(.72); }
   70% { transform: scale(1.06); }
   100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ocean-drift {
+  from { background-position: 0% 0%, 100% 50%, 50% 50%; }
+  to { background-position: 18% 10%, 76% 42%, 50% 50%; }
 }
 
 @media (prefers-reduced-motion: reduce) {

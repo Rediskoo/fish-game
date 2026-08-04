@@ -63,8 +63,8 @@ async function createScene(
   app.stage.addChild(world);
   world.addChild(background, particleLayer, fishLayer, labelLayer);
 
-  const agents = new Map<string, { agent: FishAgent; node: Container; label: Text }>();
-  const bubbles = Array.from({ length: 34 }, () => createBubble(PIXI, app.screen.width, app.screen.height));
+  const agents = new Map<string, { agent: FishAgent; node: Container; label: Text; tail: Container }>();
+  const bubbles = Array.from({ length: 46 }, () => createBubble(PIXI, app.screen.width, app.screen.height));
   bubbles.forEach((bubble) => particleLayer.addChild(bubble));
 
   function drawBackground() {
@@ -72,8 +72,16 @@ async function createScene(
     const w = app.screen.width;
     const h = app.screen.height;
     const water = new PIXI.Graphics();
-    water.rect(0, 0, w, h).fill({ color: 0x06283a, alpha: 1 });
+    water.rect(0, 0, w, h).fill({ color: 0x031827, alpha: 1 });
+    water.rect(0, 0, w, h * 0.38).fill({ color: 0x0d6073, alpha: 0.42 });
     background.addChild(water);
+
+    for (let i = 0; i < 5; i += 1) {
+      const ray = new PIXI.Graphics();
+      const x = (i + 0.5) * (w / 5);
+      ray.poly([x - 16, 0, x + 16, 0, x + 115, h * 0.74, x - 92, h * 0.74]).fill({ color: 0xa5f3fc, alpha: 0.035 });
+      background.addChild(ray);
+    }
 
     for (let i = 0; i < 7; i += 1) {
       const weed = new PIXI.Graphics();
@@ -82,8 +90,17 @@ async function createScene(
       for (let j = 0; j < 7; j += 1) {
         weed.lineTo(x + Math.sin(j + i) * 18, h - j * 22 - 18);
       }
-      weed.stroke({ width: 8, color: 0x22c55e, alpha: 0.32 });
+      weed.stroke({ width: 7 + (i % 3), color: i % 2 ? 0x1fae82 : 0x22c55e, alpha: 0.38 });
       background.addChild(weed);
+    }
+
+    for (let i = 0; i < 9; i += 1) {
+      const coral = new PIXI.Graphics();
+      const x = (i / 8) * w + Math.sin(i * 3) * 10;
+      const height = 12 + (i % 4) * 8;
+      coral.circle(x, h - 7, height).fill({ color: i % 2 ? 0x7c3aed : 0xf97316, alpha: 0.22 });
+      coral.circle(x + height * 0.7, h - 11, height * 0.65).fill({ color: i % 2 ? 0xc084fc : 0xfb7185, alpha: 0.17 });
+      background.addChild(coral);
     }
 
     const glow = new PIXI.Graphics();
@@ -105,7 +122,7 @@ async function createScene(
     for (const item of fishRef.current) {
       if (agents.has(item.id)) continue;
       const agent = createFishAgent(item, app.screen.width, app.screen.height);
-      const node = createFishNode(PIXI, item);
+      const sprite = createFishNode(PIXI, item);
       const label = new PIXI.Text({
         text: `${item.name} · ${formatAge(item.ageSeconds)}`,
         style: {
@@ -117,9 +134,9 @@ async function createScene(
         }
       });
       label.anchor.set(0.5);
-      fishLayer.addChild(node);
+      fishLayer.addChild(sprite.node);
       labelLayer.addChild(label);
-      agents.set(item.id, { agent, node, label });
+      agents.set(item.id, { agent, node: sprite.node, tail: sprite.tail, label });
     }
   }
 
@@ -145,12 +162,15 @@ async function createScene(
     elapsed += delta;
     syncFish();
 
+    const agentList = [...agents.values()].map((entry) => entry.agent);
     for (const entry of agents.values()) {
-      updateFishAgent(entry.agent, delta, app.screen.width, app.screen.height);
+      updateFishAgent(entry.agent, delta, app.screen.width, app.screen.height, agentList);
       entry.node.x = entry.agent.x;
       entry.node.y = entry.agent.y;
       entry.node.scale.x = entry.agent.direction * Math.abs(entry.node.scale.x || 1);
       entry.node.rotation = Math.sin(entry.agent.phase) * 0.08;
+      entry.tail.rotation = Math.sin(entry.agent.phase * 2.5) * 0.17;
+      entry.tail.scale.y = 0.9 + Math.abs(Math.sin(entry.agent.phase * 2.5)) * 0.2;
       entry.label.x = entry.agent.x;
       entry.label.y = entry.agent.y - 42;
       entry.label.text = `${entry.agent.fish.name} · ${formatAge(entry.agent.fish.ageSeconds + elapsed)}`;
@@ -315,22 +335,60 @@ async function createScene(
 function createFishNode(PIXI: PixiModule, fish: FishView) {
   const node = new PIXI.Container();
   const body = new PIXI.Graphics();
+  const tail = new PIXI.Container();
   const color = Number.parseInt(fish.color.replace("#", ""), 16);
   const glow = Number.parseInt(fish.glowColor.replace("#", ""), 16);
+  const fin = new PIXI.Graphics();
+  const tailShape = new PIXI.Graphics();
 
-  body.ellipse(0, 0, 28, 15).fill({ color, alpha: 0.95 });
-  body.circle(14, -4, 2.2).fill({ color: 0x031018, alpha: 0.95 });
-  body.moveTo(-26, 0).lineTo(-48, -14).lineTo(-42, 0).lineTo(-48, 14).closePath().fill({ color, alpha: 0.75 });
-  body.moveTo(-4, -13).lineTo(-16, -29).lineTo(8, -15).closePath().fill({ color: glow, alpha: 0.55 });
-  body.moveTo(-2, 13).lineTo(-15, 27).lineTo(9, 15).closePath().fill({ color: glow, alpha: 0.45 });
+  if (fish.species === "ANGELFISH") {
+    body.poly([-20, 0, -7, -31, 19, 0, -7, 31]).fill({ color, alpha: 0.96 });
+    tailShape.poly([-15, 0, -39, -24, -31, 0, -39, 24]).fill({ color: glow, alpha: 0.78 });
+    fin.moveTo(-1, -18).lineTo(-8, -42).lineTo(9, -17).fill({ color: glow, alpha: 0.58 });
+  } else if (fish.species === "DISCUS") {
+    body.circle(0, 0, 24).fill({ color, alpha: 0.96 });
+    tailShape.poly([-20, 0, -43, -16, -36, 0, -43, 16]).fill({ color: glow, alpha: 0.72 });
+    body.rect(-6, -21, 5, 42).fill({ color: glow, alpha: 0.52 });
+    body.rect(7, -21, 4, 42).fill({ color: 0xffffff, alpha: 0.25 });
+  } else if (fish.species === "BETTA") {
+    body.ellipse(0, 0, 27, 14).fill({ color, alpha: 0.96 });
+    tailShape.poly([-20, 0, -55, -27, -42, 0, -55, 27]).fill({ color: glow, alpha: 0.76 });
+    fin.poly([-8, -10, -27, -35, 13, -15]).fill({ color: glow, alpha: 0.64 });
+    fin.poly([-8, 10, -27, 35, 13, 15]).fill({ color: glow, alpha: 0.56 });
+  } else if (fish.species === "DRAGON_KOI") {
+    body.ellipse(0, 0, 38, 15).fill({ color, alpha: 0.97 });
+    tailShape.poly([-30, 0, -56, -19, -49, 0, -56, 19]).fill({ color: glow, alpha: 0.78 });
+    fin.moveTo(-8, -12).lineTo(5, -30).lineTo(15, -12).fill({ color: glow, alpha: 0.65 });
+    body.circle(18, -4, 3).fill({ color: 0x031018, alpha: 0.95 });
+    body.moveTo(27, 2).lineTo(43, 13).stroke({ width: 1.4, color: glow, alpha: 0.72 });
+  } else if (fish.species === "MANDARINFISH") {
+    body.ellipse(0, 0, 30, 16).fill({ color, alpha: 0.96 });
+    tailShape.poly([-25, 0, -48, -18, -42, 0, -48, 18]).fill({ color: glow, alpha: 0.76 });
+    for (let i = -10; i <= 12; i += 11) body.circle(i, Math.sin(i) * 5, 3).fill({ color: glow, alpha: 0.85 });
+    fin.moveTo(-4, -14).lineTo(-15, -30).lineTo(12, -14).fill({ color: glow, alpha: 0.6 });
+  } else if (fish.species === "NEON_TETRA") {
+    body.ellipse(0, 0, 30, 11).fill({ color, alpha: 0.96 });
+    tailShape.poly([-27, 0, -47, -12, -42, 0, -47, 12]).fill({ color: glow, alpha: 0.75 });
+    body.rect(-20, -3, 39, 5).fill({ color: glow, alpha: 0.86 });
+  } else if (fish.species === "GOLDFISH") {
+    body.ellipse(0, 0, 29, 19).fill({ color, alpha: 0.96 });
+    tailShape.poly([-25, 0, -48, -27, -42, 0, -48, 27]).fill({ color: glow, alpha: 0.75 });
+    fin.poly([-7, -15, -18, -31, 13, -15]).fill({ color: glow, alpha: 0.55 });
+  } else {
+    body.ellipse(0, 0, 28, 14).fill({ color, alpha: 0.96 });
+    tailShape.poly([-25, 0, -48, -16, -42, 0, -48, 16]).fill({ color: glow, alpha: 0.75 });
+    fin.poly([-4, -12, -16, -27, 10, -14]).fill({ color: glow, alpha: 0.56 });
+  }
+  body.circle(15, -4, 2.5).fill({ color: 0x031018, alpha: 0.95 });
 
   const aura = new PIXI.Graphics();
   const auraAlpha = fish.rarity === "LEGENDARY" ? 0.36 : fish.rarity === "EPIC" ? 0.24 : fish.rarity === "RARE" ? 0.16 : 0.08;
   aura.ellipse(0, 0, 40, 24).fill({ color: glow, alpha: auraAlpha });
 
-  node.addChild(aura, body);
+  tail.addChild(tailShape);
+  node.addChild(aura, tail, body, fin);
   node.scale.set(0.9 + Math.min(0.4, fish.incomePerSecond / 12));
-  return node;
+  return { node, tail };
 }
 
 function createBubble(PIXI: PixiModule, width: number, height: number) {
