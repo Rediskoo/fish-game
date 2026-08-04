@@ -49,13 +49,14 @@ export function updateFishAgent(agent: FishAgent, deltaSeconds: number, width: n
 
   if (agent.nextDecision <= 0 || distance(agent.x, agent.y, agent.targetX, agent.targetY) < 24) {
     const peers = agents.filter((item) => item.id !== agent.id);
-    const school = peers.filter((item) => item.fish.personality === "SOCIAL" || item.fish.species === agent.fish.species).slice(0, 5);
-    if (agent.fish.personality === "SOCIAL" && school.length) {
+    const isGuppy = agent.fish.species === "GUPPY";
+    const school = peers.filter((item) => isGuppy ? item.fish.species === "GUPPY" : item.fish.personality === "SOCIAL" || item.fish.species === agent.fish.species).slice(0, 5);
+    if ((agent.fish.personality === "SOCIAL" || isGuppy) && school.length) {
       const centerX = school.reduce((sum, item) => sum + item.x, agent.x) / (school.length + 1);
       const centerY = school.reduce((sum, item) => sum + item.y, agent.y) / (school.length + 1);
       agent.targetX = centerX + Math.cos(agent.phase * 1.7) * (20 + Math.random() * 36);
       agent.targetY = centerY + Math.sin(agent.phase * 1.2) * (14 + Math.random() * 30);
-      agent.nextDecision = 0.7 + Math.random() * 1.2;
+      agent.nextDecision = isGuppy ? 0.45 + Math.random() * 0.65 : 0.7 + Math.random() * 1.2;
     } else if (agent.fish.personality === "AGGRESSIVE" && peers.length) {
       const nearest = peers.reduce((best, item) => distance(agent.x, agent.y, item.x, item.y) < distance(agent.x, agent.y, best.x, best.y) ? item : best, peers[0]);
       const awayX = agent.x - nearest.x;

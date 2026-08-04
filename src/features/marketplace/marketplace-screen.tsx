@@ -22,8 +22,12 @@ export function MarketplaceScreen() {
         <h1 className="text-3xl font-black text-cyan-50 text-glow">Кейсы</h1>
       </header>
 
-      <Panel>
-        <div className="flex items-center justify-between gap-3">
+      <Panel className="relative overflow-hidden">
+        <div className="casino-sticker pointer-events-none absolute -right-2 -top-3 grid h-20 w-20 place-items-center rounded-full border border-cyan-100/20 bg-cyan-300/10">
+          <Fish className="h-10 w-10 -scale-x-100 text-cyan-200 drop-shadow-[0_0_14px_currentColor]" />
+        </div>
+        <span className="menu-bubble absolute right-20 top-3 h-2 w-2" />
+        <div className="relative z-10 flex items-center justify-between gap-3">
           <div>
             <div className="text-sm text-cyan-100/65">Рыбный кейс</div>
             <div className="text-2xl font-black">100 водорослей</div>

@@ -45,7 +45,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
       <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col">{content}</div>
       <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-md px-3 pb-[calc(10px+var(--safe-bottom))]">
-        <div className="glass flex h-16 items-center justify-around rounded-2xl px-1">
+        <div className="glass relative flex h-16 items-center justify-around overflow-hidden rounded-2xl px-1">
+          <span className="menu-bubble absolute bottom-1 left-[8%] h-2 w-2" />
+          <span className="menu-bubble menu-bubble-delayed absolute bottom-3 right-[13%] h-3 w-3" />
           {navItems.map((item) => {
             const active = pathname === item.href;
             const Icon = item.icon;

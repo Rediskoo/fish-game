@@ -74,6 +74,9 @@ async function createScene(
     const water = new PIXI.Graphics();
     water.rect(0, 0, w, h).fill({ color: 0x031827, alpha: 1 });
     water.rect(0, 0, w, h * 0.38).fill({ color: 0x0d6073, alpha: 0.42 });
+    water.rect(0, h * 0.38, w, h * 0.22).fill({ color: 0x04253a, alpha: 0.34 });
+    water.rect(0, h * 0.60, w, h * 0.22).fill({ color: 0x031b2c, alpha: 0.48 });
+    water.rect(0, h * 0.82, w, h * 0.18).fill({ color: 0x010c15, alpha: 0.64 });
     background.addChild(water);
 
     for (let i = 0; i < 5; i += 1) {
@@ -127,7 +130,7 @@ async function createScene(
         text: `${item.name} · ${formatAge(item.ageSeconds)}`,
         style: {
           fontFamily: "Geist, system-ui",
-          fontSize: 12,
+          fontSize: item.species === "GUPPY" ? 10 : 12,
           fill: "#e9fbff",
           align: "center",
           stroke: { color: "#031018", width: 3 }
@@ -172,7 +175,7 @@ async function createScene(
       entry.tail.rotation = Math.sin(entry.agent.phase * 2.5) * 0.17;
       entry.tail.scale.y = 0.9 + Math.abs(Math.sin(entry.agent.phase * 2.5)) * 0.2;
       entry.label.x = entry.agent.x;
-      entry.label.y = entry.agent.y - 42;
+      entry.label.y = entry.agent.y - (entry.agent.fish.species === "GUPPY" ? 23 : 42);
       entry.label.text = `${entry.agent.fish.name} · ${formatAge(entry.agent.fish.ageSeconds + elapsed)}`;
     }
 
@@ -387,7 +390,8 @@ function createFishNode(PIXI: PixiModule, fish: FishView) {
 
   tail.addChild(tailShape);
   node.addChild(aura, tail, body, fin);
-  node.scale.set(0.9 + Math.min(0.4, fish.incomePerSecond / 12));
+  const scale = 0.9 + Math.min(0.4, fish.incomePerSecond / 12);
+  node.scale.set(fish.species === "GUPPY" ? scale / 3 : scale);
   return { node, tail };
 }
 
