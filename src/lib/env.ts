@@ -5,7 +5,6 @@ const serverEnvSchema = z.object({
   DIRECT_URL: z.string().min(1).optional(),
   TELEGRAM_BOT_TOKEN: z.string().min(1).optional(),
   TELEGRAM_BOT_USERNAME: z.string().min(1).optional(),
-  TELEGRAM_WEBHOOK_SECRET: z.string().min(16).optional(),
   CRON_SECRET: z.string().min(16).optional(),
   JWT_SECRET: z.string().min(16).optional(),
   NEXT_PUBLIC_TELEGRAM_BOT_USERNAME: z.string().min(1).optional(),

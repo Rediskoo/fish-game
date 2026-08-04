@@ -4,22 +4,6 @@ type ReplyMarkup = {
   inline_keyboard: Array<Array<{ text: string; web_app: { url: string } }>>;
 };
 
-export type TelegramBotUser = {
-  id: number;
-  first_name?: string;
-  last_name?: string;
-  username?: string;
-  photo_url?: string;
-};
-
-export type TelegramUpdate = {
-  message?: {
-    chat: { id: number; type: string };
-    from?: TelegramBotUser;
-    text?: string;
-  };
-};
-
 function appKeyboard(): ReplyMarkup | undefined {
   const url = getEnv().NEXT_PUBLIC_TELEGRAM_MINI_APP_URL;
   return url ? { inline_keyboard: [[{ text: "Открыть аквариум 🐠", web_app: { url } }]] } : undefined;

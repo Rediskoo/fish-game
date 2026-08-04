@@ -186,18 +186,9 @@ window.Telegram?.WebApp?.expand()
 
 ## Чат бота и уведомления
 
-В проекте есть webhook `POST /api/telegram/webhook`: он отвечает на `/start`, создаёт игрока при первом запуске и присылает приветствие с кнопкой Mini App. После production deploy добавь в Vercel переменные `TELEGRAM_WEBHOOK_SECRET` и `CRON_SECRET` (случайные строки не короче 16 символов), а затем один раз установи webhook:
+Webhook не нужен: игрок открывает Mini App из чата бота, Mini App безопасно передаёт `initData` и бот отправляет приветствие при первом запуске. Бот уведомляет о заявках в друзья, подарках и визитах друзей. В `vercel.json` также настроен ежедневный cron `09:00 UTC`, который отправляет напоминание о доступной ежедневной награде. Для cron добавь в Vercel только `CRON_SECRET` — случайную строку не короче 16 символов; Vercel автоматически передаёт её в заголовке `Authorization`.
 
-```bash
-curl -X POST "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook" \
-  -d "url=https://<your-domain>/api/telegram/webhook" \
-  -d "secret_token=<TELEGRAM_WEBHOOK_SECRET>" \
-  -d 'allowed_updates=["message"]'
-```
-
-Бот уведомляет о заявках в друзья, подарках и визитах друзей. В `vercel.json` также настроен ежедневный cron `09:00 UTC`, который отправляет напоминание о доступной ежедневной награде. Vercel автоматически передаёт `CRON_SECRET` в заголовке `Authorization` для cron-запуска.
-
-Важно: Telegram разрешает боту написать пользователю только после того, как пользователь открыл с ним личный чат и нажал `/start`.
+Важно: Telegram разрешает боту написать пользователю только после того, как пользователь открыл с ним личный чат и запустил Mini App.
 
 ## Vercel deploy
 
