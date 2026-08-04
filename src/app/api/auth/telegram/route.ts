@@ -5,7 +5,7 @@ import { createSession, setSessionCookie } from "@/lib/auth/session";
 import { validateTelegramInitData } from "@/lib/telegram/validate-init-data";
 import { telegramAuthSchema } from "@/lib/validation/game";
 import { PlayerService } from "@/server/services/player.service";
-import { sendTelegramMessage } from "@/lib/telegram/bot";
+import { configureTelegramWebhook, sendTelegramMessage } from "@/lib/telegram/bot";
 
 export const runtime = "nodejs";
 
@@ -16,6 +16,7 @@ export async function POST(request: Request) {
     const db = getPrisma();
     const existingPlayer = await db.user.findUnique({ where: { telegramId: BigInt(telegram.user.id) }, select: { id: true } });
     const snapshot = await new PlayerService(db).syncTelegramUser(telegram.user);
+    await configureTelegramWebhook();
     if (!existingPlayer) {
       const name = telegram.user.first_name ?? "друг";
       await sendTelegramMessage(snapshot.user.telegramId, `🐠 Привет, ${name}! Добро пожаловать в Аквариум. Здесь тебя ждут рыбки, подарки и друзья.`);
