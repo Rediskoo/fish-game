@@ -86,9 +86,9 @@ export type CaseTapeItem = {
 };
 
 export type CaseResult = {
-  tape: CaseTapeItem[];
-  winningIndex: number;
-  reward: { kind: "fish"; fish: AcquiredFish };
+  reels: [CaseTapeItem[], CaseTapeItem[], CaseTapeItem[]];
+  symbols: [CaseTapeItem, CaseTapeItem, CaseTapeItem];
+  reward: { kind: "fish"; fish: AcquiredFish } | { kind: "currency"; amount: number };
   durationMs: number;
 };
 

@@ -133,9 +133,9 @@ export function MarketplaceScreen() {
           isBusy={sellFish.isPending || renameFish.isPending}
           error={sellFish.error?.message ?? renameFish.error?.message}
           onClose={() => setCaseResult(null)}
-          onRename={(name) => renameFish.mutate({ fishId: caseResult.reward.fish.id, name })}
+          onRename={(name) => caseResult.reward.kind === "fish" && renameFish.mutate({ fishId: caseResult.reward.fish.id, name })}
           onSell={() =>
-            sellFish.mutate(caseResult.reward.fish.id, {
+            caseResult.reward.kind === "fish" && sellFish.mutate(caseResult.reward.fish.id, {
               onSuccess: () => setCaseResult(null)
             })
           }

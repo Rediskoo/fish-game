@@ -41,7 +41,8 @@ export class MarketplaceService {
   async purchaseFish(userId: string) {
     const types = await this.listFishTypes();
     if (types.length === 0) throw new Error("Fish catalog is empty");
-    const selected = pickWeighted(types);
+    const selected = [pickWeighted(types), pickWeighted(types), pickWeighted(types)] as const;
+    const matchingSymbols = new Set(selected.map((type) => type.id)).size;
 
     return this.db.$transaction(async (tx) => {
       const user = await tx.user.findUniqueOrThrow({ where: { id: userId } });
@@ -51,31 +52,41 @@ export class MarketplaceService {
 
       await tx.user.update({ where: { id: userId }, data: { currency: { decrement: fishCost } } });
 
-      const fish = await createOwnedFish(tx, userId, selected);
+      const reward = matchingSymbols === 1
+        ? { kind: "fish" as const, fish: await createOwnedFish(tx, userId, selected[0]) }
+        : { kind: "currency" as const, amount: matchingSymbols === 2 ? 100 : 50 };
+
+      if (reward.kind === "currency") {
+        await tx.user.update({ where: { id: userId }, data: { currency: { increment: reward.amount } } });
+      }
       await tx.transaction.create({
         data: {
           ownerId: userId,
           type: TransactionType.PURCHASE_FISH,
-          amount: -fishCost,
+          amount: -fishCost + (reward.kind === "currency" ? reward.amount : 0),
           metadata: {
-            selectedTypeId: selected.id,
-            fishId: fish.id
+            symbols: selected.map((type) => type.id),
+            reward: reward.kind,
+            rewardAmount: reward.kind === "currency" ? reward.amount : null,
+            fishId: reward.kind === "fish" ? reward.fish.id : null
           }
         }
       });
       await evaluateAchievements(tx, userId);
 
-      const winningIndex = 48;
-      const tape = Array.from({ length: 64 }, (_, index) => {
-        const type = index === winningIndex ? selected : pickWeighted(types);
-        return toTapeItem(type, `${index}-${type.id}`);
-      });
+      const reels = selected.map((winningType, reelIndex) => {
+        const items = Array.from({ length: 16 }, (_, index) => {
+          const type = index === 15 ? winningType : pickWeighted(types);
+          return toTapeItem(type, `${reelIndex}-${index}-${type.id}`);
+        });
+        return items;
+      }) as [CaseTapeItem[], CaseTapeItem[], CaseTapeItem[]];
 
       return {
-        tape,
-        winningIndex,
-        reward: { kind: "fish" as const, fish: fishToAcquiredView(fish) },
-        durationMs: 4400 + Math.floor(Math.random() * 1500)
+        reels,
+        symbols: selected.map((type, index) => toTapeItem(type, `symbol-${index}-${type.id}`)) as [CaseTapeItem, CaseTapeItem, CaseTapeItem],
+        reward: reward.kind === "fish" ? { kind: "fish" as const, fish: fishToAcquiredView(reward.fish) } : reward,
+        durationMs: 7200 + Math.floor(Math.random() * 900)
       };
     });
   }

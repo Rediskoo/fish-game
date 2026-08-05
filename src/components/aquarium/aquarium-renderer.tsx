@@ -72,18 +72,17 @@ async function createScene(
 
   const agents = new Map<string, { agent: FishAgent; node: Container; label: Text; tail: Container }>();
   const bubbles = Array.from({ length: 46 }, () => createBubble(PIXI, app.screen.width, app.screen.height));
+  const ambientGlows: Container[] = [];
   bubbles.forEach((bubble) => particleLayer.addChild(bubble));
 
   function drawBackground() {
     background.removeChildren();
     const w = app.screen.width;
     const h = app.screen.height;
+    ambientGlows.length = 0;
+
     const water = new PIXI.Graphics();
-    water.rect(0, 0, w, h).fill({ color: 0x031827, alpha: 0.32 });
-    water.rect(0, 0, w, h * 0.38).fill({ color: 0x0d6073, alpha: 0.42 });
-    water.rect(0, h * 0.38, w, h * 0.22).fill({ color: 0x04253a, alpha: 0.34 });
-    water.rect(0, h * 0.60, w, h * 0.22).fill({ color: 0x031b2c, alpha: 0.48 });
-    water.rect(0, h * 0.82, w, h * 0.18).fill({ color: 0x010c15, alpha: 0.64 });
+    water.rect(0, 0, w, h).fill({ color: 0x031827, alpha: 0.10 });
     background.addChild(water);
 
     for (let i = 0; i < 5; i += 1) {
@@ -114,9 +113,22 @@ async function createScene(
     }
 
     const glow = new PIXI.Graphics();
-    glow.circle(w * 0.2, h * 0.18, Math.max(w, h) * 0.35).fill({ color: 0x22d3ee, alpha: 0.16 });
-    glow.circle(w * 0.82, h * 0.72, Math.max(w, h) * 0.22).fill({ color: 0x0ea5e9, alpha: 0.12 });
+    glow.circle(w * 0.18, h * 0.18, Math.max(w, h) * 0.28).fill({ color: 0x22d3ee, alpha: 0.14 });
+    glow.circle(w * 0.82, h * 0.70, Math.max(w, h) * 0.18).fill({ color: 0x38bdf8, alpha: 0.12 });
+    glow.circle(w * 0.20, h * 0.82, Math.max(w, h) * 0.16).fill({ color: 0xfacc15, alpha: 0.14 });
+    glow.circle(w * 0.70, h * 0.88, Math.max(w, h) * 0.14).fill({ color: 0xa78bfa, alpha: 0.12 });
     background.addChild(glow);
+    ambientGlows.push(glow);
+
+    for (let i = 0; i < 4; i += 1) {
+      const sparkle = new PIXI.Graphics();
+      const x = w * (0.18 + i * 0.2);
+      const y = h * (0.48 + Math.sin(i) * 0.18);
+      sparkle.circle(x, y, 2.5 + i).fill({ color: 0xcffafe, alpha: 0.38 });
+      sparkle.circle(x, y, 10 + i * 3).fill({ color: 0x67e8f9, alpha: 0.06 });
+      background.addChild(sparkle);
+      ambientGlows.push(sparkle);
+    }
   }
 
   function syncFish() {
@@ -193,6 +205,10 @@ async function createScene(
         bubble.y = app.screen.height + Math.random() * 80;
         bubble.x = Math.random() * app.screen.width;
       }
+    }
+
+    for (let index = 0; index < ambientGlows.length; index += 1) {
+      ambientGlows[index].alpha = 0.78 + Math.sin(elapsed * 1.2 + index) * 0.16;
     }
   });
 
@@ -392,8 +408,9 @@ function createFishNode(PIXI: PixiModule, fish: FishView) {
   body.circle(15, -4, 2.5).fill({ color: 0x031018, alpha: 0.95 });
 
   const aura = new PIXI.Graphics();
-  const auraAlpha = fish.rarity === "LEGENDARY" ? 0.36 : fish.rarity === "EPIC" ? 0.24 : fish.rarity === "RARE" ? 0.16 : 0.08;
-  aura.ellipse(0, 0, 40, 24).fill({ color: glow, alpha: auraAlpha });
+  const auraAlpha = fish.rarity === "LEGENDARY" ? 0.48 : fish.rarity === "EPIC" ? 0.32 : fish.rarity === "RARE" ? 0.22 : 0.12;
+  aura.ellipse(0, 0, 46, 28).fill({ color: glow, alpha: auraAlpha });
+  aura.ellipse(0, 0, 64, 38).fill({ color: glow, alpha: auraAlpha * 0.28 });
 
   tail.addChild(tailShape);
   node.addChild(aura, tail, body, fin);
