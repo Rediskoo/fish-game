@@ -6,6 +6,7 @@ import { AquariumRenderer } from "@/components/aquarium/aquarium-renderer";
 import { Button } from "@/components/ui/button";
 import { usePlayer } from "@/features/auth/use-player";
 import { api } from "@/lib/api/client";
+import { splitFishByCapacity } from "@/lib/fish-capacity";
 import type { AquariumSnapshot } from "@/types/game";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -17,6 +18,7 @@ export function AquariumClient() {
     onSuccess: (snapshot) => queryClient.setQueryData(["snapshot"], snapshot)
   });
   const fish = player.data?.fish ?? [];
+  const { aquariumFish } = splitFishByCapacity(fish);
   const backgroundId = player.data?.aquarium.backgroundId;
   const decor = player.data?.aquarium.decor ?? [];
   const pollution = player.data?.aquarium.pollution ?? 0;
@@ -24,7 +26,7 @@ export function AquariumClient() {
 
   return (
     <div className="absolute inset-0">
-      <AquariumRenderer fish={fish} backgroundId={backgroundId} decor={decor} pollution={pollution} />
+      <AquariumRenderer fish={aquariumFish} backgroundId={backgroundId} decor={decor} pollution={pollution} />
       {pollution > 15 ? (
         <div className="absolute left-4 right-4 top-[calc(92px+var(--safe-top))] z-40 rounded-2xl border border-amber-200/30 bg-amber-950/62 p-3 text-sm font-bold text-amber-100 shadow-[0_16px_40px_rgba(0,0,0,.28)] backdrop-blur">
           Грязный аквариум · используй очиститель на складе
@@ -35,7 +37,7 @@ export function AquariumClient() {
       </Button>
       {observeMode ? (
         <div className="fixed inset-0 z-[70] bg-[#031018]">
-          <AquariumRenderer fish={fish} backgroundId={backgroundId} decor={decor} pollution={pollution} className="min-h-dvh rounded-none" interactive />
+          <AquariumRenderer fish={aquariumFish} backgroundId={backgroundId} decor={decor} pollution={pollution} className="min-h-dvh rounded-none" interactive />
           <Button className="absolute right-4 top-[calc(94px+var(--safe-top))] z-10 h-11 w-11 bg-cyan-100 px-0" onClick={() => setObserveMode(false)} aria-label="Выйти из режима наблюдения">
             <X className="h-5 w-5" />
           </Button>

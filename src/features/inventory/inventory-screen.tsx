@@ -12,6 +12,7 @@ import { useFeedFish } from "@/features/inventory/use-feed-fish";
 import { api } from "@/lib/api/client";
 import { AppAssets, decorProducts, shopProducts, type ShopProduct } from "@/lib/app-assets";
 import { cn } from "@/lib/cn";
+import { aquariumFishCapacity } from "@/lib/fish-capacity";
 import type { AquariumSnapshot, FishView } from "@/types/game";
 
 type InventoryTab = "food" | "decor" | "backgrounds" | "fish";
@@ -64,7 +65,7 @@ export function InventoryScreen() {
   const [selectedFishId, setSelectedFishId] = useState<string | null>(null);
   const fishList = useMemo(() => [...(player.data?.fish ?? [])].sort((a, b) => Number(b.isFavorite) - Number(a.isFavorite)), [player.data?.fish]);
   const selectedFish = useMemo(() => fishList.find((fish) => fish.id === selectedFishId) ?? null, [fishList, selectedFishId]);
-  const capacity = 20;
+  const capacity = aquariumFishCapacity;
 
   return (
     <div className="space-y-4 p-4">
