@@ -35,7 +35,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <main className="ocean-shell min-h-dvh pb-[calc(76px+var(--safe-bottom))] pt-[var(--safe-top)]">
+    <main className="ocean-shell min-h-dvh pb-[calc(104px+var(--safe-bottom))] pt-[var(--safe-top)]">
       <TelegramBootstrap />
       <div className="pointer-events-none fixed inset-x-0 top-[calc(56px+var(--safe-top))] z-40 flex justify-center">
         <div className="glass inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-black text-cyan-50 shadow-lg">
@@ -44,7 +44,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </div>
       <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col">{content}</div>
-      <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-md px-3 pb-[calc(10px+var(--safe-bottom))]">
+      <nav className="fixed inset-x-0 bottom-[calc(18px+var(--safe-bottom))] z-50 mx-auto max-w-md px-3">
         <div className="glass relative flex h-16 items-center justify-around overflow-hidden rounded-2xl px-1">
           <span className="menu-bubble absolute bottom-1 left-[8%] h-2 w-2" />
           <span className="menu-bubble menu-bubble-delayed absolute bottom-3 right-[13%] h-3 w-3" />

@@ -12,6 +12,7 @@ type PixiModule = typeof import("pixi.js");
 
 export function AquariumRenderer({ fish, className, interactive = false, backgroundId = "deep-lagoon", decor = [] }: { fish: FishView[]; className?: string; interactive?: boolean; backgroundId?: string; decor?: string[] }) {
   const hostRef = useRef<HTMLDivElement>(null);
+  const sceneBackRef = useRef<HTMLDivElement>(null);
   const fishRef = useRef(fish);
   const backgroundImage = backgroundImageById[backgroundId] ?? backgroundImageById["deep-lagoon"];
   const decorImages = useMemo(() => decor.map((id) => ({ id, image: decorImageById[id] })).filter((item): item is { id: string; image: string } => Boolean(item.image)), [decor]);
@@ -27,7 +28,7 @@ export function AquariumRenderer({ fish, className, interactive = false, backgro
       const PIXI = await import("pixi.js");
       if (cancelled) return;
 
-      cleanup = await createScene(PIXI, host, fishRef, interactive);
+      cleanup = await createScene(PIXI, host, sceneBackRef.current, fishRef, interactive);
     }
 
     mount();
@@ -38,24 +39,26 @@ export function AquariumRenderer({ fish, className, interactive = false, backgro
   }, [interactive]);
 
   return (
-    <div
-      ref={hostRef}
-      className={cn("relative h-full min-h-[540px] w-full overflow-hidden rounded-b-[28px] bg-cover bg-center", className)}
-      style={{ backgroundImage: `url(${backgroundImage})` }}
-    >
-      {decorImages.slice(0, 8).map((item, index) => (
-        <img
-          key={`${item.id}-${index}`}
-          className="pointer-events-none absolute bottom-[7%] z-[1] max-h-[22%] object-contain drop-shadow-[0_16px_24px_rgba(0,0,0,.35)]"
-          src={item.image}
-          alt=""
-          style={{
-            left: `${8 + (index % 4) * 22}%`,
-            transform: `translateX(-50%) scale(${index % 2 ? 0.86 : 1})`,
-            opacity: 0.95
-          }}
-        />
-      ))}
+    <div ref={hostRef} className={cn("relative h-full min-h-[540px] w-full overflow-hidden rounded-b-[28px] bg-[#031018]", className)}>
+      <div
+        ref={sceneBackRef}
+        className="pointer-events-none absolute inset-0 z-0 origin-top-left bg-cover bg-center will-change-transform"
+        style={{ backgroundImage: `url(${backgroundImage})` }}
+      >
+        {decorImages.slice(0, 8).map((item, index) => (
+          <img
+            key={`${item.id}-${index}`}
+            className="pointer-events-none absolute bottom-[7%] z-[1] max-h-[22%] object-contain drop-shadow-[0_16px_24px_rgba(0,0,0,.35)]"
+            src={item.image}
+            alt=""
+            style={{
+              left: `${8 + (index % 4) * 22}%`,
+              transform: `translateX(-50%) scale(${index % 2 ? 0.86 : 1})`,
+              opacity: 0.95
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -63,6 +66,7 @@ export function AquariumRenderer({ fish, className, interactive = false, backgro
 async function createScene(
   PIXI: PixiModule,
   host: HTMLDivElement,
+  sceneBack: HTMLDivElement | null,
   fishRef: React.MutableRefObject<FishView[]>,
   interactive: boolean
 ) {
@@ -87,65 +91,18 @@ async function createScene(
   app.stage.addChild(world);
   world.addChild(background, particleLayer, fishLayer, labelLayer);
 
-  const agents = new Map<string, { agent: FishAgent; node: Container; label: Text; tail: Container }>();
+  const agents = new Map<string, { agent: FishAgent; node: Container; label: Text; tail: Container; labelVisibleUntil: number }>();
   const bubbles = Array.from({ length: 46 }, () => createBubble(PIXI, app.screen.width, app.screen.height));
   const ambientGlows: Container[] = [];
   bubbles.forEach((bubble) => particleLayer.addChild(bubble));
 
   function drawBackground() {
     background.removeChildren();
-    const w = app.screen.width;
-    const h = app.screen.height;
     ambientGlows.length = 0;
 
-    const water = new PIXI.Graphics();
-    water.rect(0, 0, w, h).fill({ color: 0x031827, alpha: 0.10 });
-    background.addChild(water);
-
-    for (let i = 0; i < 5; i += 1) {
-      const ray = new PIXI.Graphics();
-      const x = (i + 0.5) * (w / 5);
-      ray.poly([x - 16, 0, x + 16, 0, x + 115, h * 0.74, x - 92, h * 0.74]).fill({ color: 0xa5f3fc, alpha: 0.035 });
-      background.addChild(ray);
-    }
-
-    for (let i = 0; i < 7; i += 1) {
-      const weed = new PIXI.Graphics();
-      const x = (i / 6) * w + Math.sin(i) * 18;
-      weed.moveTo(x, h);
-      for (let j = 0; j < 7; j += 1) {
-        weed.lineTo(x + Math.sin(j + i) * 18, h - j * 22 - 18);
-      }
-      weed.stroke({ width: 7 + (i % 3), color: i % 2 ? 0x1fae82 : 0x22c55e, alpha: 0.38 });
-      background.addChild(weed);
-    }
-
-    for (let i = 0; i < 9; i += 1) {
-      const coral = new PIXI.Graphics();
-      const x = (i / 8) * w + Math.sin(i * 3) * 10;
-      const height = 12 + (i % 4) * 8;
-      coral.circle(x, h - 7, height).fill({ color: i % 2 ? 0x7c3aed : 0xf97316, alpha: 0.22 });
-      coral.circle(x + height * 0.7, h - 11, height * 0.65).fill({ color: i % 2 ? 0xc084fc : 0xfb7185, alpha: 0.17 });
-      background.addChild(coral);
-    }
-
-    const glow = new PIXI.Graphics();
-    glow.circle(w * 0.18, h * 0.18, Math.max(w, h) * 0.28).fill({ color: 0x22d3ee, alpha: 0.14 });
-    glow.circle(w * 0.82, h * 0.70, Math.max(w, h) * 0.18).fill({ color: 0x38bdf8, alpha: 0.12 });
-    glow.circle(w * 0.20, h * 0.82, Math.max(w, h) * 0.16).fill({ color: 0xfacc15, alpha: 0.14 });
-    glow.circle(w * 0.70, h * 0.88, Math.max(w, h) * 0.14).fill({ color: 0xa78bfa, alpha: 0.12 });
-    background.addChild(glow);
-    ambientGlows.push(glow);
-
-    for (let i = 0; i < 4; i += 1) {
-      const sparkle = new PIXI.Graphics();
-      const x = w * (0.18 + i * 0.2);
-      const y = h * (0.48 + Math.sin(i) * 0.18);
-      sparkle.circle(x, y, 2.5 + i).fill({ color: 0xcffafe, alpha: 0.38 });
-      sparkle.circle(x, y, 10 + i * 3).fill({ color: 0x67e8f9, alpha: 0.06 });
-      background.addChild(sparkle);
-      ambientGlows.push(sparkle);
-    }
+    const tint = new PIXI.Graphics();
+    tint.rect(0, 0, app.screen.width, app.screen.height).fill({ color: 0x031827, alpha: 0.06 });
+    background.addChild(tint);
   }
 
   function syncFish() {
@@ -173,9 +130,10 @@ async function createScene(
         }
       });
       label.anchor.set(0.5);
+      label.visible = interactive;
       fishLayer.addChild(sprite.node);
       labelLayer.addChild(label);
-      agents.set(item.id, { agent, node: sprite.node, tail: sprite.tail, label });
+      agents.set(item.id, { agent, node: sprite.node, tail: sprite.tail, label, labelVisibleUntil: 0 });
     }
   }
 
@@ -232,6 +190,22 @@ async function createScene(
   const onResize = () => drawBackground();
   window.addEventListener("resize", onResize);
 
+  const revealFishAt = (clientX: number, clientY: number) => {
+    const rect = app.canvas.getBoundingClientRect();
+    const point = {
+      x: (clientX - rect.left - world.x) / world.scale.x,
+      y: (clientY - rect.top - world.y) / world.scale.y
+    };
+    const entries = [...agents.values()];
+    const target = entries.find((entry) => Math.hypot(entry.agent.x - point.x, entry.agent.y - point.y) < 54);
+    if (!target) return false;
+    target.labelVisibleUntil = performance.now() + 3200;
+    reactToFishClick(target.agent, point.x, point.y, entries.map((entry) => entry.agent));
+    addReactionBubbles(target.agent.x, target.agent.y);
+    playTone("fish");
+    return true;
+  };
+
   if (interactive) {
     host.style.touchAction = "none";
 
@@ -245,7 +219,7 @@ async function createScene(
     const pointers = new Map<number, { x: number; y: number }>();
 
     const clampWorld = () => {
-      scale = Math.max(1, Math.min(3, scale));
+      scale = Math.max(0.75, Math.min(2.5, scale));
       world.scale.set(scale);
 
       const overflowX = Math.max(0, app.screen.width * scale - app.screen.width);
@@ -254,6 +228,7 @@ async function createScene(
       const paddingY = Math.min(app.screen.height * 0.12, overflowY * 0.5);
       world.x = Math.min(paddingX, Math.max(-overflowX - paddingX, world.x));
       world.y = Math.min(paddingY, Math.max(-overflowY - paddingY, world.y));
+      if (sceneBack) sceneBack.style.transform = `translate3d(${world.x}px, ${world.y}px, 0) scale(${scale})`;
     };
 
     const canvasPoint = (clientX: number, clientY: number) => {
@@ -264,21 +239,13 @@ async function createScene(
       };
     };
 
-    const toWorld = (clientX: number, clientY: number) => {
-      const point = canvasPoint(clientX, clientY);
-      return {
-        x: (point.x - world.x) / scale,
-        y: (point.y - world.y) / scale
-      };
-    };
-
     const zoomAt = (nextScale: number, clientX: number, clientY: number) => {
       const point = canvasPoint(clientX, clientY);
       const before = {
         x: (point.x - world.x) / scale,
         y: (point.y - world.y) / scale
       };
-      scale = Math.max(1, Math.min(3, nextScale));
+      scale = Math.max(0.75, Math.min(2.5, nextScale));
       world.x = point.x - before.x * scale;
       world.y = point.y - before.y * scale;
       clampWorld();
@@ -341,14 +308,7 @@ async function createScene(
         pinchStartScale = scale;
       }
       if (moved > 8 || pointers.size > 0) return;
-      const point = toWorld(event.clientX, event.clientY);
-      const entries = [...agents.values()];
-      const target = entries.find((entry) => Math.hypot(entry.agent.x - point.x, entry.agent.y - point.y) < 54);
-      if (target) {
-        reactToFishClick(target.agent, point.x, point.y, entries.map((entry) => entry.agent));
-        addReactionBubbles(target.agent.x, target.agent.y);
-        playTone("fish");
-      }
+      revealFishAt(event.clientX, event.clientY);
     };
     app.canvas.addEventListener("wheel", onWheel, { passive: false });
     app.canvas.addEventListener("pointerdown", onPointerDown);
@@ -369,8 +329,14 @@ async function createScene(
     };
   }
 
+  const onSimplePointerUp = (event: PointerEvent) => {
+    revealFishAt(event.clientX, event.clientY);
+  };
+  app.canvas.addEventListener("pointerup", onSimplePointerUp);
+
   return () => {
     window.removeEventListener("resize", onResize);
+    app.canvas.removeEventListener("pointerup", onSimplePointerUp);
     app.destroy(true);
   };
 }
