@@ -11,15 +11,30 @@ export type FishAgent = {
   phase: number;
   nextDecision: number;
   burstUntil: number;
+  targetLockUntil: number;
+  speedMultiplier: number;
 };
 
 export function createFishAgent(fish: FishView, width: number, height: number): FishAgent {
-  const state = fish.animationState as Partial<{ x: number; y: number; targetX: number; targetY: number; direction: 1 | -1 }> | null;
+  const state = fish.animationState as Partial<{ x: number; y: number; targetX: number; targetY: number; direction: 1 | -1; targetLockSeconds: number; speedMultiplier: number }> | null;
   const x = (state?.x ?? Math.random()) * width;
   const y = (state?.y ?? Math.random()) * height;
   const targetX = (state?.targetX ?? Math.random()) * width;
   const targetY = (state?.targetY ?? Math.random()) * height;
-  return { id: fish.id, fish, x, y, targetX, targetY, direction: state?.direction ?? 1, phase: Math.random() * Math.PI * 2, nextDecision: state?.targetX === undefined ? Math.random() * 2 : 1.4, burstUntil: state?.targetX === undefined ? 0 : 0.45 };
+  return {
+    id: fish.id,
+    fish,
+    x,
+    y,
+    targetX,
+    targetY,
+    direction: state?.direction ?? 1,
+    phase: Math.random() * Math.PI * 2,
+    nextDecision: state?.targetX === undefined ? Math.random() * 2 : 1.4,
+    burstUntil: state?.targetX === undefined ? 0 : 0.9,
+    targetLockUntil: state?.targetLockSeconds ?? 0,
+    speedMultiplier: state?.speedMultiplier ?? 1
+  };
 }
 
 export function reactToFishClick(agent: FishAgent, x: number, y: number, agents: FishAgent[]) {
@@ -46,10 +61,11 @@ export function reactToFishClick(agent: FishAgent, x: number, y: number, agents:
 
 export function updateFishAgent(agent: FishAgent, deltaSeconds: number, width: number, height: number, agents: FishAgent[]) {
   agent.nextDecision -= deltaSeconds;
+  agent.targetLockUntil = Math.max(0, agent.targetLockUntil - deltaSeconds);
   const margin = 42;
   const hungerSlowdown = agent.fish.hunger > 80 ? 0.48 : agent.fish.hunger > 60 ? 0.72 : 1;
 
-  if (agent.nextDecision <= 0 || distance(agent.x, agent.y, agent.targetX, agent.targetY) < 24) {
+  if (agent.targetLockUntil <= 0 && (agent.nextDecision <= 0 || distance(agent.x, agent.y, agent.targetX, agent.targetY) < 24)) {
     const peers = agents.filter((item) => item.id !== agent.id);
     const isGuppy = agent.fish.species === "GUPPY";
     const school = peers.filter((item) => isGuppy ? item.fish.species === "GUPPY" : item.fish.personality === "SOCIAL" || item.fish.species === agent.fish.species).slice(0, 5);
@@ -91,7 +107,7 @@ export function updateFishAgent(agent: FishAgent, deltaSeconds: number, width: n
   }
 
   const len = Math.max(1, Math.hypot(dx, dy));
-  const speed = agent.fish.swimSpeed * hungerSlowdown;
+  const speed = agent.fish.swimSpeed * hungerSlowdown * agent.speedMultiplier;
   const burst = agent.burstUntil > 0 ? 2.25 : 1;
   const easing = Math.min(1, (speed * deltaSeconds) / len);
   agent.x += dx * easing * burst;
