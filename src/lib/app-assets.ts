@@ -85,10 +85,10 @@ export type ShopProduct = {
 };
 
 export const shopCategories: Array<{ id: ShopCategory; title: string; subtitle: string; image: string; accent: string }> = [
-  { id: "fish", title: "Рыбки", subtitle: "Кейсы и редкость", image: AppAssets.shop.caseChest, accent: "#49C7E8" },
   { id: "care", title: "Уход", subtitle: "Корм и здоровье", image: AppAssets.shop.careFood, accent: "#E5B74F" },
   { id: "decor", title: "Декор", subtitle: "Предметы в аквариум", image: AppAssets.shop.decorRuins, accent: "#62D4AC" },
-  { id: "backgrounds", title: "Фоны", subtitle: "Вид аквариума", image: AppAssets.shop.aquariumDisplay, accent: "#9B7BEF" }
+  { id: "backgrounds", title: "Фоны", subtitle: "Вид аквариума", image: AppAssets.shop.aquariumDisplay, accent: "#9B7BEF" },
+  { id: "fish", title: "Рыбки", subtitle: "777 и редкость", image: AppAssets.shop.caseChest, accent: "#49C7E8" }
 ];
 
 export const shopProducts: ShopProduct[] = [
