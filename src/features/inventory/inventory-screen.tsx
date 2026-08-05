@@ -228,19 +228,19 @@ function FishSection({ fishList, capacity, onFavorite, onSelect }: { fishList: F
         {fishList.map((fish, index) => {
           const overCapacity = index >= capacity;
           return (
-            <div key={fish.id} className={cn("relative grid aspect-square overflow-hidden rounded-[22px] border p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)]", overCapacity ? "border-rose-300/35 bg-rose-500/10" : "border-cyan-100/12 bg-slate-950/32")}>
+            <div key={fish.id} className={cn("relative grid aspect-square overflow-hidden rounded-[22px] border p-3 pb-12 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)]", overCapacity ? "border-rose-300/35 bg-rose-500/10" : "border-cyan-100/12 bg-slate-950/32")}>
               <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full blur-2xl" style={{ backgroundColor: fish.glowColor + "24" }} />
               <span className={cn("absolute left-3 top-3 z-10 rounded-full px-2 py-1 text-[10px] font-black", overCapacity ? "bg-rose-300/18 text-rose-100" : "bg-slate-950/50 text-cyan-100/76")}>{overCapacity ? "Перенаселение" : fish.rarityLabel}</span>
               <button className={cn("absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-xl bg-slate-950/42 text-cyan-100", fish.isFavorite && "bg-rose-300 text-slate-950")} onClick={() => onFavorite(fish)} aria-label="Избранное">
                 <Heart className={cn("h-4 w-4", fish.isFavorite && "fill-current")} />
               </button>
-              <div className="relative z-10 mt-7 grid place-items-center">
-                <Fish className="h-16 w-16 drop-shadow-[0_0_14px_currentColor]" style={{ color: fish.color }} />
+              <div className="relative z-10 mt-8 grid place-items-center">
+                <Fish className="h-14 w-14 drop-shadow-[0_0_14px_currentColor]" style={{ color: fish.color }} />
               </div>
               <div className="relative z-10 mt-auto min-w-0">
                 <div className="truncate text-sm font-black text-cyan-50">{fish.name}</div>
                 <div className={cn("mt-1 line-clamp-2 min-h-8 text-xs", overCapacity ? "text-rose-100/80" : "text-cyan-100/62")}>{overCapacity ? "Можно заселить после расширения" : "сытость " + fullness(fish) + "/" + fish.maxHunger}</div>
-                <Button className="mt-1 h-8 w-full rounded-xl border border-cyan-200/25 bg-cyan-300/20 text-[11px] font-black text-cyan-50 shadow-[0_0_18px_rgba(34,211,238,.18)]" onClick={() => onSelect(fish)}>
+                <Button className="absolute inset-x-3 bottom-3 z-20 h-9 rounded-xl border border-cyan-200/35 bg-cyan-300/24 text-[11px] font-black text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,.22)]" onClick={() => onSelect(fish)}>
                   <Info className="h-3.5 w-3.5" /> Инфо
                 </Button>
               </div>
@@ -282,7 +282,7 @@ function FishModal({
     return {
       ...fish,
       id: `${fish.id}-feed-${feedingDrop.key}`,
-      animationState: { x: feedingDrop.x / 100, y: 0.58, direction: feedingDrop.x >= 50 ? 1 : -1 }
+      animationState: { x: feedingDrop.x >= 50 ? 0.16 : 0.84, y: 0.62, targetX: feedingDrop.x / 100, targetY: 0.66, direction: feedingDrop.x >= 50 ? 1 : -1 }
     };
   }, [feedingDrop, fish]);
 
@@ -300,8 +300,8 @@ function FishModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[80] grid place-items-end bg-slate-950/70 px-3 pb-[calc(14px+var(--safe-bottom))] pt-[var(--safe-top)] sm:place-items-center">
-      <div className="glass w-full min-w-0 max-w-[calc(100dvw-1.5rem)] space-y-4 overflow-x-hidden rounded-2xl p-4 shadow-2xl">
+    <div className="fixed inset-0 z-[220] grid place-items-end bg-slate-950/72 px-3 pb-[calc(14px+var(--safe-bottom))] pt-[var(--safe-top)] sm:place-items-center">
+      <div className="glass max-h-[calc(100dvh-96px-var(--safe-top)-var(--safe-bottom))] w-full min-w-0 max-w-[calc(100dvw-1.5rem)] space-y-4 overflow-y-auto overflow-x-hidden rounded-2xl p-4 shadow-2xl sm:max-w-md">
         <div className="flex items-start justify-between gap-2">
           <form className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] gap-2" onSubmit={handleRename}>
             <input className="min-w-0 flex-1 rounded-xl border border-cyan-100/10 bg-slate-950/45 px-3 text-lg font-black text-cyan-50 outline-none focus:border-cyan-200/45" maxLength={18} minLength={2} value={name} onChange={(event) => setName(event.target.value)} />

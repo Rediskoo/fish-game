@@ -14,10 +14,12 @@ export type FishAgent = {
 };
 
 export function createFishAgent(fish: FishView, width: number, height: number): FishAgent {
-  const state = fish.animationState as Partial<{ x: number; y: number; direction: 1 | -1 }> | null;
+  const state = fish.animationState as Partial<{ x: number; y: number; targetX: number; targetY: number; direction: 1 | -1 }> | null;
   const x = (state?.x ?? Math.random()) * width;
   const y = (state?.y ?? Math.random()) * height;
-  return { id: fish.id, fish, x, y, targetX: Math.random() * width, targetY: Math.random() * height, direction: state?.direction ?? 1, phase: Math.random() * Math.PI * 2, nextDecision: Math.random() * 2, burstUntil: 0 };
+  const targetX = (state?.targetX ?? Math.random()) * width;
+  const targetY = (state?.targetY ?? Math.random()) * height;
+  return { id: fish.id, fish, x, y, targetX, targetY, direction: state?.direction ?? 1, phase: Math.random() * Math.PI * 2, nextDecision: state?.targetX === undefined ? Math.random() * 2 : 1.4, burstUntil: state?.targetX === undefined ? 0 : 0.45 };
 }
 
 export function reactToFishClick(agent: FishAgent, x: number, y: number, agents: FishAgent[]) {
