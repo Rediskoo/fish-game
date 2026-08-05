@@ -228,14 +228,14 @@ function FishSection({ fishList, capacity, onFavorite, onSelect }: { fishList: F
         {fishList.map((fish, index) => {
           const overCapacity = index >= capacity;
           return (
-            <div key={fish.id} className={cn("relative aspect-square overflow-hidden rounded-[22px] border p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)]", overCapacity ? "border-rose-300/35 bg-rose-500/10" : "border-cyan-100/12 bg-slate-950/32")}>
+            <div key={fish.id} className={cn("relative min-h-[220px] overflow-hidden rounded-[22px] border p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)]", overCapacity ? "border-rose-300/35 bg-rose-500/10" : "border-cyan-100/12 bg-slate-950/32")}>
               <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full blur-2xl" style={{ backgroundColor: fish.glowColor + "24" }} />
               <span className={cn("absolute left-3 top-3 z-10 rounded-full px-2 py-1 text-[10px] font-black", overCapacity ? "bg-rose-300/18 text-rose-100" : "bg-slate-950/50 text-cyan-100/76")}>{overCapacity ? "Перенаселение" : fish.rarityLabel}</span>
               <button className={cn("absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-xl bg-slate-950/42 text-cyan-100", fish.isFavorite && "bg-rose-300 text-slate-950")} onClick={() => onFavorite(fish)} aria-label="Избранное">
                 <Heart className={cn("h-4 w-4", fish.isFavorite && "fill-current")} />
               </button>
-              <div className="absolute inset-x-3 top-12 z-10 grid h-[42%] place-items-center">
-                <Fish className="h-14 w-14 drop-shadow-[0_0_14px_currentColor]" style={{ color: fish.color }} />
+              <div className="absolute inset-x-3 top-12 z-10 grid h-24 place-items-center">
+                <Fish className="h-16 w-16 drop-shadow-[0_0_14px_currentColor]" style={{ color: fish.color }} />
               </div>
               <div className="absolute inset-x-3 bottom-14 z-10 min-w-0">
                 <div className="truncate text-sm font-black leading-tight text-cyan-50">{fish.name}</div>
