@@ -219,7 +219,7 @@ async function createScene(
     const pointers = new Map<number, { x: number; y: number }>();
 
     const clampWorld = () => {
-      scale = Math.max(0.75, Math.min(2.5, scale));
+      scale = Math.max(1, Math.min(2.5, scale));
       world.scale.set(scale);
 
       const overflowX = Math.max(0, app.screen.width * scale - app.screen.width);
@@ -245,7 +245,7 @@ async function createScene(
         x: (point.x - world.x) / scale,
         y: (point.y - world.y) / scale
       };
-      scale = Math.max(0.75, Math.min(2.5, nextScale));
+      scale = Math.max(1, Math.min(2.5, nextScale));
       world.x = point.x - before.x * scale;
       world.y = point.y - before.y * scale;
       clampWorld();
@@ -325,6 +325,7 @@ async function createScene(
       app.canvas.removeEventListener("pointermove", onPointerMove);
       app.canvas.removeEventListener("pointerup", onPointerUp);
       app.canvas.removeEventListener("pointercancel", onPointerUp);
+      if (sceneBack) sceneBack.style.transform = "";
       app.destroy(true);
     };
   }

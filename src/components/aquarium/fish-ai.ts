@@ -72,8 +72,22 @@ export function updateFishAgent(agent: FishAgent, deltaSeconds: number, width: n
     }
   }
 
-  const dx = agent.targetX - agent.x;
-  const dy = agent.targetY - agent.y;
+  let dx = agent.targetX - agent.x;
+  let dy = agent.targetY - agent.y;
+
+  for (const other of agents) {
+    if (other.id === agent.id) continue;
+    const awayX = agent.x - other.x;
+    const awayY = agent.y - other.y;
+    const gap = Math.hypot(awayX, awayY);
+    const minGap = agent.fish.species === "GUPPY" || other.fish.species === "GUPPY" ? 30 : 58;
+    if (gap > 0 && gap < minGap) {
+      const push = (minGap - gap) / minGap;
+      dx += (awayX / gap) * push * 90;
+      dy += (awayY / gap) * push * 64;
+    }
+  }
+
   const len = Math.max(1, Math.hypot(dx, dy));
   const speed = agent.fish.swimSpeed * hungerSlowdown;
   const burst = agent.burstUntil > 0 ? 2.25 : 1;

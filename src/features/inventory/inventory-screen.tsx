@@ -55,7 +55,7 @@ export function InventoryScreen() {
   const [selectedFishId, setSelectedFishId] = useState<string | null>(null);
   const fishList = useMemo(() => [...(player.data?.fish ?? [])].sort((a, b) => Number(b.isFavorite) - Number(a.isFavorite)), [player.data?.fish]);
   const selectedFish = useMemo(() => fishList.find((fish) => fish.id === selectedFishId) ?? null, [fishList, selectedFishId]);
-  const capacity = 8 + Math.max(0, (player.data?.aquarium.level ?? 1) - 1) * 2;
+  const capacity = 20;
 
   return (
     <div className="space-y-4 p-4">
