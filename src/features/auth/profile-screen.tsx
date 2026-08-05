@@ -438,12 +438,13 @@ function FriendInfo({ label, value }: { label: string; value: string }) {
 
 function Stat({ icon, label, value }: { icon: ReactNode; label: string; value: number }) {
   return (
-    <div className="rounded-xl bg-slate-950/30 p-3">
-      <div className="flex items-center gap-2 text-cyan-100/65">
-        {icon}
-        <span className="text-sm">{label}</span>
+    <div className="relative overflow-hidden rounded-2xl border border-fuchsia-200/22 bg-[linear-gradient(135deg,rgba(168,85,247,.22),rgba(34,211,238,.08),rgba(5,18,31,.34))] p-3 shadow-[0_0_28px_rgba(168,85,247,.14)]">
+      <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-fuchsia-300/22 blur-2xl" />
+      <div className="relative z-10 flex items-center gap-2 text-fuchsia-100/85">
+        <span className="grid h-9 w-9 place-items-center rounded-2xl bg-slate-950/36 text-fuchsia-100">{icon}</span>
+        <span className="text-sm font-bold">{label}</span>
       </div>
-      <div className="mt-2 text-2xl font-black">{value}</div>
+      <div className="relative z-10 mt-3 text-3xl font-black text-cyan-50 text-glow">{value}</div>
     </div>
   );
 }

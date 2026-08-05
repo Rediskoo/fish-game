@@ -23,11 +23,11 @@ const inventoryTabs: Array<{ id: InventoryTab; label: string; icon: typeof Packa
   { id: "fish", label: "Рыбки", icon: Fish }
 ];
 
-const inventoryTabMeta: Record<InventoryTab, { subtitle: string; accent: string }> = {
-  food: { subtitle: "корм, очистители и уход", accent: "#E5B74F" },
-  decor: { subtitle: "растения, пузыри и украшения", accent: "#62D4AC" },
-  backgrounds: { subtitle: "фоны и настроение воды", accent: "#9B7BEF" },
-  fish: { subtitle: "все рыбки и перенаселение", accent: "#49C7E8" }
+const inventoryTabMeta: Record<InventoryTab, { subtitle: string; accent: string; image: string }> = {
+  food: { subtitle: "корм, очистители и уход", accent: "#E5B74F", image: AppAssets.shop.careFood },
+  decor: { subtitle: "растения, пузыри и украшения", accent: "#62D4AC", image: AppAssets.shop.decorRuins },
+  backgrounds: { subtitle: "фоны и настроение воды", accent: "#9B7BEF", image: AppAssets.shop.aquariumDisplay },
+  fish: { subtitle: "все рыбки и перенаселение", accent: "#49C7E8", image: AppAssets.shop.caseChest }
 };
 
 function formatAge(seconds: number) {
@@ -87,10 +87,11 @@ export function InventoryScreen() {
               >
                 <div className="absolute inset-0 opacity-90" style={{ background: `radial-gradient(circle at 76% 32%, ${meta.accent}42, transparent 44%), linear-gradient(180deg, transparent, rgba(0,0,0,.24))` }} />
                 <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full blur-2xl" style={{ backgroundColor: `${meta.accent}24` }} />
+                <img className="absolute bottom-2 right-[-12px] h-[62%] w-[72%] object-contain opacity-95 drop-shadow-[0_18px_24px_rgba(0,0,0,.44)] transition duration-200 group-active:scale-95" src={meta.image} alt="" />
                 <span className="relative z-10 grid h-12 w-12 place-items-center rounded-2xl bg-slate-950/38 text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,.12)]">
                   <Icon className="h-6 w-6" />
                 </span>
-                <div className="relative z-10 mt-auto min-w-0">
+                <div className="relative z-10 mt-auto min-w-0 pr-8">
                   <div className="truncate text-xl font-black text-cyan-50 text-glow">{tab.label}</div>
                   <div className="mt-1 line-clamp-2 text-xs leading-4 text-cyan-100/66">{meta.subtitle}</div>
                 </div>
@@ -299,8 +300,8 @@ function FishModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[90] grid place-items-end bg-slate-950/78 px-3 pb-[calc(112px+var(--safe-bottom))] pt-[calc(12px+var(--safe-top))] sm:place-items-center sm:pb-[var(--safe-bottom)]">
-      <div className="glass max-h-[calc(100dvh-132px-var(--safe-top)-var(--safe-bottom))] w-full min-w-0 max-w-md space-y-4 overflow-y-auto overflow-x-hidden rounded-2xl p-4 pb-5 shadow-2xl sm:max-h-[calc(100dvh-32px-var(--safe-top)-var(--safe-bottom))]">
+    <div className="fixed inset-0 z-[80] grid place-items-end bg-slate-950/70 px-3 pb-[calc(14px+var(--safe-bottom))] pt-[var(--safe-top)] sm:place-items-center">
+      <div className="glass w-full min-w-0 max-w-[calc(100dvw-1.5rem)] space-y-4 overflow-x-hidden rounded-2xl p-4 shadow-2xl">
         <div className="flex items-start justify-between gap-2">
           <form className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] gap-2" onSubmit={handleRename}>
             <input className="min-w-0 flex-1 rounded-xl border border-cyan-100/10 bg-slate-950/45 px-3 text-lg font-black text-cyan-50 outline-none focus:border-cyan-200/45" maxLength={18} minLength={2} value={name} onChange={(event) => setName(event.target.value)} />
@@ -351,7 +352,7 @@ function FishModal({
 
         {error ? <p className="text-sm text-yellow-100">{error}</p> : null}
 
-        <div className="sticky bottom-0 z-20 -mx-4 -mb-5 grid grid-cols-2 gap-2 border-t border-cyan-100/10 bg-slate-950/72 p-4 backdrop-blur">
+        <div className="grid grid-cols-2 gap-2">
           <Button className="bg-emerald-300" disabled={isBusy || food <= 0 || fish.hunger <= 0} onClick={handleFeed}>
             <Utensils className="h-4 w-4" /> Покормить
           </Button>
