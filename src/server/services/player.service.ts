@@ -6,6 +6,7 @@ import { applyHungerDecay } from "@/server/services/hunger.service";
 import { calculateFishIncome, claimOfflineIncome } from "@/server/services/income.service";
 import { fishToView } from "@/server/services/fish.service";
 import { evaluateAchievements } from "@/server/services/rewards.service";
+import { shopProductsById } from "@/lib/app-assets";
 
 const dailyRewardAmount = 100;
 
@@ -85,7 +86,9 @@ export class PlayerService {
         name: snapshot.aquarium.name,
         level: snapshot.aquarium.level,
         experience: snapshot.aquarium.experience,
-        lastIncomeAt: snapshot.aquarium.lastIncomeAt.toISOString()
+        lastIncomeAt: snapshot.aquarium.lastIncomeAt.toISOString(),
+        backgroundId: snapshot.aquarium.backgroundId,
+        decor: Array.isArray(snapshot.aquarium.decor) ? snapshot.aquarium.decor.filter((item): item is string => typeof item === "string") : []
       },
       inventory: { food: snapshot.inventory.food },
       dailyReward: {
@@ -124,7 +127,7 @@ export class PlayerService {
         create: {
           species: FishSpecies.GOLDFISH,
           rarity: Rarity.COMMON,
-          displayName: "Золотая рыбка",
+          displayName: "Р—РѕР»РѕС‚Р°СЏ СЂС‹Р±РєР°",
           dropChanceBps: 2500,
           incomePerSecond: 1.2,
           swimSpeed: 58,
@@ -171,6 +174,43 @@ export class PlayerService {
     return snapshot;
   }
 
+
+  async buyProduct(userId: string, productId: string) {
+    const product = shopProductsById[productId];
+    if (!product || product.id === "fish-case") throw new Error("Invalid marketplace product");
+
+    const foodAmount = product.id === "food-basic" ? 10 : product.id === "food-premium" ? 25 : product.id === "water-conditioner" ? 35 : 0;
+
+    return this.db.$transaction(async (tx) => {
+      const user = await tx.user.findUniqueOrThrow({ where: { id: userId } });
+      if (user.currency < product.price) throw new Error("Not enough algae");
+
+      const aquarium = await tx.aquarium.findUniqueOrThrow({ where: { ownerId: userId } });
+      const currentDecor = Array.isArray(aquarium.decor) ? aquarium.decor.filter((item): item is string => typeof item === "string") : [];
+      if (!product.repeatable && (currentDecor.includes(product.id) || aquarium.backgroundId === product.id)) {
+        throw new Error("Item already owned");
+      }
+
+      await tx.user.update({ where: { id: userId }, data: { currency: { decrement: product.price } } });
+
+      if (product.category === "care") {
+        await tx.inventory.update({ where: { ownerId: userId }, data: { food: { increment: foodAmount } } });
+      } else if (product.category === "decor") {
+        await tx.aquarium.update({ where: { ownerId: userId }, data: { decor: [...currentDecor, product.id] } });
+      } else if (product.category === "backgrounds") {
+        await tx.aquarium.update({ where: { ownerId: userId }, data: { backgroundId: product.id } });
+      }
+
+      await tx.transaction.create({
+        data: {
+          ownerId: userId,
+          type: TransactionType.PURCHASE_ITEM,
+          amount: -product.price,
+          metadata: { productId: product.id, category: product.category }
+        }
+      });
+    });
+  }
   async buyFood(userId: string, amount: number) {
     if (amount < 1 || amount > 999) throw new Error("Invalid food amount");
     return this.db.$transaction(async (tx) => {

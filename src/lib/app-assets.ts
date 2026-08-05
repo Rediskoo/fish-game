@@ -69,7 +69,7 @@ export const fishSpeciesAsset: Record<FishSpecies, string> = {
   DRAGON_KOI: AppAssets.shop.caseChest
 };
 
-export type ShopCategory = "cases" | "care" | "decor" | "equipment" | "backgrounds";
+export type ShopCategory = "fish" | "care" | "decor" | "backgrounds";
 
 export type ShopProduct = {
   id: string;
@@ -77,24 +77,45 @@ export type ShopProduct = {
   category: ShopCategory;
   price: number;
   image: string;
+  description: string;
+  accent: string;
   status?: string;
   repeatable: boolean;
+  fullImage?: string;
 };
 
-export const shopProducts: ShopProduct[] = [
-  { id: "fish-case", title: "Рыбный кейс", category: "cases", price: 100, image: AppAssets.shop.caseChest, status: "Рулетка", repeatable: true },
-  { id: "food-basic", title: "Обычный корм", category: "care", price: 10, image: AppAssets.care.foodBasic, status: "+10", repeatable: true },
-  { id: "food-premium", title: "Улучшенный корм", category: "care", price: 30, image: AppAssets.care.foodPremium, repeatable: true },
-  { id: "water-conditioner", title: "Очиститель воды", category: "care", price: 45, image: AppAssets.care.waterConditioner, repeatable: true },
-  { id: "plant-small", title: "Малое растение", category: "decor", price: 35, image: AppAssets.decor.plantSmall, repeatable: false },
-  { id: "plant-tall", title: "Высокое растение", category: "decor", price: 55, image: AppAssets.decor.plantTall, repeatable: false },
-  { id: "coral-red", title: "Красный коралл", category: "decor", price: 70, image: AppAssets.decor.coralRed, repeatable: false },
-  { id: "stone-bridge", title: "Каменный мост", category: "decor", price: 120, image: AppAssets.decor.stoneBridge, repeatable: false },
-  { id: "internal-filter", title: "Фильтр", category: "equipment", price: 90, image: AppAssets.equipment.internalFilter, repeatable: false },
-  { id: "aerator", title: "Аэратор", category: "equipment", price: 110, image: AppAssets.equipment.aerator, repeatable: false },
-  { id: "heater", title: "Обогреватель", category: "equipment", price: 100, image: AppAssets.equipment.heater, repeatable: false },
-  { id: "deep-lagoon", title: "Глубокая лагуна", category: "backgrounds", price: 150, image: AppAssets.backgrounds.previews.deepLagoon, repeatable: false },
-  { id: "coral-garden", title: "Коралловый сад", category: "backgrounds", price: 180, image: AppAssets.backgrounds.previews.coralGarden, repeatable: false },
-  { id: "sunken-temple", title: "Затонувший храм", category: "backgrounds", price: 220, image: AppAssets.backgrounds.previews.sunkenTemple, repeatable: false }
+export const shopCategories: Array<{ id: ShopCategory; title: string; subtitle: string; image: string; accent: string }> = [
+  { id: "fish", title: "Рыбки", subtitle: "Кейсы и редкость", image: AppAssets.shop.caseChest, accent: "#49C7E8" },
+  { id: "care", title: "Уход", subtitle: "Корм и здоровье", image: AppAssets.shop.careFood, accent: "#E5B74F" },
+  { id: "decor", title: "Декор", subtitle: "Предметы в аквариум", image: AppAssets.shop.decorRuins, accent: "#62D4AC" },
+  { id: "backgrounds", title: "Фоны", subtitle: "Вид аквариума", image: AppAssets.shop.aquariumDisplay, accent: "#9B7BEF" }
 ];
 
+export const shopProducts: ShopProduct[] = [
+  { id: "fish-case", title: "Рыбки", category: "fish", price: 100, image: AppAssets.shop.caseChest, description: "Открывает казино 777 с рыбками и призами.", accent: "#49C7E8", status: "777", repeatable: true },
+  { id: "food-basic", title: "Обычный корм", category: "care", price: 10, image: AppAssets.care.foodBasic, description: "+10 корма для ежедневного ухода.", accent: "#E5B74F", status: "+10", repeatable: true },
+  { id: "food-premium", title: "Улучшенный корм", category: "care", price: 30, image: AppAssets.care.foodPremium, description: "Премиальная порция корма. Сейчас добавляет +25 корма.", accent: "#E5B74F", status: "+25", repeatable: true },
+  { id: "water-conditioner", title: "Очиститель воды", category: "care", price: 45, image: AppAssets.care.waterConditioner, description: "Запас ухода. Сейчас добавляет +35 корма как расходник.", accent: "#62D4AC", status: "+35", repeatable: true },
+  { id: "plant-small", title: "Малое растение", category: "decor", price: 35, image: AppAssets.decor.plantSmall, description: "Компактная зелень у дна аквариума.", accent: "#62D4AC", repeatable: false },
+  { id: "plant-tall", title: "Высокое растение", category: "decor", price: 55, image: AppAssets.decor.plantTall, description: "Высокое растение для глубины сцены.", accent: "#62D4AC", repeatable: false },
+  { id: "coral-red", title: "Красный коралл", category: "decor", price: 70, image: AppAssets.decor.coralRed, description: "Тёплый коралл с мягким свечением.", accent: "#FF7FA3", repeatable: false },
+  { id: "coral-purple", title: "Фиолетовый коралл", category: "decor", price: 70, image: AppAssets.decor.coralPurple, description: "Фиолетовый акцент для правой части аквариума.", accent: "#9B7BEF", repeatable: false },
+  { id: "stone-bridge", title: "Каменный мост", category: "decor", price: 120, image: AppAssets.decor.stoneBridge, description: "Центральный декоративный мост.", accent: "#62D4AC", repeatable: false },
+  { id: "lantern", title: "Фонарь", category: "decor", price: 95, image: AppAssets.decor.lantern, description: "Тёплый свет у дна аквариума.", accent: "#E5B74F", repeatable: false },
+  { id: "amphora", title: "Амфора", category: "decor", price: 85, image: AppAssets.decor.amphora, description: "Затонувшая амфора для нижнего слоя.", accent: "#E5B74F", repeatable: false },
+  { id: "deep-lagoon", title: "Глубокая лагуна", category: "backgrounds", price: 150, image: AppAssets.backgrounds.previews.deepLagoon, fullImage: AppAssets.backgrounds.full.deepLagoon, description: "Базовый глубокий синий фон.", accent: "#49C7E8", repeatable: false },
+  { id: "coral-garden", title: "Коралловый сад", category: "backgrounds", price: 180, image: AppAssets.backgrounds.previews.coralGarden, fullImage: AppAssets.backgrounds.full.coralGarden, description: "Больше красок и кораллов на заднем плане.", accent: "#FF7FA3", repeatable: false },
+  { id: "moon-reef", title: "Лунный риф", category: "backgrounds", price: 190, image: AppAssets.backgrounds.previews.moonReef, fullImage: AppAssets.backgrounds.full.moonReef, description: "Спокойный риф с прохладным свечением.", accent: "#9B7BEF", repeatable: false },
+  { id: "sunken-temple", title: "Затонувший храм", category: "backgrounds", price: 220, image: AppAssets.backgrounds.previews.sunkenTemple, fullImage: AppAssets.backgrounds.full.sunkenTemple, description: "Драматичный фон с древними деталями.", accent: "#E5B74F", repeatable: false },
+  { id: "tropical-river", title: "Тропическая река", category: "backgrounds", price: 210, image: AppAssets.backgrounds.previews.tropicalRiver, fullImage: AppAssets.backgrounds.full.tropicalRiver, description: "Зелёная вода и мягкий природный свет.", accent: "#62D4AC", repeatable: false },
+  { id: "night-cove", title: "Ночной грот", category: "backgrounds", price: 210, image: AppAssets.backgrounds.previews.nightCove, fullImage: AppAssets.backgrounds.full.nightCove, description: "Тёмный фон с ночной глубиной.", accent: "#9B7BEF", repeatable: false }
+];
+
+export const shopProductsById = Object.fromEntries(shopProducts.map((product) => [product.id, product])) as Record<string, ShopProduct>;
+
+export const backgroundImageById = Object.fromEntries(
+  shopProducts.filter((product) => product.category === "backgrounds").map((product) => [product.id, product.fullImage ?? product.image])
+) as Record<string, string>;
+
+export const decorProducts = shopProducts.filter((product) => product.category === "decor");
+export const decorImageById = Object.fromEntries(decorProducts.map((product) => [product.id, product.image])) as Record<string, string>;

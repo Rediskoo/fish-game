@@ -39,6 +39,8 @@ export type AquariumSnapshot = {
     level: number;
     experience: number;
     lastIncomeAt: string;
+    backgroundId: string;
+    decor: string[];
   };
   inventory: {
     food: number;

@@ -11,10 +11,12 @@ export async function POST(request: Request) {
   if (!userId) return fail("Unauthorized", 401);
 
   try {
-    const body = (await request.json().catch(() => ({}))) as { item?: string; amount?: number };
+    const body = (await request.json().catch(() => ({}))) as { item?: string; amount?: number; productId?: string };
     let caseResult = null;
     if (body.item === "food") {
       await new PlayerService(getPrisma()).buyFood(userId, body.amount ?? 1);
+    } else if (body.item === "product" && body.productId) {
+      await new PlayerService(getPrisma()).buyProduct(userId, body.productId);
     } else {
       caseResult = await new MarketplaceService(getPrisma()).purchaseFish(userId);
     }

@@ -14,7 +14,7 @@ export function useMarketplace() {
 export function usePurchase() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: { item: "fish" | "food"; amount?: number }) =>
+    mutationFn: (input: { item: "fish" | "food" | "product"; amount?: number; productId?: string }) =>
       api<{ snapshot: AquariumSnapshot; caseResult: CaseResult | null }>("/api/marketplace/purchase", {
         method: "POST",
         body: JSON.stringify(input)

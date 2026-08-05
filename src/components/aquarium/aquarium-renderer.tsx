@@ -1,18 +1,20 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { Container, Text } from "pixi.js";
 import type { FishView } from "@/types/game";
 import { createFishAgent, reactToFishClick, updateFishAgent, type FishAgent } from "@/components/aquarium/fish-ai";
-import { AppAssets } from "@/lib/app-assets";
+import { backgroundImageById, decorImageById } from "@/lib/app-assets";
 import { cn } from "@/lib/cn";
 import { playTone } from "@/stores/sound-store";
 
 type PixiModule = typeof import("pixi.js");
 
-export function AquariumRenderer({ fish, className, interactive = false }: { fish: FishView[]; className?: string; interactive?: boolean }) {
+export function AquariumRenderer({ fish, className, interactive = false, backgroundId = "deep-lagoon", decor = [] }: { fish: FishView[]; className?: string; interactive?: boolean; backgroundId?: string; decor?: string[] }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const fishRef = useRef(fish);
+  const backgroundImage = backgroundImageById[backgroundId] ?? backgroundImageById["deep-lagoon"];
+  const decorImages = useMemo(() => decor.map((id) => ({ id, image: decorImageById[id] })).filter((item): item is { id: string; image: string } => Boolean(item.image)), [decor]);
   fishRef.current = fish;
 
   useEffect(() => {
@@ -38,9 +40,23 @@ export function AquariumRenderer({ fish, className, interactive = false }: { fis
   return (
     <div
       ref={hostRef}
-      className={cn("h-full min-h-[540px] w-full overflow-hidden rounded-b-[28px] bg-cover bg-center", className)}
-      style={{ backgroundImage: `url(${AppAssets.backgrounds.full.deepLagoon})` }}
-    />
+      className={cn("relative h-full min-h-[540px] w-full overflow-hidden rounded-b-[28px] bg-cover bg-center", className)}
+      style={{ backgroundImage: `url(${backgroundImage})` }}
+    >
+      {decorImages.slice(0, 8).map((item, index) => (
+        <img
+          key={`${item.id}-${index}`}
+          className="pointer-events-none absolute bottom-[7%] z-[1] max-h-[22%] object-contain drop-shadow-[0_16px_24px_rgba(0,0,0,.35)]"
+          src={item.image}
+          alt=""
+          style={{
+            left: `${8 + (index % 4) * 22}%`,
+            transform: `translateX(-50%) scale(${index % 2 ? 0.86 : 1})`,
+            opacity: 0.95
+          }}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -60,6 +76,7 @@ async function createScene(
     powerPreference: "high-performance"
   });
 
+  Object.assign(app.canvas.style, { position: "absolute", inset: "0", width: "100%", height: "100%", zIndex: "2" });
   host.appendChild(app.canvas);
 
   const background = new PIXI.Container();

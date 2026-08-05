@@ -30,6 +30,7 @@ enum TransactionType {
   INCOME
   PURCHASE_FISH
   PURCHASE_FOOD
+  PURCHASE_ITEM
   FEED
   DAILY_REWARD
   ACHIEVEMENT
@@ -97,6 +98,8 @@ model Aquarium {
   level           Int      @default(1)
   experience      Int      @default(0)
   lastIncomeAt    DateTime @default(now())
+  backgroundId     String   @default("deep-lagoon")
+  decor           Json     @default("[]")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   owner           User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
