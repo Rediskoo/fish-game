@@ -118,18 +118,17 @@ export function InventoryScreen() {
 
 function FoodSection({ food }: { food: number }) {
   return (
-    <Panel className="relative overflow-hidden">
-      <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-300/16 blur-2xl" />
-      <div className="relative flex items-center gap-3">
-        <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-emerald-300/10">
-          <img className="h-14 w-14 object-contain" src={AppAssets.care.foodBasic} alt="" />
-        </div>
-        <div>
+    <div className="grid grid-cols-2 gap-3">
+      <div className="relative grid aspect-square overflow-hidden rounded-[22px] border border-cyan-100/12 bg-slate-950/32 p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)]">
+        <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-emerald-300/20 blur-2xl" />
+        <span className="absolute left-3 top-3 rounded-full bg-slate-950/50 px-2 py-1 text-[10px] font-black text-cyan-100/76">Запас</span>
+        <img className="relative z-10 mx-auto mt-6 h-20 w-20 object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,.38)]" src={AppAssets.care.foodBasic} alt="" />
+        <div className="relative z-10 mt-auto min-w-0">
           <div className="text-3xl font-black text-cyan-50">{food}</div>
-          <div className="text-sm text-cyan-100/60">корма в инвентаре</div>
+          <div className="mt-1 text-xs text-cyan-100/62">корма в инвентаре</div>
         </div>
       </div>
-    </Panel>
+    </div>
   );
 }
 
@@ -140,7 +139,7 @@ function DecorSection({ activeDecor, isBusy, onToggle }: { activeDecor: string[]
         const active = activeDecor.includes(product.id);
         return (
           <button key={product.id} className={cn("relative grid aspect-square overflow-hidden rounded-[22px] border p-3 text-left transition active:scale-[.98]", active ? "border-emerald-200/35 bg-emerald-300/12" : "border-cyan-100/12 bg-slate-950/32")} disabled={isBusy} onClick={() => onToggle(product, !active)}>
-            <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full blur-2xl" style={{ backgroundColor: `${product.accent}24` }} />
+            <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full blur-2xl" style={{ backgroundColor: product.accent + "24" }} />
             <span className={cn("absolute left-3 top-3 z-10 rounded-full px-2 py-1 text-[10px] font-black", active ? "bg-emerald-300/18 text-emerald-100" : "bg-slate-950/50 text-cyan-100/70")}>{active ? "В аквариуме" : "На складе"}</span>
             <img className="relative z-10 mx-auto mt-6 h-20 w-20 object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,.38)]" src={product.image} alt="" />
             <div className="relative z-10 mt-auto min-w-0">
@@ -156,17 +155,17 @@ function DecorSection({ activeDecor, isBusy, onToggle }: { activeDecor: string[]
 
 function BackgroundSection({ products, activeBackground, isBusy, onSelect }: { products: ShopProduct[]; activeBackground: string; isBusy: boolean; onSelect: (product: ShopProduct) => void }) {
   return (
-    <div className="grid gap-3">
+    <div className="grid grid-cols-2 gap-3">
       {products.map((product) => {
         const active = activeBackground === product.id;
         return (
-          <button key={product.id} className={cn("relative min-h-32 overflow-hidden rounded-[24px] border p-4 text-left transition active:scale-[.99]", active ? "border-cyan-200/40" : "border-cyan-100/12")} disabled={isBusy || active} onClick={() => onSelect(product)}>
+          <button key={product.id} className={cn("relative grid aspect-square overflow-hidden rounded-[22px] border p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)] transition active:scale-[.98]", active ? "border-cyan-200/40" : "border-cyan-100/12")} disabled={isBusy || active} onClick={() => onSelect(product)}>
             <img className="absolute inset-0 h-full w-full object-cover opacity-80" src={product.image} alt="" />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,12,22,.86),rgba(2,12,22,.22))]" />
-            <div className="relative z-10 max-w-[70%]">
-              <div className="text-lg font-black text-cyan-50 text-glow">{product.title}</div>
-              <div className="mt-1 text-xs leading-4 text-cyan-100/68">{product.description}</div>
-              <div className={cn("mt-3 inline-flex rounded-full px-3 py-1 text-xs font-black", active ? "bg-cyan-300/20 text-cyan-50" : "bg-slate-950/48 text-cyan-100/70")}>{active ? "Текущий фон" : "Поставить фон"}</div>
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,12,22,.08),rgba(2,12,22,.84))]" />
+            <span className={cn("absolute left-3 top-3 z-10 rounded-full px-2 py-1 text-[10px] font-black", active ? "bg-cyan-300/20 text-cyan-50" : "bg-slate-950/50 text-cyan-100/76")}>{active ? "Текущий" : "Фон"}</span>
+            <div className="relative z-10 mt-auto min-w-0">
+              <div className="truncate text-sm font-black text-cyan-50 text-glow">{product.title}</div>
+              <div className="mt-1 text-xs text-cyan-100/66">{active ? "Уже стоит" : "Поставить"}</div>
             </div>
           </button>
         );
@@ -184,25 +183,27 @@ function FishSection({ fishList, capacity, onFavorite, onSelect }: { fishList: F
         </div>
         <div className={cn("text-sm font-black", fishList.length > capacity ? "text-rose-200" : "text-cyan-50")}>{fishList.length}/{capacity}</div>
       </Panel>
-      <div className="grid gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {fishList.map((fish, index) => {
           const overCapacity = index >= capacity;
           return (
-            <Panel key={fish.id} className={cn("flex items-center justify-between gap-3", overCapacity && "border border-rose-300/30 bg-rose-500/10")}>
-              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl" style={{ backgroundColor: `${fish.glowColor}22` }}>
-                <Fish className="h-7 w-7" style={{ color: fish.color }} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="truncate font-bold text-cyan-50">{fish.name}</div>
-                <div className={cn("text-sm", overCapacity ? "text-rose-100/80" : "text-cyan-100/60")}>{overCapacity ? "Вне вместимости · можно заселить после расширения" : `${fish.rarityLabel} · сытость ${fullness(fish)}/${fish.maxHunger}`}</div>
-              </div>
-              <Button className={cn("h-10 w-10 px-0", fish.isFavorite && "bg-rose-300")} onClick={() => onFavorite(fish)} aria-label="Избранное">
+            <div key={fish.id} className={cn("relative grid aspect-square overflow-hidden rounded-[22px] border p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)]", overCapacity ? "border-rose-300/35 bg-rose-500/10" : "border-cyan-100/12 bg-slate-950/32")}>
+              <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full blur-2xl" style={{ backgroundColor: fish.glowColor + "24" }} />
+              <span className={cn("absolute left-3 top-3 z-10 rounded-full px-2 py-1 text-[10px] font-black", overCapacity ? "bg-rose-300/18 text-rose-100" : "bg-slate-950/50 text-cyan-100/76")}>{overCapacity ? "Перенаселение" : fish.rarityLabel}</span>
+              <button className={cn("absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-xl bg-slate-950/42 text-cyan-100", fish.isFavorite && "bg-rose-300 text-slate-950")} onClick={() => onFavorite(fish)} aria-label="Избранное">
                 <Heart className={cn("h-4 w-4", fish.isFavorite && "fill-current")} />
-              </Button>
-              <Button className="h-10 w-10 px-0" onClick={() => onSelect(fish)} aria-label={`Подробнее о ${fish.name}`}>
-                <Info className="h-4 w-4" />
-              </Button>
-            </Panel>
+              </button>
+              <div className="relative z-10 mt-7 grid place-items-center">
+                <Fish className="h-16 w-16 drop-shadow-[0_0_14px_currentColor]" style={{ color: fish.color }} />
+              </div>
+              <div className="relative z-10 mt-auto min-w-0">
+                <div className="truncate text-sm font-black text-cyan-50">{fish.name}</div>
+                <div className={cn("mt-1 line-clamp-2 min-h-8 text-xs", overCapacity ? "text-rose-100/80" : "text-cyan-100/62")}>{overCapacity ? "Можно заселить после расширения" : "сытость " + fullness(fish) + "/" + fish.maxHunger}</div>
+                <Button className="mt-2 h-8 w-full text-xs" onClick={() => onSelect(fish)}>
+                  <Info className="h-3.5 w-3.5" /> Инфо
+                </Button>
+              </div>
+            </div>
           );
         })}
       </div>
