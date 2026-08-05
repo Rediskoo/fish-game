@@ -243,10 +243,18 @@ function FishModal({
   onSell: () => void;
 }) {
   const [name, setName] = useState(fish.name);
-  const [feedingBurst, setFeedingBurst] = useState(0);
+  const [feedingDrop, setFeedingDrop] = useState<{ key: number; x: number } | null>(null);
   const fishFullness = fullness(fish);
   const fullnessPercent = Math.max(0, Math.min(100, (fishFullness / fish.maxHunger) * 100));
   const birthday = new Date(fish.birthday).toLocaleDateString("ru-RU");
+  const previewFish = useMemo<FishView>(() => {
+    if (!feedingDrop) return fish;
+    return {
+      ...fish,
+      id: `${fish.id}-feed-${feedingDrop.key}`,
+      animationState: { x: feedingDrop.x / 100, y: 0.58, direction: feedingDrop.x >= 50 ? 1 : -1 }
+    };
+  }, [feedingDrop, fish]);
 
   function handleRename(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -254,8 +262,11 @@ function FishModal({
   }
 
   function handleFeed() {
-    setFeedingBurst((value) => value + 1);
-    window.setTimeout(onFeed, 520);
+    const x = 22 + Math.random() * 56;
+    const key = Date.now();
+    setFeedingDrop({ key, x });
+    window.setTimeout(onFeed, 760);
+    window.setTimeout(() => setFeedingDrop((current) => current?.key === key ? null : current), 980);
   }
 
   return (
@@ -279,16 +290,13 @@ function FishModal({
         <div className="text-sm font-bold" style={{ color: fish.rarityColor }}>{fish.rarityLabel} · {fish.displayName}</div>
 
         <div className="relative h-44 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/35" style={{ boxShadow: `0 0 70px ${fish.glowColor}33` }}>
-          <AquariumRenderer fish={[fish]} className="h-full min-h-0 rounded-none" backgroundId="deep-lagoon" decor={[]} pollution={0} />
-          {feedingBurst > 0 ? (
-            <div key={feedingBurst} className="pointer-events-none absolute inset-0 z-20">
-              {Array.from({ length: 7 }).map((_, index) => (
-                <span
-                  key={index}
-                  className="absolute h-2.5 w-2.5 animate-[feed-drop_900ms_ease-in_forwards] rounded-full bg-amber-200 shadow-[0_0_10px_rgba(253,230,138,.85)]"
-                  style={{ left: String(28 + index * 7) + "%", top: String(8 + (index % 2) * 4) + "%", animationDelay: String(index * 45) + "ms" }}
-                />
-              ))}
+          <AquariumRenderer key={feedingDrop?.key ?? fish.id} fish={[previewFish]} className="h-full min-h-0 rounded-none" backgroundId="deep-lagoon" decor={[]} pollution={0} />
+          {feedingDrop ? (
+            <div key={feedingDrop.key} className="pointer-events-none absolute inset-0 z-20">
+              <span
+                className="absolute h-3 w-3 animate-[feed-drop_900ms_ease-in_forwards] rounded-full bg-amber-200 shadow-[0_0_12px_rgba(253,230,138,.9)]"
+                style={{ left: `${feedingDrop.x}%`, top: "7%" }}
+              />
             </div>
           ) : null}
         </div>
