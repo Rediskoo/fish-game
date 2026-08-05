@@ -111,7 +111,7 @@ export function ProfileScreen() {
         <div className="mt-2 text-sm text-cyan-100/60">В игре с {formatGameSince(player.data?.user.createdAt)}</div>
       </Panel>
 
-      <Panel className="space-y-3 overflow-hidden border-amber-200/20 bg-[linear-gradient(135deg,rgba(251,191,36,.16),rgba(34,211,238,.08),rgba(236,72,153,.10))]">
+      <Panel className="space-y-3 overflow-hidden border-fuchsia-200/20 bg-[linear-gradient(135deg,rgba(168,85,247,.18),rgba(34,197,94,.12),rgba(34,211,238,.08),rgba(251,191,36,.10))]">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 font-black text-cyan-50">
             <span className="grid h-10 w-10 place-items-center rounded-2xl bg-amber-300/18 text-amber-100 shadow-[0_0_22px_rgba(251,191,36,.18)]">
@@ -259,7 +259,7 @@ export function ProfileScreen() {
 
 function AchievementTile({ achievement, index }: { achievement: AchievementView; index: number }) {
   const unlocked = Boolean(achievement.unlockedAt);
-  const colors = ["from-amber-300/24 to-cyan-300/10", "from-fuchsia-300/22 to-cyan-300/10", "from-emerald-300/20 to-sky-300/10", "from-rose-300/20 to-amber-300/10"];
+  const colors = ["from-fuchsia-300/26 to-emerald-300/12", "from-emerald-300/24 to-cyan-300/10", "from-violet-300/24 to-fuchsia-300/10", "from-lime-300/20 to-amber-300/10"];
   return (
     <div className={cn("relative min-h-28 overflow-hidden rounded-2xl border p-3", unlocked ? "border-amber-200/24 bg-gradient-to-br text-cyan-50 shadow-[0_0_24px_rgba(251,191,36,.10)]" : "border-cyan-100/10 bg-slate-950/30 text-cyan-100/52")}>
       <div className={cn("absolute -right-7 -top-7 h-20 w-20 rounded-full blur-2xl", unlocked ? colors[index % colors.length] : "bg-slate-400/10")} />

@@ -47,12 +47,12 @@ export function SettingsScreen() {
 
 function StatusTile({ icon, title, value, tone }: { icon: ReactNode; title: string; value: string; tone: "cyan" | "amber" }) {
   return (
-    <div className={cn("relative aspect-square overflow-hidden rounded-[22px] border p-3 shadow-[0_18px_54px_rgba(0,0,0,.22)]", tone === "cyan" ? "border-cyan-100/14 bg-cyan-300/10" : "border-amber-100/16 bg-amber-300/10")}>
+    <div className={cn("relative flex aspect-square min-w-0 flex-col justify-between overflow-hidden rounded-[22px] border p-3 shadow-[0_18px_54px_rgba(0,0,0,.22)]", tone === "cyan" ? "border-cyan-100/14 bg-cyan-300/10" : "border-amber-100/16 bg-amber-300/10")}>
       <div className={cn("absolute -right-8 -top-8 h-28 w-28 rounded-full blur-2xl", tone === "cyan" ? "bg-cyan-300/22" : "bg-amber-300/22")} />
       <div className="relative z-10 grid h-11 w-11 place-items-center rounded-2xl bg-slate-950/36 text-cyan-50">{icon}</div>
-      <div className="relative z-10 flex h-full flex-col justify-end">
-        <div className="text-lg font-black text-cyan-50">{title}</div>
-        <div className="mt-1 text-xs font-bold text-cyan-100/62">{value}</div>
+      <div className="relative z-10 min-w-0">
+        <div className="truncate text-base font-black leading-tight text-cyan-50">{title}</div>
+        <div className="mt-1 truncate text-[11px] font-bold text-cyan-100/62">{value}</div>
       </div>
     </div>
   );

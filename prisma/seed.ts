@@ -3,14 +3,14 @@ import { FishSpecies, PrismaClient, Rarity } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const fishCatalog = [
-  { species: FishSpecies.GUPPY, rarity: Rarity.COMMON, displayName: "Гуппи", chance: 4500, income: 1.0, speed: 72, color: "#67e8f9", glow: "#9ee7ff", hunger: 1, maxHunger: 100, xp: 25 },
-  { species: FishSpecies.GOLDFISH, rarity: Rarity.COMMON, displayName: "Золотая рыбка", chance: 2500, income: 1.2, speed: 58, color: "#ffb02e", glow: "#ffd166", hunger: 1, maxHunger: 100, xp: 25 },
-  { species: FishSpecies.BETTA, rarity: Rarity.RARE, displayName: "Петушок", chance: 1400, income: 2.0, speed: 76, color: "#f472b6", glow: "#63ffb3", hunger: 1, maxHunger: 120, xp: 50 },
-  { species: FishSpecies.NEON_TETRA, rarity: Rarity.RARE, displayName: "Неоновая тетра", chance: 900, income: 2.5, speed: 92, color: "#38bdf8", glow: "#63ffb3", hunger: 1, maxHunger: 120, xp: 50 },
-  { species: FishSpecies.ANGELFISH, rarity: Rarity.EPIC, displayName: "Скалярия", chance: 450, income: 4.0, speed: 68, color: "#f8fafc", glow: "#b987ff", hunger: 2, maxHunger: 150, xp: 75 },
-  { species: FishSpecies.DISCUS, rarity: Rarity.EPIC, displayName: "Дискус", chance: 180, income: 5.5, speed: 62, color: "#fb7185", glow: "#b987ff", hunger: 2, maxHunger: 150, xp: 75 },
-  { species: FishSpecies.MANDARINFISH, rarity: Rarity.LEGENDARY, displayName: "Мандаринка", chance: 55, income: 8.0, speed: 86, color: "#f97316", glow: "#ffd166", hunger: 2, maxHunger: 200, xp: 100 },
-  { species: FishSpecies.DRAGON_KOI, rarity: Rarity.LEGENDARY, displayName: "Драконовый кои", chance: 15, income: 12.0, speed: 110, color: "#facc15", glow: "#ffd166", hunger: 2, maxHunger: 220, xp: 125 }
+  { species: FishSpecies.GUPPY, rarity: Rarity.COMMON, displayName: "Гуппи", chance: 3500, income: 1.0, speed: 72, color: "#67e8f9", glow: "#9ee7ff", hunger: 1, maxHunger: 100, xp: 25 },
+  { species: FishSpecies.GOLDFISH, rarity: Rarity.COMMON, displayName: "Золотая рыбка", chance: 2200, income: 1.2, speed: 58, color: "#ffb02e", glow: "#ffd166", hunger: 1, maxHunger: 100, xp: 25 },
+  { species: FishSpecies.BETTA, rarity: Rarity.RARE, displayName: "Петушок", chance: 1700, income: 2.0, speed: 76, color: "#f472b6", glow: "#63ffb3", hunger: 1, maxHunger: 120, xp: 50 },
+  { species: FishSpecies.NEON_TETRA, rarity: Rarity.RARE, displayName: "Неоновая тетра", chance: 1200, income: 2.5, speed: 92, color: "#38bdf8", glow: "#63ffb3", hunger: 1, maxHunger: 120, xp: 50 },
+  { species: FishSpecies.ANGELFISH, rarity: Rarity.EPIC, displayName: "Скалярия", chance: 800, income: 4.0, speed: 68, color: "#f8fafc", glow: "#b987ff", hunger: 2, maxHunger: 150, xp: 75 },
+  { species: FishSpecies.DISCUS, rarity: Rarity.EPIC, displayName: "Дискус", chance: 400, income: 5.5, speed: 62, color: "#fb7185", glow: "#b987ff", hunger: 2, maxHunger: 150, xp: 75 },
+  { species: FishSpecies.MANDARINFISH, rarity: Rarity.LEGENDARY, displayName: "Мандаринка", chance: 150, income: 8.0, speed: 86, color: "#f97316", glow: "#ffd166", hunger: 2, maxHunger: 200, xp: 100 },
+  { species: FishSpecies.DRAGON_KOI, rarity: Rarity.LEGENDARY, displayName: "Драконовый кои", chance: 50, income: 12.0, speed: 110, color: "#facc15", glow: "#ffd166", hunger: 2, maxHunger: 220, xp: 125 }
 ];
 
 const achievements = [

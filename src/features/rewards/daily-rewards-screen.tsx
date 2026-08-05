@@ -58,7 +58,7 @@ export function DailyRewardsScreen() {
         {daily.error ? <p className="text-sm text-yellow-100">{daily.error.message}</p> : null}
       </Panel>
 
-      <Panel className="space-y-3 overflow-hidden border-amber-200/20 bg-[linear-gradient(135deg,rgba(251,191,36,.16),rgba(34,211,238,.08),rgba(236,72,153,.10))]">
+      <Panel className="space-y-3 overflow-hidden border-fuchsia-200/20 bg-[linear-gradient(135deg,rgba(168,85,247,.18),rgba(34,197,94,.12),rgba(34,211,238,.08),rgba(251,191,36,.10))]">
         <div className="flex items-center justify-between gap-2 font-bold">
           <div className="flex items-center gap-2">
             <span className="grid h-10 w-10 place-items-center rounded-2xl bg-amber-300/18 text-amber-100">
@@ -73,7 +73,7 @@ export function DailyRewardsScreen() {
         <div className="grid grid-cols-2 gap-2">
           {player.data?.achievements.map((achievement, index) => (
             <div key={achievement.id} className={cn("relative min-h-28 overflow-hidden rounded-2xl border p-3", achievement.unlockedAt ? "border-amber-200/26 bg-amber-300/14 shadow-[0_0_26px_rgba(251,191,36,.10)]" : "border-cyan-100/10 bg-slate-950/30 opacity-70")}>
-              <div className={cn("absolute -right-6 -top-6 h-20 w-20 rounded-full blur-2xl", achievement.unlockedAt ? (index % 2 ? "bg-fuchsia-300/18" : "bg-amber-300/20") : "bg-slate-400/10")} />
+              <div className={cn("absolute -right-6 -top-6 h-20 w-20 rounded-full blur-2xl", achievement.unlockedAt ? (index % 3 === 0 ? "bg-fuchsia-300/20" : index % 3 === 1 ? "bg-emerald-300/18" : "bg-violet-300/18") : "bg-slate-400/10")} />
               <div className="relative z-10 flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <div className="line-clamp-2 text-sm font-black text-cyan-50">{achievement.title}</div>

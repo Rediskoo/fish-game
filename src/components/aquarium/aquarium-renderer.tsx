@@ -14,10 +14,13 @@ export function AquariumRenderer({ fish, className, interactive = false, backgro
   const hostRef = useRef<HTMLDivElement>(null);
   const sceneBackRef = useRef<HTMLDivElement>(null);
   const fishRef = useRef(fish);
+  const decorRef = useRef(decor);
   const backgroundImage = backgroundImageById[backgroundId] ?? backgroundImageById["deep-lagoon"];
   const decorImages = useMemo(() => decor.map((id) => ({ id, image: decorImageById[id] })).filter((item): item is { id: string; image: string } => Boolean(item.image)), [decor]);
+  const seaweedDecor = useMemo(() => decor.filter((id) => id === "seaweed-grove" || id === "glow-seaweed"), [decor]);
   const bubbleJets = useMemo(() => decor.flatMap((id) => id === "bubble-cannon" ? [0] : id === "double-bubble-cannon" ? [1, 2] : []), [decor]);
   fishRef.current = fish;
+  decorRef.current = decor;
 
   useEffect(() => {
     let cancelled = false;
@@ -29,7 +32,7 @@ export function AquariumRenderer({ fish, className, interactive = false, backgro
       const PIXI = await import("pixi.js");
       if (cancelled) return;
 
-      cleanup = await createScene(PIXI, host, sceneBackRef.current, fishRef, interactive);
+      cleanup = await createScene(PIXI, host, sceneBackRef.current, fishRef, decorRef, interactive);
     }
 
     mount();
@@ -46,7 +49,26 @@ export function AquariumRenderer({ fish, className, interactive = false, backgro
         className="pointer-events-none absolute inset-0 z-0 origin-top-left bg-cover bg-center will-change-transform"
         style={{ backgroundImage: `url(${backgroundImage})` }}
       >
-        {decorImages.slice(0, 8).map((item, index) => (
+        {seaweedDecor.length ? (
+          <div className="pointer-events-none absolute inset-x-0 bottom-[-2%] z-[1] h-[28%] overflow-hidden">
+            <div className="absolute inset-x-0 bottom-0 h-[65%] bg-[radial-gradient(ellipse_at_center,rgba(125,220,138,.24),transparent_70%)] blur-xl" />
+            {Array.from({ length: 9 }).map((_, index) => (
+              <img
+                key={index}
+                className="absolute bottom-0 object-contain opacity-95 drop-shadow-[0_0_18px_rgba(125,220,138,.45)]"
+                src={decorImageById[seaweedDecor[index % seaweedDecor.length]]}
+                alt=""
+                style={{
+                  left: `${index * 12 - 4}%`,
+                  height: `${74 + (index % 3) * 16}%`,
+                  transform: `translateX(-50%) scaleX(${index % 2 ? -1 : 1})`,
+                  filter: seaweedDecor.includes("glow-seaweed") ? "drop-shadow(0 0 14px rgba(125,220,138,.72)) saturate(1.2)" : undefined
+                }}
+              />
+            ))}
+          </div>
+        ) : null}
+        {decorImages.filter((item) => item.id !== "seaweed-grove" && item.id !== "glow-seaweed").slice(0, 8).map((item, index) => (
           <img
             key={`${item.id}-${index}`}
             className="pointer-events-none absolute bottom-[7%] z-[1] max-h-[22%] object-contain drop-shadow-[0_16px_24px_rgba(0,0,0,.35)]"
@@ -100,6 +122,7 @@ async function createScene(
   host: HTMLDivElement,
   sceneBack: HTMLDivElement | null,
   fishRef: React.MutableRefObject<FishView[]>,
+  decorRef: React.MutableRefObject<string[]>,
   interactive: boolean
 ) {
   const app = new PIXI.Application();
@@ -124,6 +147,8 @@ async function createScene(
   world.addChild(background, particleLayer, fishLayer, labelLayer);
 
   const agents = new Map<string, { agent: FishAgent; node: Container; label: Text; tail: Container; labelVisibleUntil: number }>();
+  let nextAggroAt = 2.5 + Math.random() * 3;
+  let nextSeaweedAt = 1.5 + Math.random() * 2.5;
   const bubbles = Array.from({ length: 46 }, () => createBubble(PIXI, app.screen.width, app.screen.height));
   const ambientGlows: Container[] = [];
   bubbles.forEach((bubble) => particleLayer.addChild(bubble));
@@ -169,6 +194,48 @@ async function createScene(
     }
   }
 
+
+  function addFloatingMark(text: string, x: number, y: number, color = "#e9fbff") {
+    const mark = new PIXI.Text({
+      text,
+      style: {
+        fontFamily: "Geist, system-ui",
+        fontSize: 22,
+        fill: color,
+        align: "center",
+        stroke: { color: "#031018", width: 4 }
+      }
+    });
+    mark.anchor.set(0.5);
+    mark.x = x;
+    mark.y = y - 38;
+    particleLayer.addChild(mark);
+    const born = performance.now();
+    const tick = () => {
+      const life = (performance.now() - born) / 1000;
+      mark.y -= 0.42;
+      mark.alpha = Math.max(0, 1 - life);
+      if (life >= 1 || mark.destroyed) {
+        app.ticker.remove(tick);
+        if (!mark.destroyed) {
+          particleLayer.removeChild(mark);
+          mark.destroy();
+        }
+      }
+    };
+    app.ticker.add(tick);
+  }
+
+  function emotionFor(fish: FishView) {
+    if (fish.personality === "CURIOUS") return "?";
+    if (fish.personality === "SHY") return "!";
+    if (fish.personality === "AGGRESSIVE") return "!!";
+    if (fish.personality === "PLAYFUL") return "♪";
+    if (fish.personality === "SOCIAL") return "+";
+    if (fish.personality === "LAZY") return "...";
+    return "~";
+  }
+
   function addReactionBubbles(x: number, y: number) {
     for (let i = 0; i < 8; i += 1) {
       const bubble = createBubble(PIXI, app.screen.width, app.screen.height);
@@ -192,6 +259,36 @@ async function createScene(
     syncFish();
 
     const agentList = [...agents.values()].map((entry) => entry.agent);
+    nextSeaweedAt -= delta;
+    if (nextSeaweedAt <= 0 && decorRef.current.some((id) => id === "seaweed-grove" || id === "glow-seaweed")) {
+      const guppies = agentList.filter((agent) => agent.fish.species === "GUPPY");
+      for (const guppy of guppies.slice(0, 4)) {
+        if (Math.random() < 0.7) {
+          guppy.targetX = app.screen.width * (0.12 + Math.random() * 0.76);
+          guppy.targetY = app.screen.height * (0.72 + Math.random() * 0.16);
+          guppy.nextDecision = 1.2;
+        }
+      }
+      nextSeaweedAt = 4 + Math.random() * 5;
+    }
+
+    nextAggroAt -= delta;
+    if (nextAggroAt <= 0) {
+      const angry = agentList.filter((agent) => agent.fish.personality === "AGGRESSIVE");
+      if (angry.length >= 2) {
+        const first = angry[Math.floor(Math.random() * angry.length)];
+        const second = angry.find((agent) => agent.id !== first.id);
+        if (first && second && Math.hypot(first.x - second.x, first.y - second.y) < 190) {
+          addFloatingMark("!!", (first.x + second.x) / 2, (first.y + second.y) / 2, "#fb7185");
+          first.targetX = second.x + (Math.random() - 0.5) * 70;
+          first.targetY = second.y + (Math.random() - 0.5) * 50;
+          first.burstUntil = 0.55;
+          second.burstUntil = 0.45;
+        }
+      }
+      nextAggroAt = 5 + Math.random() * 7;
+    }
+
     for (const entry of agents.values()) {
       updateFishAgent(entry.agent, delta, app.screen.width, app.screen.height, agentList);
       entry.node.x = entry.agent.x;
@@ -234,6 +331,7 @@ async function createScene(
     target.labelVisibleUntil = performance.now() + 3200;
     reactToFishClick(target.agent, point.x, point.y, entries.map((entry) => entry.agent));
     addReactionBubbles(target.agent.x, target.agent.y);
+    addFloatingMark(emotionFor(target.agent.fish), target.agent.x, target.agent.y, target.agent.fish.personality === "AGGRESSIVE" ? "#fb7185" : target.agent.fish.glowColor);
     playTone("fish");
     return true;
   };

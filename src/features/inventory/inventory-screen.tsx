@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { Fish, Heart, Image as ImageIcon, Info, Package, Pencil, Sparkles, Trash2, Utensils, Waves, X } from "lucide-react";
+import { ArrowLeft, Fish, Heart, Image as ImageIcon, Info, Package, Pencil, Sparkles, Trash2, Utensils, Waves, X } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AquariumRenderer } from "@/components/aquarium/aquarium-renderer";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,13 @@ const inventoryTabs: Array<{ id: InventoryTab; label: string; icon: typeof Packa
   { id: "backgrounds", label: "Фоны", icon: ImageIcon },
   { id: "fish", label: "Рыбки", icon: Fish }
 ];
+
+const inventoryTabMeta: Record<InventoryTab, { subtitle: string; accent: string }> = {
+  food: { subtitle: "корм, очистители и уход", accent: "#E5B74F" },
+  decor: { subtitle: "растения, пузыри и украшения", accent: "#62D4AC" },
+  backgrounds: { subtitle: "фоны и настроение воды", accent: "#9B7BEF" },
+  fish: { subtitle: "все рыбки и перенаселение", accent: "#49C7E8" }
+};
 
 function formatAge(seconds: number) {
   const days = Math.floor(seconds / 86400);
@@ -53,7 +60,7 @@ export function InventoryScreen() {
   const activeDecor = player.data?.aquarium.decor ?? [];
   const activeBackground = player.data?.aquarium.backgroundId ?? "deep-lagoon";
   const backgroundProducts = useMemo(() => shopProducts.filter((product) => product.category === "backgrounds"), []);
-  const [activeTab, setActiveTab] = useState<InventoryTab>("food");
+  const [activeTab, setActiveTab] = useState<InventoryTab | null>(null);
   const [selectedFishId, setSelectedFishId] = useState<string | null>(null);
   const fishList = useMemo(() => [...(player.data?.fish ?? [])].sort((a, b) => Number(b.isFavorite) - Number(a.isFavorite)), [player.data?.fish]);
   const selectedFish = useMemo(() => fishList.find((fish) => fish.id === selectedFishId) ?? null, [fishList, selectedFishId]);
@@ -66,34 +73,56 @@ export function InventoryScreen() {
         <p className="mt-2 text-sm text-cyan-100/62">Управление запасами, фонами, декором и рыбками.</p>
       </header>
 
-      <div className="grid grid-cols-4 gap-2">
-        {inventoryTabs.map((tab) => {
-          const Icon = tab.icon;
-          const active = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              className={cn("grid h-16 place-items-center rounded-2xl border border-cyan-100/10 bg-slate-950/28 text-xs font-black text-cyan-100/58 transition", active && "border-cyan-200/35 bg-cyan-300/16 text-cyan-50 shadow-[0_0_28px_rgba(34,211,238,.14)]")}
-              onClick={() => setActiveTab(tab.id)}
-            >
-              <Icon className="h-5 w-5" />
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
+      {!activeTab ? (
+        <div className="grid grid-cols-2 gap-3">
+          {inventoryTabs.map((tab) => {
+            const Icon = tab.icon;
+            const meta = inventoryTabMeta[tab.id];
+            return (
+              <button
+                key={tab.id}
+                className="group relative grid aspect-square overflow-hidden rounded-[24px] border border-cyan-100/14 bg-[linear-gradient(150deg,rgba(12,47,69,.92),rgba(5,18,31,.90))] p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.32)] transition active:scale-[.98]"
+                onClick={() => setActiveTab(tab.id)}
+                type="button"
+              >
+                <div className="absolute inset-0 opacity-90" style={{ background: `radial-gradient(circle at 76% 32%, ${meta.accent}42, transparent 44%), linear-gradient(180deg, transparent, rgba(0,0,0,.24))` }} />
+                <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full blur-2xl" style={{ backgroundColor: `${meta.accent}24` }} />
+                <span className="relative z-10 grid h-12 w-12 place-items-center rounded-2xl bg-slate-950/38 text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,.12)]">
+                  <Icon className="h-6 w-6" />
+                </span>
+                <div className="relative z-10 mt-auto min-w-0">
+                  <div className="truncate text-xl font-black text-cyan-50 text-glow">{tab.label}</div>
+                  <div className="mt-1 line-clamp-2 text-xs leading-4 text-cyan-100/66">{meta.subtitle}</div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      ) : (
+        <section className="space-y-4">
+          <div className="flex items-center gap-3">
+            <Button className="h-10 w-10 shrink-0 bg-cyan-100 px-0" onClick={() => setActiveTab(null)} aria-label="Назад">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div>
+              <div className="text-2xl font-black text-cyan-50">{inventoryTabs.find((tab) => tab.id === activeTab)?.label}</div>
+              <div className="text-sm text-cyan-100/60">{inventoryTabMeta[activeTab].subtitle}</div>
+            </div>
+          </div>
 
-      {activeTab === "food" ? <FoodSection food={food} cleaner={cleaner} pollution={player.data?.aquarium.pollution ?? 0} isBusy={customize.isPending} onClean={() => customize.mutate({ clean: true })} /> : null}
-      {activeTab === "decor" ? <DecorSection activeDecor={activeDecor} isBusy={customize.isPending} onToggle={(product, enabled) => customize.mutate({ decorId: product.id, enabled })} /> : null}
-      {activeTab === "backgrounds" ? <BackgroundSection products={backgroundProducts} activeBackground={activeBackground} isBusy={customize.isPending} onSelect={(product) => customize.mutate({ backgroundId: product.id })} /> : null}
-      {activeTab === "fish" ? (
-        <FishSection
-          fishList={fishList}
-          capacity={capacity}
-          onFavorite={(fish) => favorite.mutate({ fishId: fish.id, isFavorite: !fish.isFavorite })}
-          onSelect={(fish) => setSelectedFishId(fish.id)}
-        />
-      ) : null}
+          {activeTab === "food" ? <FoodSection food={food} cleaner={cleaner} pollution={player.data?.aquarium.pollution ?? 0} isBusy={customize.isPending} onClean={() => customize.mutate({ clean: true })} /> : null}
+          {activeTab === "decor" ? <DecorSection activeDecor={activeDecor} isBusy={customize.isPending} onToggle={(product, enabled) => customize.mutate({ decorId: product.id, enabled })} /> : null}
+          {activeTab === "backgrounds" ? <BackgroundSection products={backgroundProducts} activeBackground={activeBackground} isBusy={customize.isPending} onSelect={(product) => customize.mutate({ backgroundId: product.id })} /> : null}
+          {activeTab === "fish" ? (
+            <FishSection
+              fishList={fishList}
+              capacity={capacity}
+              onFavorite={(fish) => favorite.mutate({ fishId: fish.id, isFavorite: !fish.isFavorite })}
+              onSelect={(fish) => setSelectedFishId(fish.id)}
+            />
+          ) : null}
+        </section>
+      )}
 
       {customize.error ? <p className="rounded-2xl bg-yellow-300/10 p-3 text-sm text-yellow-100">{customize.error.message}</p> : null}
 
@@ -210,7 +239,7 @@ function FishSection({ fishList, capacity, onFavorite, onSelect }: { fishList: F
               <div className="relative z-10 mt-auto min-w-0">
                 <div className="truncate text-sm font-black text-cyan-50">{fish.name}</div>
                 <div className={cn("mt-1 line-clamp-2 min-h-8 text-xs", overCapacity ? "text-rose-100/80" : "text-cyan-100/62")}>{overCapacity ? "Можно заселить после расширения" : "сытость " + fullness(fish) + "/" + fish.maxHunger}</div>
-                <Button className="mt-1 h-7 w-full rounded-lg text-[11px]" onClick={() => onSelect(fish)}>
+                <Button className="mt-1 h-8 w-full rounded-xl border border-cyan-200/25 bg-cyan-300/20 text-[11px] font-black text-cyan-50 shadow-[0_0_18px_rgba(34,211,238,.18)]" onClick={() => onSelect(fish)}>
                   <Info className="h-3.5 w-3.5" /> Инфо
                 </Button>
               </div>
@@ -270,8 +299,8 @@ function FishModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[60] grid place-items-end bg-slate-950/70 px-3 pb-[calc(14px+var(--safe-bottom))] pt-[var(--safe-top)] sm:place-items-center">
-      <div className="glass w-full min-w-0 max-w-[calc(100dvw-1.5rem)] space-y-4 overflow-x-hidden rounded-2xl p-4 shadow-2xl">
+    <div className="fixed inset-0 z-[90] grid place-items-end bg-slate-950/78 px-3 pb-[calc(112px+var(--safe-bottom))] pt-[calc(12px+var(--safe-top))] sm:place-items-center sm:pb-[var(--safe-bottom)]">
+      <div className="glass max-h-[calc(100dvh-132px-var(--safe-top)-var(--safe-bottom))] w-full min-w-0 max-w-md space-y-4 overflow-y-auto overflow-x-hidden rounded-2xl p-4 pb-5 shadow-2xl sm:max-h-[calc(100dvh-32px-var(--safe-top)-var(--safe-bottom))]">
         <div className="flex items-start justify-between gap-2">
           <form className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] gap-2" onSubmit={handleRename}>
             <input className="min-w-0 flex-1 rounded-xl border border-cyan-100/10 bg-slate-950/45 px-3 text-lg font-black text-cyan-50 outline-none focus:border-cyan-200/45" maxLength={18} minLength={2} value={name} onChange={(event) => setName(event.target.value)} />
@@ -322,7 +351,7 @@ function FishModal({
 
         {error ? <p className="text-sm text-yellow-100">{error}</p> : null}
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="sticky bottom-0 z-20 -mx-4 -mb-5 grid grid-cols-2 gap-2 border-t border-cyan-100/10 bg-slate-950/72 p-4 backdrop-blur">
           <Button className="bg-emerald-300" disabled={isBusy || food <= 0 || fish.hunger <= 0} onClick={handleFeed}>
             <Utensils className="h-4 w-4" /> Покормить
           </Button>
