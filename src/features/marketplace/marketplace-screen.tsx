@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useRenameFish, useSellFish } from "@/features/inventory/use-fish-actions";
 import { useMarketplace, usePurchase } from "@/features/marketplace/use-marketplace";
 import { AppAssets, shopCategories, shopProducts, type ShopCategory, type ShopProduct } from "@/lib/app-assets";
-import type { CaseResult } from "@/types/game";
+import type { CaseResult, MarketplaceFish } from "@/types/game";
 
 export function MarketplaceScreen() {
   const marketplace = useMarketplace();
@@ -83,57 +83,12 @@ export function MarketplaceScreen() {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            {visibleProducts.map((product) => {
-              const isBackground = product.category === "backgrounds";
-              return (
-                <button
-                  key={product.id}
-                  className="group relative grid aspect-square grid-rows-[1fr_auto] overflow-hidden rounded-[24px] border border-cyan-100/14 bg-[linear-gradient(150deg,rgba(13,38,51,.92),rgba(5,17,29,.90))] p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.32)] transition active:scale-[.98] disabled:opacity-65"
-                  disabled={purchase.isPending}
-                  onClick={() => buy(product)}
-                >
-                  {isBackground ? <img className="absolute inset-0 h-full w-full object-cover opacity-80" src={product.image} alt="" /> : null}
-                  <div className="absolute inset-0" style={{ background: isBackground ? "linear-gradient(180deg, rgba(2,12,22,.10), rgba(2,12,22,.82))" : `radial-gradient(circle at 72% 28%, ${product.accent}36, transparent 45%), linear-gradient(180deg, transparent, rgba(0,0,0,.20))` }} />
-                  {!isBackground ? <div className="absolute -right-8 top-8 h-28 w-28 rounded-full blur-2xl" style={{ backgroundColor: `${product.accent}24` }} /> : null}
-                  <span className="absolute left-3 top-3 z-10 rounded-full bg-slate-950/50 px-2 py-1 text-[11px] font-black text-cyan-50/86 backdrop-blur">{product.status ?? "В наличии"}</span>
-                  <div className="relative min-h-0">
-                    {!isBackground ? (
-                      <img className="h-full w-full object-contain pt-5 drop-shadow-[0_20px_26px_rgba(0,0,0,.44)] transition duration-200 group-active:scale-95" src={product.image} alt="" />
-                    ) : null}
-                  </div>
-                  <div className="relative z-10 min-w-0">
-                    <div className="truncate text-sm font-black text-cyan-50 text-glow">{product.title}</div>
-                    <div className="mt-1 line-clamp-2 min-h-8 text-[11px] leading-4 text-cyan-100/68">{product.description}</div>
-                    <div className="mt-2 flex items-center justify-between gap-2">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-300/15 px-2 py-1 text-xs font-black text-amber-100">{product.price}</span>
-                      {product.id === "fish-case" ? <PackageOpen className="h-4 w-4 text-cyan-100/80" /> : <ShoppingBag className="h-4 w-4 text-cyan-100/62" />}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
+            {visibleProducts.map((product) => (
+              <ShopProductCard key={product.id} product={product} isBusy={purchase.isPending} onBuy={() => buy(product)} />
+            ))}
           </div>
 
-          {activeCategory === "fish" ? (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 px-1 text-sm font-bold text-cyan-100/75">
-                <Sparkles className="h-4 w-4" /> Редкость рыбок
-              </div>
-              <div className="grid gap-2">
-                {marketplace.data?.fishTypes.map((fish) => (
-                  <div key={fish.id} className="flex items-center gap-3 rounded-2xl border border-cyan-100/12 bg-slate-950/34 p-3">
-                    <div className="grid h-12 w-12 place-items-center rounded-xl" style={{ backgroundColor: `${fish.glowColor}24`, boxShadow: `0 0 22px ${fish.glowColor}38` }}>
-                      <Fish className="h-7 w-7" style={{ color: fish.color }} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate font-bold text-cyan-50">{fish.displayName}</div>
-                      <div className="text-xs text-cyan-100/60">шанс {(fish.dropChanceBps / 100).toFixed(2)}% · +{fish.incomePerSecond}/сек</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : null}
+          {activeCategory === "fish" ? <FishDropPreview fishTypes={marketplace.data?.fishTypes ?? []} /> : null}
         </section>
       )}
 
@@ -151,6 +106,88 @@ export function MarketplaceScreen() {
           }
         />
       ) : null}
+    </div>
+  );
+}
+
+function ShopProductCard({ product, isBusy, onBuy }: { product: ShopProduct; isBusy: boolean; onBuy: () => void }) {
+  const isBackground = product.category === "backgrounds";
+  const isCase = product.id === "fish-case";
+
+  return (
+    <button
+      className={[
+        "group relative grid overflow-hidden rounded-[24px] border border-cyan-100/14 bg-[linear-gradient(150deg,rgba(13,38,51,.92),rgba(5,17,29,.90))] p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.32)] transition active:scale-[.98] disabled:opacity-65",
+        isCase ? "col-span-2 min-h-44 grid-cols-[1fr_42%]" : "aspect-square grid-rows-[1fr_auto]"
+      ].join(" ")}
+      disabled={isBusy}
+      onClick={onBuy}
+    >
+      {isBackground ? <img className="absolute inset-0 h-full w-full object-cover opacity-80" src={product.image} alt="" /> : null}
+      <div className="absolute inset-0" style={{ background: isBackground ? "linear-gradient(180deg, rgba(2,12,22,.10), rgba(2,12,22,.82))" : `radial-gradient(circle at 72% 28%, ${product.accent}36, transparent 45%), linear-gradient(180deg, transparent, rgba(0,0,0,.20))` }} />
+      {!isBackground ? <div className="absolute -right-8 top-8 h-28 w-28 rounded-full blur-2xl" style={{ backgroundColor: `${product.accent}24` }} /> : null}
+      <span className="absolute left-3 top-3 z-10 rounded-full bg-slate-950/50 px-2 py-1 text-[11px] font-black text-cyan-50/86 backdrop-blur">{product.status ?? "В наличии"}</span>
+
+      {isCase ? (
+        <>
+          <div className="relative z-10 flex min-w-0 flex-col justify-end pr-2">
+            <div className="mb-2 inline-flex w-fit items-center gap-1 rounded-full border border-cyan-200/20 bg-cyan-300/10 px-2 py-1 text-[11px] font-black text-cyan-100">
+              <Sparkles className="h-3 w-3" /> 777 казино
+            </div>
+            <div className="text-2xl font-black text-cyan-50 text-glow">{product.title}</div>
+            <div className="mt-1 text-xs leading-4 text-cyan-100/70">Открой слот и поймай редкую рыбку для аквариума.</div>
+            <div className="mt-3 inline-flex w-fit items-center gap-2 rounded-full bg-amber-300/15 px-3 py-1.5 text-sm font-black text-amber-100">{product.price}</div>
+          </div>
+          <div className="relative z-10 grid place-items-center">
+            <div className="absolute h-24 w-24 rounded-full bg-cyan-300/20 blur-2xl" />
+            <img className="relative h-32 w-32 object-contain drop-shadow-[0_22px_26px_rgba(0,0,0,.48)] transition duration-200 group-active:scale-95" src={product.image} alt="" />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="relative min-h-0">
+            {!isBackground ? (
+              <img className="h-full w-full object-contain pt-5 drop-shadow-[0_20px_26px_rgba(0,0,0,.44)] transition duration-200 group-active:scale-95" src={product.image} alt="" />
+            ) : null}
+          </div>
+          <div className="relative z-10 min-w-0">
+            <div className="truncate text-sm font-black text-cyan-50 text-glow">{product.title}</div>
+            <div className="mt-1 line-clamp-2 min-h-8 text-[11px] leading-4 text-cyan-100/68">{product.description}</div>
+            <div className="mt-2 flex items-center justify-between gap-2">
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-300/15 px-2 py-1 text-xs font-black text-amber-100">{product.price}</span>
+              {isCase ? <PackageOpen className="h-4 w-4 text-cyan-100/80" /> : <ShoppingBag className="h-4 w-4 text-cyan-100/62" />}
+            </div>
+          </div>
+        </>
+      )}
+    </button>
+  );
+}
+
+function FishDropPreview({ fishTypes }: { fishTypes: MarketplaceFish[] }) {
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2 px-1 text-sm font-bold text-cyan-100/75">
+        <Sparkles className="h-4 w-4" /> Возможные рыбки
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {fishTypes.map((fish) => (
+          <div key={fish.id} className="relative min-h-32 overflow-hidden rounded-[22px] border border-cyan-100/12 bg-slate-950/34 p-3" style={{ boxShadow: `inset 0 0 0 1px ${fish.glowColor}18, 0 16px 38px rgba(0,0,0,.22)` }}>
+            <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full blur-2xl" style={{ backgroundColor: `${fish.glowColor}30` }} />
+            <div className="relative z-10 flex items-start justify-between gap-2">
+              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl" style={{ backgroundColor: `${fish.glowColor}24`, boxShadow: `0 0 28px ${fish.glowColor}34` }}>
+                <Fish className="h-7 w-7 drop-shadow-[0_0_10px_currentColor]" style={{ color: fish.color }} />
+              </div>
+              <span className="rounded-full bg-slate-950/50 px-2 py-1 text-[10px] font-black text-cyan-50/82">{(fish.dropChanceBps / 100).toFixed(2)}%</span>
+            </div>
+            <div className="relative z-10 mt-3 min-w-0">
+              <div className="truncate text-sm font-black text-cyan-50">{fish.displayName}</div>
+              <div className="mt-1 text-[11px] font-bold uppercase tracking-wide" style={{ color: fish.glowColor }}>{fish.rarity}</div>
+              <div className="mt-2 text-xs text-cyan-100/62">+{fish.incomePerSecond}/сек</div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
