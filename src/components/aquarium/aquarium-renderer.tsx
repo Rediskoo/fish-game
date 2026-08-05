@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import type { Container, Text } from "pixi.js";
 import type { FishView } from "@/types/game";
 import { createFishAgent, reactToFishClick, updateFishAgent, type FishAgent } from "@/components/aquarium/fish-ai";
+import { AppAssets } from "@/lib/app-assets";
 import { cn } from "@/lib/cn";
 import { playTone } from "@/stores/sound-store";
 
@@ -34,7 +35,13 @@ export function AquariumRenderer({ fish, className, interactive = false }: { fis
     };
   }, [interactive]);
 
-  return <div ref={hostRef} className={cn("h-full min-h-[540px] w-full overflow-hidden rounded-b-[28px]", className)} />;
+  return (
+    <div
+      ref={hostRef}
+      className={cn("h-full min-h-[540px] w-full overflow-hidden rounded-b-[28px] bg-cover bg-center", className)}
+      style={{ backgroundImage: `url(${AppAssets.backgrounds.full.deepLagoon})` }}
+    />
+  );
 }
 
 async function createScene(
@@ -72,7 +79,7 @@ async function createScene(
     const w = app.screen.width;
     const h = app.screen.height;
     const water = new PIXI.Graphics();
-    water.rect(0, 0, w, h).fill({ color: 0x031827, alpha: 1 });
+    water.rect(0, 0, w, h).fill({ color: 0x031827, alpha: 0.32 });
     water.rect(0, 0, w, h * 0.38).fill({ color: 0x0d6073, alpha: 0.42 });
     water.rect(0, h * 0.38, w, h * 0.22).fill({ color: 0x04253a, alpha: 0.34 });
     water.rect(0, h * 0.60, w, h * 0.22).fill({ color: 0x031b2c, alpha: 0.48 });

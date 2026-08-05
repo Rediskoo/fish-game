@@ -7,6 +7,7 @@ import { Panel } from "@/components/ui/panel";
 import { usePlayer } from "@/features/auth/use-player";
 import { useRenameFish, useSellFish, useToggleFavoriteFish } from "@/features/inventory/use-fish-actions";
 import { useFeedFish } from "@/features/inventory/use-feed-fish";
+import { AppAssets } from "@/lib/app-assets";
 import { cn } from "@/lib/cn";
 import type { FishView } from "@/types/game";
 
@@ -42,7 +43,9 @@ export function InventoryScreen() {
 
       <Panel>
         <div className="flex items-center gap-3">
-          <Utensils className="h-6 w-6 text-emerald-200" />
+          <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-emerald-300/10">
+            <img className="h-14 w-14 object-contain" src={AppAssets.care.foodBasic} alt="" />
+          </div>
           <div>
             <div className="text-2xl font-black">{food}</div>
             <div className="text-sm text-cyan-100/60">корма в инвентаре</div>
