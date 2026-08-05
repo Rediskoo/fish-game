@@ -3,6 +3,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import { Fish, Heart, Image as ImageIcon, Info, Package, Pencil, Sparkles, Trash2, Utensils, Waves, X } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AquariumRenderer } from "@/components/aquarium/aquarium-renderer";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { usePlayer } from "@/features/auth/use-player";
@@ -242,6 +243,7 @@ function FishModal({
   onSell: () => void;
 }) {
   const [name, setName] = useState(fish.name);
+  const [feedingBurst, setFeedingBurst] = useState(0);
   const fishFullness = fullness(fish);
   const fullnessPercent = Math.max(0, Math.min(100, (fishFullness / fish.maxHunger) * 100));
   const birthday = new Date(fish.birthday).toLocaleDateString("ru-RU");
@@ -249,6 +251,11 @@ function FishModal({
   function handleRename(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     onRename(name);
+  }
+
+  function handleFeed() {
+    setFeedingBurst((value) => value + 1);
+    window.setTimeout(onFeed, 520);
   }
 
   return (
@@ -271,8 +278,19 @@ function FishModal({
 
         <div className="text-sm font-bold" style={{ color: fish.rarityColor }}>{fish.rarityLabel} · {fish.displayName}</div>
 
-        <div className="grid h-44 place-items-center rounded-2xl border border-white/10 bg-slate-950/35" style={{ boxShadow: `0 0 70px ${fish.glowColor}33` }}>
-          <Fish className="h-28 w-28 drop-shadow-[0_0_18px_currentColor]" style={{ color: fish.color }} />
+        <div className="relative h-44 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/35" style={{ boxShadow: `0 0 70px ${fish.glowColor}33` }}>
+          <AquariumRenderer fish={[fish]} className="h-full min-h-0 rounded-none" backgroundId="deep-lagoon" decor={[]} pollution={0} />
+          {feedingBurst > 0 ? (
+            <div key={feedingBurst} className="pointer-events-none absolute inset-0 z-20">
+              {Array.from({ length: 7 }).map((_, index) => (
+                <span
+                  key={index}
+                  className="absolute h-2.5 w-2.5 animate-[feed-drop_900ms_ease-in_forwards] rounded-full bg-amber-200 shadow-[0_0_10px_rgba(253,230,138,.85)]"
+                  style={{ left: String(28 + index * 7) + "%", top: String(8 + (index % 2) * 4) + "%", animationDelay: String(index * 45) + "ms" }}
+                />
+              ))}
+            </div>
+          ) : null}
         </div>
 
         <div className="grid grid-cols-2 gap-2 text-sm">
@@ -297,7 +315,7 @@ function FishModal({
         {error ? <p className="text-sm text-yellow-100">{error}</p> : null}
 
         <div className="grid grid-cols-2 gap-2">
-          <Button className="bg-emerald-300" disabled={isBusy || food <= 0 || fish.hunger <= 0} onClick={onFeed}>
+          <Button className="bg-emerald-300" disabled={isBusy || food <= 0 || fish.hunger <= 0} onClick={handleFeed}>
             <Utensils className="h-4 w-4" /> Покормить
           </Button>
           <Button className={cn(fish.isFavorite && "bg-rose-300")} disabled={isBusy} onClick={onFavorite}>

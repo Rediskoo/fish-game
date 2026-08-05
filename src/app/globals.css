@@ -80,6 +80,13 @@ input {
   48% { opacity: .65; transform: translateY(-31px) scale(1); }
 }
 
+@keyframes feed-drop {
+  0% { opacity: 0; transform: translateY(0) scale(.75); }
+  18% { opacity: 1; }
+  78% { opacity: 1; transform: translateY(104px) scale(1); }
+  100% { opacity: 0; transform: translateY(122px) scale(.45); }
+}
+
 @keyframes casino-float {
   0%, 100% { transform: rotate(-7deg) translateY(0); }
   50% { transform: rotate(6deg) translateY(7px); }
