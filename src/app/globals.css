@@ -80,6 +80,17 @@ input {
   48% { opacity: .65; transform: translateY(-31px) scale(1); }
 }
 
+@keyframes aquarium-bubble-jet {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) scale(.55); }
+  15% { opacity: .85; }
+  86% { opacity: .72; }
+  100% { opacity: 0; transform: translate3d(var(--bubble-drift, 12px), -220px, 0) scale(1.35); }
+}
+
+.aquarium-bubble-jet {
+  animation: aquarium-bubble-jet 2s ease-in infinite;
+}
+
 @keyframes feed-drop {
   0% { opacity: 0; transform: translateY(0) scale(.75); }
   18% { opacity: 1; }

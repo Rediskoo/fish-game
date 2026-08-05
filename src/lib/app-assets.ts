@@ -85,8 +85,8 @@ export type ShopProduct = {
 };
 
 export const shopCategories: Array<{ id: ShopCategory; title: string; subtitle: string; image: string; accent: string }> = [
-  { id: "care", title: "Уход", subtitle: "Корм и здоровье", image: AppAssets.shop.careFood, accent: "#E5B74F" },
-  { id: "decor", title: "Декор", subtitle: "Предметы в аквариум", image: AppAssets.shop.decorRuins, accent: "#62D4AC" },
+  { id: "care", title: "Корм", subtitle: "Еда и очистка", image: AppAssets.shop.careFood, accent: "#E5B74F" },
+  { id: "decor", title: "Декор", subtitle: "Водоросли и пузыри", image: AppAssets.shop.decorRuins, accent: "#62D4AC" },
   { id: "backgrounds", title: "Фоны", subtitle: "Вид аквариума", image: AppAssets.shop.aquariumDisplay, accent: "#9B7BEF" },
   { id: "fish", title: "Рыбки", subtitle: "777 и редкость", image: AppAssets.shop.caseChest, accent: "#49C7E8" }
 ];
@@ -95,13 +95,17 @@ export const shopProducts: ShopProduct[] = [
   { id: "fish-case", title: "Рыбки", category: "fish", price: 100, image: AppAssets.shop.caseChest, description: "Открывает казино 777 с рыбками и призами.", accent: "#49C7E8", status: "777", repeatable: true },
   { id: "food-basic", title: "Обычный корм", category: "care", price: 10, image: AppAssets.care.foodBasic, description: "+10 корма для ежедневного ухода.", accent: "#E5B74F", status: "+10", repeatable: true },
   { id: "food-premium", title: "Улучшенный корм", category: "care", price: 30, image: AppAssets.care.foodPremium, description: "Премиальная порция корма. Сейчас добавляет +25 корма.", accent: "#E5B74F", status: "+25", repeatable: true },
-  { id: "water-conditioner", title: "Очиститель воды", category: "care", price: 45, image: AppAssets.care.waterConditioner, description: "Запас ухода. Сейчас добавляет +35 корма как расходник.", accent: "#62D4AC", status: "???????", repeatable: true },
+      { id: "water-conditioner", title: "Очиститель воды", category: "care", price: 45, image: AppAssets.care.waterConditioner, description: "Средство очистки убирает загрязнение в аквариуме.", accent: "#62D4AC", status: "очистка", repeatable: true },
   { id: "plant-small", title: "Малое растение", category: "decor", price: 35, image: AppAssets.decor.plantSmall, description: "Компактная зелень у дна аквариума.", accent: "#62D4AC", repeatable: false },
   { id: "plant-tall", title: "Высокое растение", category: "decor", price: 55, image: AppAssets.decor.plantTall, description: "Высокое растение для глубины сцены.", accent: "#62D4AC", repeatable: false },
   { id: "coral-red", title: "Красный коралл", category: "decor", price: 70, image: AppAssets.decor.coralRed, description: "Тёплый коралл с мягким свечением.", accent: "#FF7FA3", repeatable: false },
   { id: "coral-purple", title: "Фиолетовый коралл", category: "decor", price: 70, image: AppAssets.decor.coralPurple, description: "Фиолетовый акцент для правой части аквариума.", accent: "#9B7BEF", repeatable: false },
   { id: "stone-bridge", title: "Каменный мост", category: "decor", price: 120, image: AppAssets.decor.stoneBridge, description: "Центральный декоративный мост.", accent: "#62D4AC", repeatable: false },
   { id: "lantern", title: "Фонарь", category: "decor", price: 95, image: AppAssets.decor.lantern, description: "Тёплый свет у дна аквариума.", accent: "#E5B74F", repeatable: false },
+    { id: "seaweed-grove", title: "Зелёные водоросли", category: "decor", price: 60, image: AppAssets.decor.plantTall, description: "Пышные водоросли для нижнего слоя аквариума.", accent: "#62D4AC", repeatable: false },
+    { id: "glow-seaweed", title: "Светящиеся водоросли", category: "decor", price: 90, image: AppAssets.decor.plantSmall, description: "Мягкое зелёное свечение и живой акцент у дна.", accent: "#7DDC8A", repeatable: false },
+    { id: "bubble-cannon", title: "Пушка пузырьков", category: "decor", price: 130, image: AppAssets.equipment.aerator, description: "Даёт плотный поток пузырей в аквариуме.", accent: "#49C7E8", status: "пузыри", repeatable: false },
+    { id: "double-bubble-cannon", title: "Двойная пушка", category: "decor", price: 190, image: AppAssets.equipment.airPump, description: "Две струи пузырьков для активного аквариума.", accent: "#9B7BEF", status: "много", repeatable: false },
   { id: "amphora", title: "Амфора", category: "decor", price: 85, image: AppAssets.decor.amphora, description: "Затонувшая амфора для нижнего слоя.", accent: "#E5B74F", repeatable: false },
   { id: "deep-lagoon", title: "Глубокая лагуна", category: "backgrounds", price: 150, image: AppAssets.backgrounds.previews.deepLagoon, fullImage: AppAssets.backgrounds.full.deepLagoon, description: "Базовый глубокий синий фон.", accent: "#49C7E8", repeatable: false },
   { id: "coral-garden", title: "Коралловый сад", category: "backgrounds", price: 180, image: AppAssets.backgrounds.previews.coralGarden, fullImage: AppAssets.backgrounds.full.coralGarden, description: "Больше красок и кораллов на заднем плане.", accent: "#FF7FA3", repeatable: false },

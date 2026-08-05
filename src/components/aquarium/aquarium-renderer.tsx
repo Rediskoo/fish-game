@@ -16,6 +16,7 @@ export function AquariumRenderer({ fish, className, interactive = false, backgro
   const fishRef = useRef(fish);
   const backgroundImage = backgroundImageById[backgroundId] ?? backgroundImageById["deep-lagoon"];
   const decorImages = useMemo(() => decor.map((id) => ({ id, image: decorImageById[id] })).filter((item): item is { id: string; image: string } => Boolean(item.image)), [decor]);
+  const bubbleJets = useMemo(() => decor.flatMap((id) => id === "bubble-cannon" ? [0] : id === "double-bubble-cannon" ? [1, 2] : []), [decor]);
   fishRef.current = fish;
 
   useEffect(() => {
@@ -57,6 +58,23 @@ export function AquariumRenderer({ fish, className, interactive = false, backgro
               opacity: 0.95
             }}
           />
+        ))}
+        {bubbleJets.map((jet) => (
+          <div key={jet} className="pointer-events-none absolute bottom-[12%] z-[1] h-[54%] w-10" style={{ left: jet === 0 ? "72%" : jet === 1 ? "18%" : "82%" }}>
+            {Array.from({ length: 18 }).map((_, index) => (
+              <span
+                key={index}
+                className="aquarium-bubble-jet absolute bottom-0 rounded-full border border-cyan-100/65 bg-cyan-100/10 shadow-[0_0_12px_rgba(103,232,249,.34)]"
+                style={{
+                  left: String(10 + ((index * 13) % 20)) + "px",
+                  width: String(5 + (index % 4)) + "px",
+                  height: String(5 + (index % 4)) + "px",
+                  animationDelay: String(index * 120) + "ms",
+                  animationDuration: String(1800 + (index % 5) * 180) + "ms"
+                }}
+              />
+            ))}
+          </div>
         ))}
         {Array.from({ length: Math.min(80, pollution) }).map((_, index) => (
           <span
