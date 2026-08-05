@@ -79,11 +79,13 @@ export function AquariumRenderer({ fish, className, interactive = false, backgro
         {Array.from({ length: Math.min(80, pollution) }).map((_, index) => (
           <span
             key={index}
-            className="absolute h-1.5 w-1.5 rounded-full opacity-70 animate-pulse"
+            className="absolute rounded-full opacity-75 animate-pulse shadow-[0_0_8px_rgba(22,32,18,.35)]"
             style={{
               left: `${(index * 37) % 100}%`,
               top: `${12 + ((index * 19) % 76)}%`,
-              backgroundColor: index % 2 ? "#2f3f18" : "#5a3b20",
+              backgroundColor: index % 2 ? "#263716" : "#6b4627",
+              width: String(4 + (index % 4)) + "px",
+              height: String(4 + (index % 4)) + "px",
               transform: `translate3d(${Math.sin(index) * 8}px, ${Math.cos(index * 1.7) * 5}px, 0)`
             }}
           />

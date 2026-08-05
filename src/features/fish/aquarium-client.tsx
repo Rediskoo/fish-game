@@ -25,13 +25,18 @@ export function AquariumClient() {
   return (
     <div className="absolute inset-0">
       <AquariumRenderer fish={fish} backgroundId={backgroundId} decor={decor} pollution={pollution} />
-      <Button className="absolute right-4 bottom-24 z-40 h-11 w-11 px-0" onClick={() => setObserveMode(true)} aria-label="Р РµР¶РёРј РЅР°Р±Р»СЋРґРµРЅРёСЏ">
+      {pollution > 15 ? (
+        <div className="absolute left-4 right-4 top-[calc(92px+var(--safe-top))] z-40 rounded-2xl border border-amber-200/30 bg-amber-950/62 p-3 text-sm font-bold text-amber-100 shadow-[0_16px_40px_rgba(0,0,0,.28)] backdrop-blur">
+          Грязный аквариум · используй очиститель на складе
+        </div>
+      ) : null}
+      <Button className="absolute right-4 bottom-24 z-40 h-11 w-11 px-0" onClick={() => setObserveMode(true)} aria-label="Режим наблюдения">
         <Eye className="h-5 w-5" />
       </Button>
       {observeMode ? (
         <div className="fixed inset-0 z-[70] bg-[#031018]">
           <AquariumRenderer fish={fish} backgroundId={backgroundId} decor={decor} pollution={pollution} className="min-h-dvh rounded-none" interactive />
-          <Button className="absolute right-4 top-[calc(94px+var(--safe-top))] z-10 h-11 w-11 bg-cyan-100 px-0" onClick={() => setObserveMode(false)} aria-label="Р’С‹Р№С‚Рё РёР· СЂРµР¶РёРјР° РЅР°Р±Р»СЋРґРµРЅРёСЏ">
+          <Button className="absolute right-4 top-[calc(94px+var(--safe-top))] z-10 h-11 w-11 bg-cyan-100 px-0" onClick={() => setObserveMode(false)} aria-label="Выйти из режима наблюдения">
             <X className="h-5 w-5" />
           </Button>
         </div>

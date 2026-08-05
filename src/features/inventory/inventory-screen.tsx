@@ -123,20 +123,20 @@ function FoodSection({ food, cleaner, pollution, isBusy, onClean }: { food: numb
     <div className="grid grid-cols-2 gap-3">
       <div className="relative grid aspect-square overflow-hidden rounded-[22px] border border-cyan-100/12 bg-slate-950/32 p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)]">
         <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-emerald-300/20 blur-2xl" />
-        <span className="absolute left-3 top-3 rounded-full bg-slate-950/50 px-2 py-1 text-[10px] font-black text-cyan-100/76">?????</span>
+        <span className="absolute left-3 top-3 rounded-full bg-slate-950/50 px-2 py-1 text-[10px] font-black text-cyan-100/76">Запас</span>
         <img className="relative z-10 mx-auto mt-6 h-20 w-20 object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,.38)]" src={AppAssets.care.foodBasic} alt="" />
         <div className="relative z-10 mt-auto min-w-0">
           <div className="text-3xl font-black text-cyan-50">{food}</div>
-          <div className="mt-1 text-xs text-cyan-100/62">????? ? ?????????</div>
+          <div className="mt-1 text-xs text-cyan-100/62">корма в инвентаре</div>
         </div>
       </div>
       <button className="relative grid aspect-square overflow-hidden rounded-[22px] border border-cyan-100/12 bg-slate-950/32 p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)] disabled:opacity-60" disabled={isBusy || cleaner <= 0 || pollution <= 0} onClick={onClean}>
         <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-cyan-300/20 blur-2xl" />
-        <span className="absolute left-3 top-3 rounded-full bg-slate-950/50 px-2 py-1 text-[10px] font-black text-cyan-100/76">???????</span>
+        <span className="absolute left-3 top-3 rounded-full bg-slate-950/50 px-2 py-1 text-[10px] font-black text-cyan-100/76">Очистка</span>
         <img className="relative z-10 mx-auto mt-6 h-20 w-20 object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,.38)]" src={AppAssets.care.waterConditioner} alt="" />
         <div className="relative z-10 mt-auto min-w-0">
           <div className="text-3xl font-black text-cyan-50">{cleaner}</div>
-          <div className="mt-1 text-xs text-cyan-100/62">?????: {pollution}</div>
+          <div className="mt-1 text-xs text-cyan-100/62">грязь: {pollution}</div>
         </div>
       </button>
     </div>
@@ -210,7 +210,7 @@ function FishSection({ fishList, capacity, onFavorite, onSelect }: { fishList: F
               <div className="relative z-10 mt-auto min-w-0">
                 <div className="truncate text-sm font-black text-cyan-50">{fish.name}</div>
                 <div className={cn("mt-1 line-clamp-2 min-h-8 text-xs", overCapacity ? "text-rose-100/80" : "text-cyan-100/62")}>{overCapacity ? "Можно заселить после расширения" : "сытость " + fullness(fish) + "/" + fish.maxHunger}</div>
-                <Button className="mt-2 h-8 w-full text-xs" onClick={() => onSelect(fish)}>
+                <Button className="mt-1 h-7 w-full rounded-lg text-[11px]" onClick={() => onSelect(fish)}>
                   <Info className="h-3.5 w-3.5" /> Инфо
                 </Button>
               </div>
