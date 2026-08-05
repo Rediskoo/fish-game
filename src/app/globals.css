@@ -80,6 +80,30 @@ input {
   48% { opacity: .65; transform: translateY(-31px) scale(1); }
 }
 
+@keyframes screen-bubble-rise {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) scale(.7); }
+  18% { opacity: .42; }
+  76% { opacity: .28; }
+  100% { opacity: 0; transform: translate3d(18px, -112dvh, 0) scale(1.15); }
+}
+
+@keyframes screen-glow-pulse {
+  0%, 100% { opacity: .65; transform: scale(.94); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+.screen-bubble {
+  animation: screen-bubble-rise 8s linear infinite;
+}
+
+.screen-glow {
+  animation: screen-glow-pulse 7s ease-in-out infinite;
+}
+
+.screen-glow-delayed {
+  animation-delay: -3.5s;
+}
+
 @keyframes aquarium-bubble-jet {
   0% { opacity: 0; transform: translate3d(0, 0, 0) scale(.55); }
   15% { opacity: .85; }
