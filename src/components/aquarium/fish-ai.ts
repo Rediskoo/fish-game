@@ -16,7 +16,7 @@ export type FishAgent = {
 };
 
 export function createFishAgent(fish: FishView, width: number, height: number): FishAgent {
-  const state = fish.animationState as Partial<{ x: number; y: number; targetX: number; targetY: number; direction: 1 | -1; targetLockSeconds: number; speedMultiplier: number }> | null;
+  const state = fish.animationState as Partial<{ x: number; y: number; targetX: number; targetY: number; direction: 1 | -1; targetLockSeconds: number; speedMultiplier: number; burstSeconds: number }> | null;
   const x = (state?.x ?? Math.random()) * width;
   const y = (state?.y ?? Math.random()) * height;
   const targetX = (state?.targetX ?? Math.random()) * width;
@@ -31,7 +31,7 @@ export function createFishAgent(fish: FishView, width: number, height: number): 
     direction: state?.direction ?? 1,
     phase: Math.random() * Math.PI * 2,
     nextDecision: state?.targetX === undefined ? Math.random() * 2 : 1.4,
-    burstUntil: state?.targetX === undefined ? 0 : 0.9,
+    burstUntil: state?.burstSeconds ?? (state?.targetX === undefined ? 0 : 0.45),
     targetLockUntil: state?.targetLockSeconds ?? 0,
     speedMultiplier: state?.speedMultiplier ?? 1
   };

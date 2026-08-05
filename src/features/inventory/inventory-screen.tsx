@@ -284,13 +284,14 @@ function FishModal({
       ...fish,
       id: `${fish.id}-feed-${feedingDrop.key}`,
       animationState: {
-        x: feedingDrop.x >= 50 ? Math.max(0.12, feedingDrop.x / 100 - 0.22) : Math.min(0.88, feedingDrop.x / 100 + 0.22),
+        x: feedingDrop.x >= 50 ? Math.max(0.14, feedingDrop.x / 100 - 0.14) : Math.min(0.86, feedingDrop.x / 100 + 0.14),
         y: 0.66,
         targetX: feedingDrop.x / 100,
         targetY: 0.66,
         direction: feedingDrop.x >= 50 ? 1 : -1,
-        targetLockSeconds: 1.15,
-        speedMultiplier: 5.5
+        targetLockSeconds: 1.25,
+        speedMultiplier: 1.9,
+        burstSeconds: 0
       }
     };
   }, [feedingDrop, fish]);
@@ -304,8 +305,8 @@ function FishModal({
     const x = 22 + Math.random() * 56;
     const key = Date.now();
     setFeedingDrop({ key, x });
-    window.setTimeout(onFeed, 760);
-    window.setTimeout(() => setFeedingDrop((current) => current?.key === key ? null : current), 980);
+    window.setTimeout(onFeed, 900);
+    window.setTimeout(() => setFeedingDrop((current) => current?.key === key ? null : current), 1250);
   }
 
   return (
