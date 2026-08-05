@@ -53,7 +53,10 @@ export class PlayerService {
 
   async getSnapshot(userId: string): Promise<AquariumSnapshot> {
     await applyHungerDecay(this.db, userId);
-    const snapshot = await this.ensurePlayerState(userId);
+    let snapshot = await this.ensurePlayerState(userId);
+    if (await this.accruePollution(userId, snapshot.aquarium)) {
+      snapshot = await this.ensurePlayerState(userId);
+    }
     if (!snapshot?.aquarium || !snapshot.inventory) {
       throw new Error("Player state is incomplete");
     }
@@ -88,9 +91,10 @@ export class PlayerService {
         experience: snapshot.aquarium.experience,
         lastIncomeAt: snapshot.aquarium.lastIncomeAt.toISOString(),
         backgroundId: snapshot.aquarium.backgroundId,
-        decor: Array.isArray(snapshot.aquarium.decor) ? snapshot.aquarium.decor.filter((item): item is string => typeof item === "string") : []
+        decor: Array.isArray(snapshot.aquarium.decor) ? snapshot.aquarium.decor.filter((item): item is string => typeof item === "string") : [],
+        pollution: snapshot.aquarium.pollution
       },
-      inventory: { food: snapshot.inventory.food },
+      inventory: { food: snapshot.inventory.food, cleaner: snapshot.inventory.cleaner },
       dailyReward: {
         amount: dailyRewardAmount,
         claimedToday,
@@ -148,7 +152,7 @@ export class PlayerService {
 
       await tx.inventory.upsert({
         where: { ownerId: userId },
-        create: { ownerId: userId, food: 5 },
+        create: { ownerId: userId, food: 5, cleaner: 0 },
         update: {}
       });
 
@@ -179,7 +183,8 @@ export class PlayerService {
     const product = shopProductsById[productId];
     if (!product || product.id === "fish-case") throw new Error("Invalid marketplace product");
 
-    const foodAmount = product.id === "food-basic" ? 10 : product.id === "food-premium" ? 25 : product.id === "water-conditioner" ? 35 : 0;
+    const foodAmount = product.id === "food-basic" ? 10 : product.id === "food-premium" ? 25 : 0;
+    const cleanerAmount = product.id === "water-conditioner" ? 1 : 0;
 
     return this.db.$transaction(async (tx) => {
       const user = await tx.user.findUniqueOrThrow({ where: { id: userId } });
@@ -194,7 +199,7 @@ export class PlayerService {
       await tx.user.update({ where: { id: userId }, data: { currency: { decrement: product.price } } });
 
       if (product.category === "care") {
-        await tx.inventory.update({ where: { ownerId: userId }, data: { food: { increment: foodAmount } } });
+        await tx.inventory.update({ where: { ownerId: userId }, data: { food: { increment: foodAmount }, cleaner: { increment: cleanerAmount } } });
       } else if (product.category === "decor") {
         await tx.aquarium.update({ where: { ownerId: userId }, data: { decor: [...currentDecor, product.id] } });
       } else if (product.category === "backgrounds") {
@@ -211,6 +216,34 @@ export class PlayerService {
       });
     });
   }
+  private async accruePollution(userId: string, aquarium: { pollution: number; lastPollutionAt: Date } | null) {
+    if (!aquarium) return false;
+    const now = new Date();
+    const elapsedMinutes = Math.floor((now.getTime() - aquarium.lastPollutionAt.getTime()) / 60000);
+    if (elapsedMinutes <= 0) return false;
+    await this.db.aquarium.update({
+      where: { ownerId: userId },
+      data: {
+        pollution: Math.min(80, aquarium.pollution + elapsedMinutes),
+        lastPollutionAt: now
+      }
+    });
+    return true;
+  }
+
+  async cleanAquarium(userId: string) {
+    await this.db.$transaction(async (tx) => {
+      const inventory = await tx.inventory.findUniqueOrThrow({ where: { ownerId: userId } });
+      if (inventory.cleaner <= 0) throw new Error("No cleaner in inventory");
+      const aquarium = await tx.aquarium.findUniqueOrThrow({ where: { ownerId: userId } });
+      await tx.inventory.update({ where: { ownerId: userId }, data: { cleaner: { decrement: 1 } } });
+      await tx.aquarium.update({
+        where: { ownerId: userId },
+        data: { pollution: Math.max(0, aquarium.pollution - 15), lastPollutionAt: new Date() }
+      });
+    });
+  }
+
   async customizeAquarium(userId: string, input: { decorId?: string; enabled?: boolean; backgroundId?: string }) {
     const backgroundProduct = input.backgroundId ? shopProductsById[input.backgroundId] : null;
     if (input.backgroundId && (!backgroundProduct || backgroundProduct.category !== "backgrounds")) {

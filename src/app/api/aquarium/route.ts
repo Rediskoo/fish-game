@@ -10,9 +10,13 @@ export async function PATCH(request: Request) {
   if (!userId) return fail("Unauthorized", 401);
 
   try {
-    const body = (await request.json().catch(() => ({}))) as { decorId?: string; enabled?: boolean; backgroundId?: string };
+    const body = (await request.json().catch(() => ({}))) as { decorId?: string; enabled?: boolean; backgroundId?: string; clean?: boolean };
     const service = new PlayerService(getPrisma());
-    await service.customizeAquarium(userId, body);
+    if (body.clean) {
+      await service.cleanAquarium(userId);
+    } else {
+      await service.customizeAquarium(userId, body);
+    }
     return ok(await service.getSnapshot(userId));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Aquarium update failed");

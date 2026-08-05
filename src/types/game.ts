@@ -41,9 +41,11 @@ export type AquariumSnapshot = {
     lastIncomeAt: string;
     backgroundId: string;
     decor: string[];
+    pollution: number;
   };
   inventory: {
     food: number;
+    cleaner: number;
   };
   dailyReward: {
     amount: number;

@@ -100,6 +100,8 @@ model Aquarium {
   lastIncomeAt    DateTime @default(now())
   backgroundId     String   @default("deep-lagoon")
   decor           Json     @default("[]")
+  pollution       Int      @default(0)
+  lastPollutionAt DateTime @default(now())
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   owner           User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
@@ -155,6 +157,7 @@ model Inventory {
   id          String   @id @default(cuid())
   ownerId     String   @unique
   food        Int      @default(0)
+  cleaner     Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)

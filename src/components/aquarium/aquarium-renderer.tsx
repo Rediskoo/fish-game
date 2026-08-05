@@ -10,7 +10,7 @@ import { playTone } from "@/stores/sound-store";
 
 type PixiModule = typeof import("pixi.js");
 
-export function AquariumRenderer({ fish, className, interactive = false, backgroundId = "deep-lagoon", decor = [] }: { fish: FishView[]; className?: string; interactive?: boolean; backgroundId?: string; decor?: string[] }) {
+export function AquariumRenderer({ fish, className, interactive = false, backgroundId = "deep-lagoon", decor = [], pollution = 0 }: { fish: FishView[]; className?: string; interactive?: boolean; backgroundId?: string; decor?: string[]; pollution?: number }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const sceneBackRef = useRef<HTMLDivElement>(null);
   const fishRef = useRef(fish);
@@ -55,6 +55,18 @@ export function AquariumRenderer({ fish, className, interactive = false, backgro
               left: `${8 + (index % 4) * 22}%`,
               transform: `translateX(-50%) scale(${index % 2 ? 0.86 : 1})`,
               opacity: 0.95
+            }}
+          />
+        ))}
+        {Array.from({ length: Math.min(80, pollution) }).map((_, index) => (
+          <span
+            key={index}
+            className="absolute h-1.5 w-1.5 rounded-full opacity-70 animate-pulse"
+            style={{
+              left: `${(index * 37) % 100}%`,
+              top: `${12 + ((index * 19) % 76)}%`,
+              backgroundColor: index % 2 ? "#2f3f18" : "#5a3b20",
+              transform: `translate3d(${Math.sin(index) * 8}px, ${Math.cos(index * 1.7) * 5}px, 0)`
             }}
           />
         ))}

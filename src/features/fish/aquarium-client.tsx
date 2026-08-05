@@ -19,17 +19,18 @@ export function AquariumClient() {
   const fish = player.data?.fish ?? [];
   const backgroundId = player.data?.aquarium.backgroundId;
   const decor = player.data?.aquarium.decor ?? [];
+  const pollution = player.data?.aquarium.pollution ?? 0;
   const [observeMode, setObserveMode] = useState(false);
 
   return (
     <div className="absolute inset-0">
-      <AquariumRenderer fish={fish} backgroundId={backgroundId} decor={decor} />
+      <AquariumRenderer fish={fish} backgroundId={backgroundId} decor={decor} pollution={pollution} />
       <Button className="absolute right-4 bottom-24 z-40 h-11 w-11 px-0" onClick={() => setObserveMode(true)} aria-label="Р РµР¶РёРј РЅР°Р±Р»СЋРґРµРЅРёСЏ">
         <Eye className="h-5 w-5" />
       </Button>
       {observeMode ? (
         <div className="fixed inset-0 z-[70] bg-[#031018]">
-          <AquariumRenderer fish={fish} backgroundId={backgroundId} decor={decor} className="min-h-dvh rounded-none" interactive />
+          <AquariumRenderer fish={fish} backgroundId={backgroundId} decor={decor} pollution={pollution} className="min-h-dvh rounded-none" interactive />
           <Button className="absolute right-4 top-[calc(94px+var(--safe-top))] z-10 h-11 w-11 bg-cyan-100 px-0" onClick={() => setObserveMode(false)} aria-label="Р’С‹Р№С‚Рё РёР· СЂРµР¶РёРјР° РЅР°Р±Р»СЋРґРµРЅРёСЏ">
             <X className="h-5 w-5" />
           </Button>

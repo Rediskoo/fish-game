@@ -43,11 +43,12 @@ export function InventoryScreen() {
   const sellFish = useSellFish();
   const favorite = useToggleFavoriteFish();
   const customize = useMutation({
-    mutationFn: (input: { decorId?: string; enabled?: boolean; backgroundId?: string }) =>
+    mutationFn: (input: { decorId?: string; enabled?: boolean; backgroundId?: string; clean?: boolean }) =>
       api<AquariumSnapshot>("/api/aquarium", { method: "PATCH", body: JSON.stringify(input) }),
     onSuccess: (snapshot) => queryClient.setQueryData(["snapshot"], snapshot)
   });
   const food = player.data?.inventory.food ?? 0;
+  const cleaner = player.data?.inventory.cleaner ?? 0;
   const activeDecor = player.data?.aquarium.decor ?? [];
   const activeBackground = player.data?.aquarium.backgroundId ?? "deep-lagoon";
   const backgroundProducts = useMemo(() => shopProducts.filter((product) => product.category === "backgrounds"), []);
@@ -81,7 +82,7 @@ export function InventoryScreen() {
         })}
       </div>
 
-      {activeTab === "food" ? <FoodSection food={food} /> : null}
+      {activeTab === "food" ? <FoodSection food={food} cleaner={cleaner} pollution={player.data?.aquarium.pollution ?? 0} isBusy={customize.isPending} onClean={() => customize.mutate({ clean: true })} /> : null}
       {activeTab === "decor" ? <DecorSection activeDecor={activeDecor} isBusy={customize.isPending} onToggle={(product, enabled) => customize.mutate({ decorId: product.id, enabled })} /> : null}
       {activeTab === "backgrounds" ? <BackgroundSection products={backgroundProducts} activeBackground={activeBackground} isBusy={customize.isPending} onSelect={(product) => customize.mutate({ backgroundId: product.id })} /> : null}
       {activeTab === "fish" ? (
@@ -116,18 +117,27 @@ export function InventoryScreen() {
   );
 }
 
-function FoodSection({ food }: { food: number }) {
+function FoodSection({ food, cleaner, pollution, isBusy, onClean }: { food: number; cleaner: number; pollution: number; isBusy: boolean; onClean: () => void }) {
   return (
     <div className="grid grid-cols-2 gap-3">
       <div className="relative grid aspect-square overflow-hidden rounded-[22px] border border-cyan-100/12 bg-slate-950/32 p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)]">
         <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-emerald-300/20 blur-2xl" />
-        <span className="absolute left-3 top-3 rounded-full bg-slate-950/50 px-2 py-1 text-[10px] font-black text-cyan-100/76">Запас</span>
+        <span className="absolute left-3 top-3 rounded-full bg-slate-950/50 px-2 py-1 text-[10px] font-black text-cyan-100/76">?????</span>
         <img className="relative z-10 mx-auto mt-6 h-20 w-20 object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,.38)]" src={AppAssets.care.foodBasic} alt="" />
         <div className="relative z-10 mt-auto min-w-0">
           <div className="text-3xl font-black text-cyan-50">{food}</div>
-          <div className="mt-1 text-xs text-cyan-100/62">корма в инвентаре</div>
+          <div className="mt-1 text-xs text-cyan-100/62">????? ? ?????????</div>
         </div>
       </div>
+      <button className="relative grid aspect-square overflow-hidden rounded-[22px] border border-cyan-100/12 bg-slate-950/32 p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)] disabled:opacity-60" disabled={isBusy || cleaner <= 0 || pollution <= 0} onClick={onClean}>
+        <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-cyan-300/20 blur-2xl" />
+        <span className="absolute left-3 top-3 rounded-full bg-slate-950/50 px-2 py-1 text-[10px] font-black text-cyan-100/76">???????</span>
+        <img className="relative z-10 mx-auto mt-6 h-20 w-20 object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,.38)]" src={AppAssets.care.waterConditioner} alt="" />
+        <div className="relative z-10 mt-auto min-w-0">
+          <div className="text-3xl font-black text-cyan-50">{cleaner}</div>
+          <div className="mt-1 text-xs text-cyan-100/62">?????: {pollution}</div>
+        </div>
+      </button>
     </div>
   );
 }
