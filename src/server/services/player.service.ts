@@ -211,6 +211,37 @@ export class PlayerService {
       });
     });
   }
+  async customizeAquarium(userId: string, input: { decorId?: string; enabled?: boolean; backgroundId?: string }) {
+    const backgroundProduct = input.backgroundId ? shopProductsById[input.backgroundId] : null;
+    if (input.backgroundId && (!backgroundProduct || backgroundProduct.category !== "backgrounds")) {
+      throw new Error("Invalid background");
+    }
+
+    const decorProduct = input.decorId ? shopProductsById[input.decorId] : null;
+    if (input.decorId && (!decorProduct || decorProduct.category !== "decor")) {
+      throw new Error("Invalid decor");
+    }
+
+    await this.db.$transaction(async (tx) => {
+      const aquarium = await tx.aquarium.findUniqueOrThrow({ where: { ownerId: userId } });
+      const currentDecor = Array.isArray(aquarium.decor) ? aquarium.decor.filter((item): item is string => typeof item === "string") : [];
+      const data: { backgroundId?: string; decor?: string[] } = {};
+
+      if (backgroundProduct) {
+        data.backgroundId = backgroundProduct.id;
+      }
+
+      if (decorProduct) {
+        const enabled = input.enabled ?? !currentDecor.includes(decorProduct.id);
+        data.decor = enabled ? [...new Set([...currentDecor, decorProduct.id])].slice(0, 8) : currentDecor.filter((id) => id !== decorProduct.id);
+      }
+
+      if (Object.keys(data).length > 0) {
+        await tx.aquarium.update({ where: { ownerId: userId }, data });
+      }
+    });
+  }
+
   async buyFood(userId: string, amount: number) {
     if (amount < 1 || amount > 999) throw new Error("Invalid food amount");
     return this.db.$transaction(async (tx) => {

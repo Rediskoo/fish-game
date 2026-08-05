@@ -1,15 +1,26 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { Fish, Heart, Info, Pencil, Trash2, Utensils, X } from "lucide-react";
+import { Fish, Heart, Image as ImageIcon, Info, Package, Pencil, Sparkles, Trash2, Utensils, Waves, X } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { usePlayer } from "@/features/auth/use-player";
 import { useRenameFish, useSellFish, useToggleFavoriteFish } from "@/features/inventory/use-fish-actions";
 import { useFeedFish } from "@/features/inventory/use-feed-fish";
-import { AppAssets } from "@/lib/app-assets";
+import { api } from "@/lib/api/client";
+import { AppAssets, decorProducts, shopProducts, type ShopProduct } from "@/lib/app-assets";
 import { cn } from "@/lib/cn";
-import type { FishView } from "@/types/game";
+import type { AquariumSnapshot, FishView } from "@/types/game";
+
+type InventoryTab = "food" | "decor" | "backgrounds" | "fish";
+
+const inventoryTabs: Array<{ id: InventoryTab; label: string; icon: typeof Package }> = [
+  { id: "food", label: "Корм", icon: Utensils },
+  { id: "decor", label: "Декор", icon: Sparkles },
+  { id: "backgrounds", label: "Фоны", icon: ImageIcon },
+  { id: "fish", label: "Рыбки", icon: Fish }
+];
 
 function formatAge(seconds: number) {
   const days = Math.floor(seconds / 86400);
@@ -25,57 +36,64 @@ function fullness(fish: FishView) {
 }
 
 export function InventoryScreen() {
+  const queryClient = useQueryClient();
   const player = usePlayer();
   const feed = useFeedFish();
   const renameFish = useRenameFish();
   const sellFish = useSellFish();
   const favorite = useToggleFavoriteFish();
+  const customize = useMutation({
+    mutationFn: (input: { decorId?: string; enabled?: boolean; backgroundId?: string }) =>
+      api<AquariumSnapshot>("/api/aquarium", { method: "PATCH", body: JSON.stringify(input) }),
+    onSuccess: (snapshot) => queryClient.setQueryData(["snapshot"], snapshot)
+  });
   const food = player.data?.inventory.food ?? 0;
+  const activeDecor = player.data?.aquarium.decor ?? [];
+  const activeBackground = player.data?.aquarium.backgroundId ?? "deep-lagoon";
+  const backgroundProducts = useMemo(() => shopProducts.filter((product) => product.category === "backgrounds"), []);
+  const [activeTab, setActiveTab] = useState<InventoryTab>("food");
   const [selectedFishId, setSelectedFishId] = useState<string | null>(null);
   const fishList = useMemo(() => [...(player.data?.fish ?? [])].sort((a, b) => Number(b.isFavorite) - Number(a.isFavorite)), [player.data?.fish]);
   const selectedFish = useMemo(() => fishList.find((fish) => fish.id === selectedFishId) ?? null, [fishList, selectedFishId]);
+  const capacity = 8 + Math.max(0, (player.data?.aquarium.level ?? 1) - 1) * 2;
 
   return (
     <div className="space-y-4 p-4">
       <header className="pt-20">
         <h1 className="text-3xl font-black text-cyan-50 text-glow">Корм и склад</h1>
+        <p className="mt-2 text-sm text-cyan-100/62">Управление запасами, фонами, декором и рыбками.</p>
       </header>
 
-      <Panel>
-        <div className="flex items-center gap-3">
-          <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-emerald-300/10">
-            <img className="h-14 w-14 object-contain" src={AppAssets.care.foodBasic} alt="" />
-          </div>
-          <div>
-            <div className="text-2xl font-black">{food}</div>
-            <div className="text-sm text-cyan-100/60">корма в инвентаре</div>
-          </div>
-        </div>
-      </Panel>
-
-      <div className="grid gap-3">
-        {fishList.map((fish) => (
-          <Panel key={fish.id} className="flex items-center justify-between gap-3">
-            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl" style={{ backgroundColor: `${fish.glowColor}22` }}>
-              <Fish className="h-7 w-7" style={{ color: fish.color }} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="truncate font-bold">{fish.name}</div>
-              <div className="text-sm text-cyan-100/60">
-                {fish.rarityLabel} · сытость {fullness(fish)}/{fish.maxHunger}
-              </div>
-            </div>
-            <Button className={cn("h-10 w-10 px-0", fish.isFavorite && "bg-rose-300")} onClick={() => favorite.mutate({ fishId: fish.id, isFavorite: !fish.isFavorite })} aria-label="Избранное">
-              <Heart className={cn("h-4 w-4", fish.isFavorite && "fill-current")} />
-            </Button>
-            <Button className="h-10 w-10 px-0" onClick={() => setSelectedFishId(fish.id)} aria-label={`Подробнее о ${fish.name}`}>
-              <Info className="h-4 w-4" />
-            </Button>
-          </Panel>
-        ))}
+      <div className="grid grid-cols-4 gap-2">
+        {inventoryTabs.map((tab) => {
+          const Icon = tab.icon;
+          const active = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              className={cn("grid h-16 place-items-center rounded-2xl border border-cyan-100/10 bg-slate-950/28 text-xs font-black text-cyan-100/58 transition", active && "border-cyan-200/35 bg-cyan-300/16 text-cyan-50 shadow-[0_0_28px_rgba(34,211,238,.14)]")}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              <Icon className="h-5 w-5" />
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
+      {activeTab === "food" ? <FoodSection food={food} /> : null}
+      {activeTab === "decor" ? <DecorSection activeDecor={activeDecor} isBusy={customize.isPending} onToggle={(product, enabled) => customize.mutate({ decorId: product.id, enabled })} /> : null}
+      {activeTab === "backgrounds" ? <BackgroundSection products={backgroundProducts} activeBackground={activeBackground} isBusy={customize.isPending} onSelect={(product) => customize.mutate({ backgroundId: product.id })} /> : null}
+      {activeTab === "fish" ? (
+        <FishSection
+          fishList={fishList}
+          capacity={capacity}
+          onFavorite={(fish) => favorite.mutate({ fishId: fish.id, isFavorite: !fish.isFavorite })}
+          onSelect={(fish) => setSelectedFishId(fish.id)}
+        />
+      ) : null}
 
+      {customize.error ? <p className="rounded-2xl bg-yellow-300/10 p-3 text-sm text-yellow-100">{customize.error.message}</p> : null}
 
       {selectedFish ? (
         <FishModal
@@ -98,6 +116,99 @@ export function InventoryScreen() {
   );
 }
 
+function FoodSection({ food }: { food: number }) {
+  return (
+    <Panel className="relative overflow-hidden">
+      <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-300/16 blur-2xl" />
+      <div className="relative flex items-center gap-3">
+        <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-emerald-300/10">
+          <img className="h-14 w-14 object-contain" src={AppAssets.care.foodBasic} alt="" />
+        </div>
+        <div>
+          <div className="text-3xl font-black text-cyan-50">{food}</div>
+          <div className="text-sm text-cyan-100/60">корма в инвентаре</div>
+        </div>
+      </div>
+    </Panel>
+  );
+}
+
+function DecorSection({ activeDecor, isBusy, onToggle }: { activeDecor: string[]; isBusy: boolean; onToggle: (product: ShopProduct, enabled: boolean) => void }) {
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      {decorProducts.map((product) => {
+        const active = activeDecor.includes(product.id);
+        return (
+          <button key={product.id} className={cn("relative grid aspect-square overflow-hidden rounded-[22px] border p-3 text-left transition active:scale-[.98]", active ? "border-emerald-200/35 bg-emerald-300/12" : "border-cyan-100/12 bg-slate-950/32")} disabled={isBusy} onClick={() => onToggle(product, !active)}>
+            <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full blur-2xl" style={{ backgroundColor: `${product.accent}24` }} />
+            <span className={cn("absolute left-3 top-3 z-10 rounded-full px-2 py-1 text-[10px] font-black", active ? "bg-emerald-300/18 text-emerald-100" : "bg-slate-950/50 text-cyan-100/70")}>{active ? "В аквариуме" : "На складе"}</span>
+            <img className="relative z-10 mx-auto mt-6 h-20 w-20 object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,.38)]" src={product.image} alt="" />
+            <div className="relative z-10 mt-auto min-w-0">
+              <div className="truncate text-sm font-black text-cyan-50">{product.title}</div>
+              <div className="mt-1 text-xs text-cyan-100/60">{active ? "Нажми, чтобы убрать" : "Нажми, чтобы добавить"}</div>
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function BackgroundSection({ products, activeBackground, isBusy, onSelect }: { products: ShopProduct[]; activeBackground: string; isBusy: boolean; onSelect: (product: ShopProduct) => void }) {
+  return (
+    <div className="grid gap-3">
+      {products.map((product) => {
+        const active = activeBackground === product.id;
+        return (
+          <button key={product.id} className={cn("relative min-h-32 overflow-hidden rounded-[24px] border p-4 text-left transition active:scale-[.99]", active ? "border-cyan-200/40" : "border-cyan-100/12")} disabled={isBusy || active} onClick={() => onSelect(product)}>
+            <img className="absolute inset-0 h-full w-full object-cover opacity-80" src={product.image} alt="" />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,12,22,.86),rgba(2,12,22,.22))]" />
+            <div className="relative z-10 max-w-[70%]">
+              <div className="text-lg font-black text-cyan-50 text-glow">{product.title}</div>
+              <div className="mt-1 text-xs leading-4 text-cyan-100/68">{product.description}</div>
+              <div className={cn("mt-3 inline-flex rounded-full px-3 py-1 text-xs font-black", active ? "bg-cyan-300/20 text-cyan-50" : "bg-slate-950/48 text-cyan-100/70")}>{active ? "Текущий фон" : "Поставить фон"}</div>
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function FishSection({ fishList, capacity, onFavorite, onSelect }: { fishList: FishView[]; capacity: number; onFavorite: (fish: FishView) => void; onSelect: (fish: FishView) => void }) {
+  return (
+    <div className="space-y-3">
+      <Panel className="flex items-center justify-between gap-3 py-3">
+        <div className="flex items-center gap-2 text-sm font-bold text-cyan-100/72">
+          <Waves className="h-4 w-4" /> Вместимость
+        </div>
+        <div className={cn("text-sm font-black", fishList.length > capacity ? "text-rose-200" : "text-cyan-50")}>{fishList.length}/{capacity}</div>
+      </Panel>
+      <div className="grid gap-3">
+        {fishList.map((fish, index) => {
+          const overCapacity = index >= capacity;
+          return (
+            <Panel key={fish.id} className={cn("flex items-center justify-between gap-3", overCapacity && "border border-rose-300/30 bg-rose-500/10")}>
+              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl" style={{ backgroundColor: `${fish.glowColor}22` }}>
+                <Fish className="h-7 w-7" style={{ color: fish.color }} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-bold text-cyan-50">{fish.name}</div>
+                <div className={cn("text-sm", overCapacity ? "text-rose-100/80" : "text-cyan-100/60")}>{overCapacity ? "Вне вместимости · можно заселить после расширения" : `${fish.rarityLabel} · сытость ${fullness(fish)}/${fish.maxHunger}`}</div>
+              </div>
+              <Button className={cn("h-10 w-10 px-0", fish.isFavorite && "bg-rose-300")} onClick={() => onFavorite(fish)} aria-label="Избранное">
+                <Heart className={cn("h-4 w-4", fish.isFavorite && "fill-current")} />
+              </Button>
+              <Button className="h-10 w-10 px-0" onClick={() => onSelect(fish)} aria-label={`Подробнее о ${fish.name}`}>
+                <Info className="h-4 w-4" />
+              </Button>
+            </Panel>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 function FishModal({
   fish,
   food,
