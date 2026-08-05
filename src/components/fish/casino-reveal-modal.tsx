@@ -29,8 +29,7 @@ export function CasinoRevealModal({
   const [started, setStarted] = useState(false);
   const [settled, setSettled] = useState(false);
   const itemWidth = 104;
-  const centerOffset = 160;
-  const targetX = result.winningIndex * itemWidth - centerOffset;
+  const targetX = result.winningIndex * itemWidth;
 
   useEffect(() => {
     if (!started) return;
@@ -89,9 +88,10 @@ export function CasinoRevealModal({
           <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-slate-950 to-transparent" />
           <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-slate-950 to-transparent" />
           <div
-            className="absolute left-1/2 top-4 flex -translate-x-1/2 gap-3 transition-transform"
+            className="absolute top-4 flex gap-3 transition-transform"
             style={{
-              transform: started ? `translateX(calc(-50% - ${targetX}px))` : "translateX(-50%)",
+              left: `calc(50% - ${itemWidth / 2}px)`,
+              transform: started ? `translateX(-${targetX}px)` : "translateX(0)",
               transitionDuration: `${result.durationMs}ms`,
               transitionTimingFunction: "cubic-bezier(.08,.82,.1,1)"
             }}

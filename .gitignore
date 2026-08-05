@@ -8,3 +8,4 @@ coverage
 tsconfig.tsbuildinfo
 postgres_data
 .vercel
+aquarium_asset_pack_v2_fixed/
