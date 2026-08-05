@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Coins, Gift, Home, Package, Settings, ShoppingBag, User } from "lucide-react";
@@ -22,8 +23,18 @@ const navItems = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const player = usePlayer();
+  const [hasModal, setHasModal] = useState(false);
   useLiveIncome(player.data);
   const optimisticCurrency = useIncomeStore((state) => state.optimisticCurrency);
+
+  useEffect(() => {
+    const checkModals = () => setHasModal(Boolean(document.querySelector("[data-app-modal='true']")));
+    checkModals();
+    const observer = new MutationObserver(checkModals);
+    observer.observe(document.body, { attributes: true, attributeFilter: ["data-app-modal"], childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
+
   const content = player.isError ? (
     <AuthRequiredPanel />
   ) : player.isPending ? (
@@ -62,7 +73,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </div>
       <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col">{content}</div>
-      <nav className="fixed inset-x-0 bottom-[calc(18px+var(--safe-bottom))] z-50 mx-auto max-w-md px-3">
+      <nav className={cn("fixed inset-x-0 bottom-[calc(18px+var(--safe-bottom))] z-50 mx-auto max-w-md px-3 transition duration-200", hasModal && "pointer-events-none translate-y-6 opacity-0")}>
         <div className="glass relative flex h-16 items-center justify-around overflow-hidden rounded-2xl px-1">
           <span className="menu-bubble absolute bottom-1 left-[8%] h-2 w-2" />
           <span className="menu-bubble menu-bubble-delayed absolute bottom-3 right-[13%] h-3 w-3" />

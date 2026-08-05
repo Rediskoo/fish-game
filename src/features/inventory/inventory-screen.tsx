@@ -300,7 +300,7 @@ function FishModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[220] grid place-items-end bg-slate-950/72 px-3 pb-[calc(14px+var(--safe-bottom))] pt-[var(--safe-top)] sm:place-items-center">
+    <div data-app-modal="true" className="fixed inset-0 z-[220] grid place-items-end bg-slate-950/72 px-3 pb-[calc(14px+var(--safe-bottom))] pt-[var(--safe-top)] sm:place-items-center">
       <div className="glass max-h-[calc(100dvh-96px-var(--safe-top)-var(--safe-bottom))] w-full min-w-0 max-w-[calc(100dvw-1.5rem)] space-y-4 overflow-y-auto overflow-x-hidden rounded-2xl p-4 shadow-2xl sm:max-w-md">
         <div className="flex items-start justify-between gap-2">
           <form className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] gap-2" onSubmit={handleRename}>

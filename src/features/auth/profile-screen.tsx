@@ -301,7 +301,7 @@ function FriendModal({
   const [giftFishId, setGiftFishId] = useState("");
 
   return (
-    <div className="fixed inset-0 z-[60] grid place-items-end bg-slate-950/70 px-3 pb-[calc(14px+var(--safe-bottom))] pt-[var(--safe-top)] sm:place-items-center">
+    <div data-app-modal="true" className="fixed inset-0 z-[60] grid place-items-end bg-slate-950/70 px-3 pb-[calc(14px+var(--safe-bottom))] pt-[var(--safe-top)] sm:place-items-center">
       <div className="glass max-h-[calc(100dvh-28px-var(--safe-top)-var(--safe-bottom))] w-full max-w-md space-y-4 overflow-y-auto rounded-2xl p-4 shadow-2xl">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -397,7 +397,7 @@ function GiftModal({
   const senderName = gift.sender.firstName ?? gift.sender.username ?? `ID ${gift.sender.telegramId}`;
 
   return (
-    <div className="fixed inset-0 z-[70] grid place-items-end bg-slate-950/72 px-3 pb-[calc(14px+var(--safe-bottom))] pt-[var(--safe-top)]">
+    <div data-app-modal="true" className="fixed inset-0 z-[70] grid place-items-end bg-slate-950/72 px-3 pb-[calc(14px+var(--safe-bottom))] pt-[var(--safe-top)]">
       <div className="glass w-full max-w-md space-y-4 rounded-2xl p-4 shadow-2xl">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">

@@ -58,7 +58,7 @@ export function CasinoRevealModal({ result, isBusy, error, onClose, onSell, onRe
 
   if (settled) {
     return (
-      <div className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/80 p-3">
+      <div data-app-modal="true" className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/80 p-3">
         <div className="glass w-full max-w-md animate-[casino-prize_.5s_ease-out] rounded-2xl p-6 text-center shadow-2xl">
           <div className="mx-auto grid h-24 w-24 place-items-center rounded-full bg-emerald-300/15 shadow-[0_0_52px_rgba(110,231,183,.32)]"><Waves className="h-12 w-12 text-emerald-200" /></div>
           <h2 className="mt-5 text-3xl font-black text-cyan-50 text-glow">+{result.reward.kind === "currency" ? result.reward.amount : 0} водорослей</h2>
@@ -70,7 +70,7 @@ export function CasinoRevealModal({ result, isBusy, error, onClose, onSell, onRe
   }
 
   return (
-    <div className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/82 p-3">
+    <div data-app-modal="true" className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/82 p-3">
       <div className="glass relative w-full max-w-md overflow-hidden rounded-2xl p-4 text-center shadow-2xl">
         <button className="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-xl bg-slate-950/45 text-cyan-100 disabled:opacity-40" disabled={started} onClick={onClose} aria-label="Закрыть"><X className="h-5 w-5" /></button>
         <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-xs font-bold uppercase text-cyan-100"><Sparkles className="h-4 w-4" /> Рыбное казино</div>
@@ -99,7 +99,7 @@ export function FishRevealModal({ fish, isBusy, error, onClose, onSell, onRename
   const [name, setName] = useState(fish.name);
   const birthday = useMemo(() => new Date(fish.birthday).toLocaleDateString("ru-RU"), [fish.birthday]);
   function handleRename(event: FormEvent<HTMLFormElement>) { event.preventDefault(); if (name.trim().length >= 2 && name.trim() !== fish.name) onRename?.(name.trim()); }
-  return <div className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/78 p-3"><div className="glass relative max-h-[calc(100dvh-1.5rem)] w-full max-w-md overflow-y-auto rounded-2xl p-5 text-center shadow-2xl">
+  return <div data-app-modal="true" className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/78 p-3"><div className="glass relative max-h-[calc(100dvh-1.5rem)] w-full max-w-md overflow-y-auto rounded-2xl p-5 text-center shadow-2xl">
     <button className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-xl bg-slate-950/45 text-cyan-100" onClick={onClose} aria-label="Закрыть"><X className="h-5 w-5" /></button>
     <div className="space-y-4"><div className="inline-flex items-center gap-2 rounded-full bg-cyan-300/10 px-3 py-1 text-xs font-bold uppercase text-cyan-100"><Sparkles className="h-4 w-4" /> Новая рыбка</div><div className="mx-auto grid h-44 w-44 animate-[casino-prize_.55s_ease-out] place-items-center rounded-2xl bg-slate-950/35 shadow-[0_0_70px_var(--fish-glow)]" style={{ "--fish-glow": `${fish.glowColor}88` } as React.CSSProperties}><Fish className="h-28 w-28 drop-shadow-[0_0_18px_currentColor]" style={{ color: fish.color }} /></div><div><h2 className="text-3xl font-black text-cyan-50 text-glow">{fish.displayName}</h2><p className="mt-1 text-sm font-bold" style={{ color: fish.rarityColor }}>{fish.rarityLabel} · +{fish.incomePerSecond.toFixed(1)}/сек</p></div>
       <form className="flex gap-2" onSubmit={handleRename}><input className="min-w-0 flex-1 rounded-xl border border-cyan-100/10 bg-slate-950/45 px-3 text-sm text-cyan-50 outline-none" maxLength={18} minLength={2} value={name} onChange={(event) => setName(event.target.value)} /><Button className="h-11 w-11 shrink-0 px-0" disabled={isBusy || !onRename || name.trim().length < 2 || name.trim() === fish.name} type="submit" aria-label="Переименовать"><Pencil className="h-4 w-4" /></Button></form>
