@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, type ReactNode, useMemo, useState } from "react";
-import { Eye, Fish, Gift, MoreHorizontal, Send, Trash2, Trophy, UserCheck, UserPlus, UserX, Users, X } from "lucide-react";
+import { Eye, Fish, Gift, LockKeyhole, MoreHorizontal, Send, Sparkles, Trash2, Trophy, UserCheck, UserPlus, UserX, Users, X } from "lucide-react";
 import { AquariumRenderer } from "@/components/aquarium/aquarium-renderer";
 import { FishRevealModal } from "@/components/fish/fish-reveal-modal";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,8 @@ import {
   useVisitFriendAquarium
 } from "@/features/friends/use-friends";
 import { useSellFish } from "@/features/inventory/use-fish-actions";
-import type { AcquiredFish, FishView, FriendView, PendingGiftView } from "@/types/game";
+import { cn } from "@/lib/cn";
+import type { AchievementView, AcquiredFish, FishView, FriendView, PendingGiftView } from "@/types/game";
 
 const giftOptions = [
   { type: "FISH_CASE", label: "Кейс с рыбкой", cost: 100 },
@@ -83,6 +84,8 @@ export function ProfileScreen() {
     () => friends.data?.friends.find((friend) => friend.id === selectedGiftFriendId) ?? null,
     [friends.data?.friends, selectedGiftFriendId]
   );
+  const achievements = player.data?.achievements ?? [];
+  const unlockedAchievements = achievements.filter((achievement) => achievement.unlockedAt).length;
 
   function handleAddFriend(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -108,6 +111,25 @@ export function ProfileScreen() {
         <div className="mt-2 text-sm text-cyan-100/60">В игре с {formatGameSince(player.data?.user.createdAt)}</div>
       </Panel>
 
+      <Panel className="space-y-3 overflow-hidden border-amber-200/20 bg-[linear-gradient(135deg,rgba(251,191,36,.16),rgba(34,211,238,.08),rgba(236,72,153,.10))]">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 font-black text-cyan-50">
+            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-amber-300/18 text-amber-100 shadow-[0_0_22px_rgba(251,191,36,.18)]">
+              <Trophy className="h-5 w-5" />
+            </span>
+            <div>
+              <div>Достижения</div>
+              <div className="text-xs font-bold text-cyan-100/58">открытые и будущие награды</div>
+            </div>
+          </div>
+          <div className="rounded-full bg-slate-950/45 px-3 py-1 text-xs font-black text-amber-100">{unlockedAchievements}/{achievements.length || 10}</div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {achievements.map((achievement, index) => (
+            <AchievementTile key={achievement.id} achievement={achievement} index={index} />
+          ))}
+        </div>
+      </Panel>
       <Panel className="space-y-3">
         <div className="flex items-center gap-2">
           <Users className="h-5 w-5 text-cyan-100/70" />
@@ -235,6 +257,25 @@ export function ProfileScreen() {
   );
 }
 
+function AchievementTile({ achievement, index }: { achievement: AchievementView; index: number }) {
+  const unlocked = Boolean(achievement.unlockedAt);
+  const colors = ["from-amber-300/24 to-cyan-300/10", "from-fuchsia-300/22 to-cyan-300/10", "from-emerald-300/20 to-sky-300/10", "from-rose-300/20 to-amber-300/10"];
+  return (
+    <div className={cn("relative min-h-28 overflow-hidden rounded-2xl border p-3", unlocked ? "border-amber-200/24 bg-gradient-to-br text-cyan-50 shadow-[0_0_24px_rgba(251,191,36,.10)]" : "border-cyan-100/10 bg-slate-950/30 text-cyan-100/52")}>
+      <div className={cn("absolute -right-7 -top-7 h-20 w-20 rounded-full blur-2xl", unlocked ? colors[index % colors.length] : "bg-slate-400/10")} />
+      <div className="relative z-10 flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <div className="line-clamp-2 text-sm font-black">{achievement.title}</div>
+          <div className="mt-1 line-clamp-2 text-[11px] text-cyan-100/62">{unlocked ? `Открыто ${formatDate(achievement.unlockedAt)}` : achievement.description}</div>
+        </div>
+        <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-xl", unlocked ? "bg-amber-200 text-slate-950" : "bg-slate-950/45 text-cyan-100/50")}>
+          {unlocked ? <Sparkles className="h-4 w-4" /> : <LockKeyhole className="h-4 w-4" />}
+        </span>
+      </div>
+      <div className="relative z-10 mt-3 inline-flex rounded-full bg-slate-950/38 px-2 py-1 text-[11px] font-black text-amber-100">+{achievement.reward}</div>
+    </div>
+  );
+}
 function FriendModal({
   friend,
   isBusy,
