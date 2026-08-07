@@ -65,7 +65,7 @@ input {
 }
 
 .ocean-shell {
-  background: radial-gradient(circle at 18% 4%, rgba(66, 210, 233, .25), transparent 29%), radial-gradient(circle at 86% 38%, rgba(52, 117, 213, .18), transparent 31%), linear-gradient(180deg, #031e2d, #062d42 48%, #03131e);
+  background: radial-gradient(circle at 50% -8%, rgba(70, 213, 236, .22), transparent 30%), radial-gradient(circle at 92% 18%, rgba(25, 105, 138, .18), transparent 28%), linear-gradient(180deg, #041c2b 0%, #05283a 42%, #031725 100%);
   background-size: 140% 140%;
   animation: ocean-drift 18s ease-in-out infinite alternate;
 }

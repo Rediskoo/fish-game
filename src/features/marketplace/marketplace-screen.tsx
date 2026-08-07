@@ -47,10 +47,10 @@ export function MarketplaceScreen() {
   return (
     <div className="space-y-4 p-4">
       <header className="pt-20">
-        <div className="relative min-h-36 overflow-hidden p-1">
-          <div className="absolute right-[-6px] top-0 h-36 w-36 rounded-full bg-cyan-300/10 blur-2xl" />
-          <img className="absolute -right-3 top-0 h-36 w-36 object-contain opacity-95 drop-shadow-[0_22px_28px_rgba(0,0,0,.45)]" src={AppAssets.shop.building} alt="" />
-          <div className="relative z-10 max-w-[62%] pt-4">
+        <div className="relative min-h-44 overflow-hidden p-1">
+          <div className="absolute right-[-18px] top-[-8px] h-48 w-48 rounded-full bg-cyan-300/12 blur-2xl" />
+          <img className="absolute -right-5 top-[-2px] h-48 w-48 object-contain opacity-100 drop-shadow-[0_26px_32px_rgba(0,0,0,.48)]" src={AppAssets.shop.building} alt="" />
+          <div className="relative z-10 max-w-[58%] pt-5">
             <h1 className="text-4xl font-black leading-none text-cyan-50 text-glow">Магазин</h1>
             <p className="mt-3 text-sm leading-5 text-cyan-100/74">Всё для аквариума: рыбки, уход, декорации и фоны.</p>
           </div>
@@ -62,12 +62,12 @@ export function MarketplaceScreen() {
           {shopCategories.map((category) => (
             <button
               key={category.id}
-              className="group relative grid min-h-24 grid-cols-[72px_minmax(0,1fr)_auto] items-center gap-3 overflow-hidden rounded-[18px] border border-cyan-100/20 bg-[linear-gradient(150deg,rgba(14,57,78,.82),rgba(6,25,42,.80))] p-3 text-left shadow-[0_16px_45px_rgba(0,0,0,.28),inset_0_0_0_1px_rgba(103,232,249,.08)] transition active:scale-[.98]"
+              className="group relative grid min-h-[104px] w-full grid-cols-[80px_minmax(0,1fr)_82px] items-center gap-3 overflow-hidden rounded-[18px] border border-cyan-100/20 bg-[linear-gradient(150deg,rgba(14,57,78,.82),rgba(6,25,42,.80))] p-3 text-left shadow-[0_16px_45px_rgba(0,0,0,.28),inset_0_0_0_1px_rgba(103,232,249,.08)] transition active:scale-[.98]"
               onClick={() => setActiveCategory(category.id)}
             >
               <div className="absolute inset-0 opacity-90" style={{ background: `radial-gradient(circle at 20% 50%, ${category.accent}26, transparent 38%), radial-gradient(circle at 88% 50%, ${category.accent}18, transparent 40%)` }} />
-              <div className="relative z-10 grid h-[72px] w-[72px] place-items-center rounded-2xl bg-slate-950/34">
-                <img className="h-16 w-16 object-contain drop-shadow-[0_14px_20px_rgba(0,0,0,.44)] transition duration-200 group-active:scale-95" src={category.image} alt="" />
+              <div className="relative z-10 grid h-20 w-20 place-items-center rounded-2xl bg-slate-950/34">
+                <img className="h-[76px] w-[76px] object-contain drop-shadow-[0_14px_20px_rgba(0,0,0,.44)] transition duration-200 group-active:scale-95" src={category.image} alt="" />
               </div>
               <div className="relative z-10 min-w-0">
                 <div className="truncate text-lg font-black text-cyan-50 text-glow">{category.title}</div>

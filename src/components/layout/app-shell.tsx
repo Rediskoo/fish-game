@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { aquariumAssets } from "@/assets/aquarium-assets";
-import { cn } from "@/lib/cn";
 import { AuthRequiredPanel } from "@/features/auth/auth-required-panel";
 import { TelegramBootstrap } from "@/features/auth/telegram-bootstrap";
 import { usePlayer } from "@/features/auth/use-player";
 import { useFriends } from "@/features/friends/use-friends";
 import { useLiveIncome } from "@/features/income/use-live-income";
+import { cn } from "@/lib/cn";
 import { useIncomeStore } from "@/stores/income-store";
 
 const navItems = [
@@ -53,7 +53,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <TelegramBootstrap />
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <span className="screen-glow absolute left-[8%] top-[14%] h-32 w-32 rounded-full bg-cyan-300/10 blur-3xl" />
-        <span className="screen-glow screen-glow-delayed absolute right-[5%] top-[48%] h-40 w-40 rounded-full bg-emerald-300/10 blur-3xl" />
+        <span className="screen-glow screen-glow-delayed absolute right-[5%] top-[48%] h-40 w-40 rounded-full bg-blue-300/8 blur-3xl" />
         {Array.from({ length: 18 }).map((_, index) => (
           <span
             key={index}

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import type { Container, Text } from "pixi.js";
 import type { FishView } from "@/types/game";
 import { createFishAgent, reactToFishClick, updateFishAgent, type FishAgent } from "@/components/aquarium/fish-ai";
-import { fishImageBySpecies } from "@/assets/aquarium-assets";
+import { fishAnimationBySpecies } from "@/assets/aquarium-assets";
 import { backgroundImageById, decorImageById } from "@/lib/app-assets";
 import { cn } from "@/lib/cn";
 import { playTone } from "@/stores/sound-store";
@@ -481,101 +481,22 @@ async function createScene(
 
 function createFishNode(PIXI: PixiModule, fish: FishView) {
   const node = new PIXI.Container();
-  const visual = new PIXI.Container();
-  const body = new PIXI.Graphics();
-  const shine = new PIXI.Graphics();
-  const markings = new PIXI.Graphics();
-  const belly = new PIXI.Graphics();
-  const fins = new PIXI.Graphics();
   const tail = new PIXI.Container();
-  const tailShape = new PIXI.Graphics();
-  const tailShine = new PIXI.Graphics();
-  const color = Number.parseInt(fish.color.replace("#", ""), 16);
   const glow = Number.parseInt(fish.glowColor.replace("#", ""), 16);
-  const auraAlpha = fish.rarity === "LEGENDARY" ? 0.24 : fish.rarity === "EPIC" ? 0.16 : fish.rarity === "RARE" ? 0.1 : 0.05;
+  const auraAlpha = fish.rarity === "LEGENDARY" ? 0.28 : fish.rarity === "EPIC" ? 0.2 : fish.rarity === "RARE" ? 0.14 : 0.08;
 
   const aura = new PIXI.Graphics();
-  aura.ellipse(0, 0, 52, 30).fill({ color: glow, alpha: auraAlpha * 0.24 });
-  aura.ellipse(0, 0, 36, 20).fill({ color: glow, alpha: auraAlpha });
+  aura.ellipse(0, 0, 70, 38).fill({ color: glow, alpha: auraAlpha * 0.22 });
+  aura.ellipse(0, 0, 46, 25).fill({ color: glow, alpha: auraAlpha * 0.5 });
 
-  const fishSprite = PIXI.Sprite.from(fishImageBySpecies[fish.species]);
+  const fishSprite = PIXI.Sprite.from(fishAnimationBySpecies[fish.species]);
   fishSprite.anchor.set(0.5);
-  fishSprite.width = fish.species === "GUPPY" ? 74 : fish.species === "NEON_TETRA" ? 84 : fish.species === "DRAGON_KOI" ? 132 : 108;
-  fishSprite.height = fishSprite.width;
+  fishSprite.width = fish.species === "GUPPY" ? 76 : fish.species === "NEON_TETRA" ? 86 : fish.species === "DRAGON_KOI" ? 138 : 116;
+  fishSprite.height = fish.species === "DRAGON_KOI" ? 104 : fishSprite.width;
   fishSprite.alpha = 1;
   fishSprite.tint = 0xffffff;
 
-  const eye = new PIXI.Graphics();
-  const eyeX = fish.species === "DRAGON_KOI" ? 22 : 17;
-  eye.circle(eyeX, -5, 3.2).fill({ color: 0x04111b, alpha: 0.96 });
-  eye.circle(eyeX + 1, -6, 0.85).fill({ color: 0xffffff, alpha: 0.9 });
-
-  if (fish.species === "ANGELFISH") {
-    body.poly([-22, 0, -7, -34, 22, 0, -7, 34]).fill({ color, alpha: 0.97 });
-    belly.poly([-12, 0, -4, 22, 15, 0, -4, -22]).fill({ color: 0xffffff, alpha: 0.18 });
-    tailShape.poly([-15, 0, -43, -25, -35, 0, -43, 25]).fill({ color: glow, alpha: 0.78 });
-    tailShine.poly([-28, 0, -42, -16, -37, 0, -42, 16]).fill({ color: 0xffffff, alpha: 0.16 });
-    fins.moveTo(-1, -19).lineTo(-9, -46).lineTo(11, -18).fill({ color: glow, alpha: 0.62 });
-    fins.moveTo(-1, 19).lineTo(-9, 46).lineTo(11, 18).fill({ color: glow, alpha: 0.48 });
-    markings.moveTo(-2, -25).lineTo(-2, 25).stroke({ width: 2.2, color: glow, alpha: 0.52 });
-  } else if (fish.species === "DISCUS") {
-    body.circle(0, 0, 25).fill({ color, alpha: 0.97 });
-    belly.ellipse(8, 2, 15, 19).fill({ color: 0xffffff, alpha: 0.13 });
-    tailShape.poly([-21, 0, -45, -17, -38, 0, -45, 17]).fill({ color: glow, alpha: 0.72 });
-    for (let x = -12; x <= 12; x += 8) markings.rect(x, -22, 3, 44).fill({ color: x === 4 ? 0xffffff : glow, alpha: x === 4 ? 0.2 : 0.38 });
-    fins.ellipse(-4, -20, 13, 6).fill({ color: glow, alpha: 0.42 });
-    fins.ellipse(-4, 20, 13, 6).fill({ color: glow, alpha: 0.34 });
-  } else if (fish.species === "BETTA") {
-    body.ellipse(0, 0, 28, 14).fill({ color, alpha: 0.97 });
-    belly.ellipse(9, 3, 14, 7).fill({ color: 0xffffff, alpha: 0.14 });
-    tailShape.poly([-20, 0, -58, -29, -45, 0, -58, 29]).fill({ color: glow, alpha: 0.78 });
-    tailShine.poly([-31, 0, -56, -18, -48, 0, -56, 18]).fill({ color: 0xffffff, alpha: 0.13 });
-    fins.poly([-8, -10, -29, -37, 14, -16]).fill({ color: glow, alpha: 0.66 });
-    fins.poly([-8, 10, -29, 37, 14, 16]).fill({ color: glow, alpha: 0.55 });
-    markings.ellipse(3, 0, 22, 8).stroke({ width: 2, color: 0xffffff, alpha: 0.14 });
-  } else if (fish.species === "DRAGON_KOI") {
-    body.ellipse(0, 0, 39, 15).fill({ color, alpha: 0.98 });
-    belly.ellipse(13, 4, 21, 7).fill({ color: 0xffffff, alpha: 0.16 });
-    tailShape.poly([-31, 0, -59, -20, -50, 0, -59, 20]).fill({ color: glow, alpha: 0.8 });
-    fins.moveTo(-8, -12).lineTo(6, -32).lineTo(16, -12).fill({ color: glow, alpha: 0.68 });
-    fins.moveTo(-8, 12).lineTo(6, 32).lineTo(16, 12).fill({ color: glow, alpha: 0.48 });
-    for (let x = -18; x <= 15; x += 11) markings.circle(x, Math.sin(x) * 4, 3.2).fill({ color: glow, alpha: 0.55 });
-    markings.moveTo(28, 2).lineTo(45, 13).stroke({ width: 1.5, color: glow, alpha: 0.78 });
-  } else if (fish.species === "MANDARINFISH") {
-    body.ellipse(0, 0, 31, 16).fill({ color, alpha: 0.97 });
-    belly.ellipse(8, 4, 14, 8).fill({ color: 0xffffff, alpha: 0.12 });
-    tailShape.poly([-25, 0, -50, -18, -43, 0, -50, 18]).fill({ color: glow, alpha: 0.78 });
-    for (let i = -14; i <= 14; i += 7) markings.circle(i, Math.sin(i) * 5, 2.8).fill({ color: glow, alpha: 0.86 });
-    markings.moveTo(-20, -7).lineTo(20, 5).stroke({ width: 2, color: 0xffffff, alpha: 0.16 });
-    fins.moveTo(-4, -14).lineTo(-16, -31).lineTo(13, -14).fill({ color: glow, alpha: 0.62 });
-  } else if (fish.species === "NEON_TETRA") {
-    body.ellipse(0, 0, 31, 11).fill({ color, alpha: 0.97 });
-    belly.ellipse(8, 3, 16, 5).fill({ color: 0xffffff, alpha: 0.14 });
-    tailShape.poly([-28, 0, -49, -12, -43, 0, -49, 12]).fill({ color: glow, alpha: 0.76 });
-    markings.rect(-22, -3, 43, 5).fill({ color: glow, alpha: 0.9 });
-    markings.rect(-18, 3, 30, 3).fill({ color: 0xfb7185, alpha: 0.7 });
-  } else if (fish.species === "GOLDFISH") {
-    body.ellipse(0, 0, 30, 19).fill({ color, alpha: 0.97 });
-    belly.ellipse(10, 5, 17, 9).fill({ color: 0xffffff, alpha: 0.15 });
-    tailShape.poly([-25, 0, -50, -28, -43, 0, -50, 28]).fill({ color: glow, alpha: 0.77 });
-    tailShine.poly([-34, 0, -49, -18, -43, 0, -49, 18]).fill({ color: 0xffffff, alpha: 0.13 });
-    fins.poly([-7, -15, -19, -32, 14, -15]).fill({ color: glow, alpha: 0.58 });
-    markings.arc(4, 0, 18, -0.65, 0.65).stroke({ width: 2, color: 0xffffff, alpha: 0.12 });
-  } else {
-    body.ellipse(0, 0, 29, 14).fill({ color, alpha: 0.97 });
-    belly.ellipse(9, 3, 15, 7).fill({ color: 0xffffff, alpha: 0.14 });
-    tailShape.poly([-25, 0, -49, -16, -43, 0, -49, 16]).fill({ color: glow, alpha: 0.76 });
-    fins.poly([-4, -12, -17, -28, 11, -14]).fill({ color: glow, alpha: 0.58 });
-    markings.circle(6, 0, 3).fill({ color: glow, alpha: 0.5 });
-  }
-
-  shine.ellipse(6, -7, 17, 5).fill({ color: 0xffffff, alpha: 0.18 });
-  shine.circle(17, -9, 2.6).fill({ color: 0xffffff, alpha: 0.13 });
-
-  tail.addChild(tailShape, tailShine);
-  visual.alpha = 0.36;
-  visual.addChild(tail, fins, body, belly, markings, shine, eye);
-  node.addChild(aura, visual, fishSprite);
+  node.addChild(aura, fishSprite);
   const scale = 1.05 + Math.min(0.32, fish.incomePerSecond / 18);
   node.scale.set(fish.species === "GUPPY" ? scale : scale);
   return { node, tail };
