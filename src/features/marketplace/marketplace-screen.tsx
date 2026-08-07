@@ -62,7 +62,7 @@ export function MarketplaceScreen() {
           {shopCategories.map((category) => (
             <button
               key={category.id}
-              className="group relative grid aspect-square overflow-hidden rounded-[18px] border border-cyan-100/18 bg-[linear-gradient(150deg,rgba(14,57,78,.82),rgba(6,25,42,.80))] p-3 text-left shadow-[0_16px_45px_rgba(0,0,0,.28),inset_0_1px_0_rgba(255,255,255,.08)] transition active:scale-[.98]"
+              className="group relative grid aspect-square grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-[18px] border border-cyan-100/26 bg-[linear-gradient(150deg,rgba(14,57,78,.82),rgba(6,25,42,.80))] p-3 text-left shadow-[0_16px_45px_rgba(0,0,0,.28),inset_0_0_0_1px_rgba(103,232,249,.08)] transition active:scale-[.98]"
               onClick={() => setActiveCategory(category.id)}
             >
               <div className="absolute inset-0 opacity-90" style={{ background: `radial-gradient(circle at 76% 32%, ${category.accent}42, transparent 44%), linear-gradient(180deg, transparent, rgba(0,0,0,.24))` }} />
@@ -70,10 +70,10 @@ export function MarketplaceScreen() {
               <span className="absolute left-3 top-3 z-10 rounded-full bg-slate-950/42 px-2 py-1 text-[11px] font-bold text-cyan-100/82 backdrop-blur">
                 {category.id === "fish" ? "777" : `${productCounts[category.id]} шт.`}
               </span>
-              <img className="relative z-10 mx-auto mt-7 h-[48%] w-[78%] object-contain drop-shadow-[0_18px_24px_rgba(0,0,0,.44)] transition duration-200 group-active:scale-95" src={category.image} alt="" />
+              <img className="relative z-10 mx-auto mt-6 h-full max-h-20 w-[82%] object-contain drop-shadow-[0_18px_24px_rgba(0,0,0,.44)] transition duration-200 group-active:scale-95" src={category.image} alt="" />
               <div className="relative z-10 mt-auto min-w-0">
-                <div className="truncate text-xl font-black text-cyan-50 text-glow">{category.title}</div>
-                <div className="mt-1 text-xs leading-4 text-cyan-100/66">{category.subtitle}</div>
+                <div className="truncate text-lg font-black text-cyan-50 text-glow">{category.title}</div>
+                <div className="mt-1 line-clamp-2 text-xs leading-4 text-cyan-100/66">{category.subtitle}</div>
               </div>
             </button>
           ))}

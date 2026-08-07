@@ -116,10 +116,9 @@ export function ProfileScreen() {
         </div>
       </Panel>
 
-      <Panel className="grid grid-cols-3 gap-2">
+      <Panel className="grid grid-cols-2 gap-3">
         <Stat icon={<Fish className="h-5 w-5" />} label="Рыбки" value={player.data?.fish.length ?? 0} />
         <Stat icon={<Trophy className="h-5 w-5" />} label="Уровень" value={player.data?.aquarium.level ?? 1} />
-        <Stat icon={<Sparkles className="h-5 w-5" />} label="Достижения" value={unlockedAchievements} />
       </Panel>
 
       <Panel className="space-y-3 overflow-hidden border-fuchsia-200/20 bg-[linear-gradient(135deg,rgba(168,85,247,.18),rgba(34,197,94,.12),rgba(34,211,238,.08),rgba(251,191,36,.10))]">

@@ -105,19 +105,19 @@ export function InventoryScreen() {
             return (
               <button
                 key={tab.id}
-                className="group relative grid aspect-square overflow-hidden rounded-[18px] border border-cyan-100/18 bg-[linear-gradient(150deg,rgba(12,51,71,.78),rgba(5,25,40,.74))] p-3 text-left shadow-[0_16px_45px_rgba(0,0,0,.26),inset_0_1px_0_rgba(255,255,255,.08)] transition active:scale-[.98]"
+                className="group relative grid aspect-square grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-[18px] border border-cyan-100/26 bg-[linear-gradient(150deg,rgba(12,51,71,.78),rgba(5,25,40,.74))] p-3 text-left shadow-[0_16px_45px_rgba(0,0,0,.26),inset_0_0_0_1px_rgba(103,232,249,.08)] transition active:scale-[.98]"
                 onClick={() => setActiveTab(tab.id)}
                 type="button"
               >
                 <div className="absolute inset-0 opacity-90" style={{ background: `radial-gradient(circle at 76% 32%, ${meta.accent}42, transparent 44%), linear-gradient(180deg, transparent, rgba(0,0,0,.24))` }} />
                 <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full blur-2xl" style={{ backgroundColor: `${meta.accent}24` }} />
                 <span className="absolute right-3 top-3 z-10 rounded-full bg-slate-950/48 px-2 py-1 text-[10px] font-black text-cyan-100/78 backdrop-blur">{inventoryCount(tab.id, counts)}</span>
-                <img className="relative z-10 mx-auto mt-4 h-[50%] w-[78%] object-contain opacity-95 drop-shadow-[0_18px_24px_rgba(0,0,0,.44)] transition duration-200 group-active:scale-95" src={meta.image} alt="" />
+                <img className="relative z-10 mx-auto mt-5 h-full max-h-20 w-[82%] object-contain opacity-95 drop-shadow-[0_18px_24px_rgba(0,0,0,.44)] transition duration-200 group-active:scale-95" src={meta.image} alt="" />
                 <span className="absolute left-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-2xl bg-slate-950/34 text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,.12)]">
                   <Icon className="h-5 w-5" />
                 </span>
                 <div className="relative z-10 mt-auto min-w-0">
-                  <div className="truncate text-lg font-black text-cyan-50 text-glow">{tab.label}</div>
+                  <div className="truncate text-base font-black text-cyan-50 text-glow sm:text-lg">{tab.label}</div>
                   <div className="mt-1 line-clamp-2 text-xs leading-4 text-cyan-100/66">{meta.subtitle}</div>
                 </div>
               </button>

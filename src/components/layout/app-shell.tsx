@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, Coins, Gift, Home, MoreVertical, Package, Settings, ShoppingBag, User, X } from "lucide-react";
+import { Coins, Gift, Home, Package, Settings, ShoppingBag, User } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { AuthRequiredPanel } from "@/features/auth/auth-required-panel";
 import { TelegramBootstrap } from "@/features/auth/telegram-bootstrap";
@@ -66,18 +66,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           />
         ))}
       </div>
-      <div className="pointer-events-none fixed inset-x-0 top-[calc(12px+var(--safe-top))] z-40 mx-auto grid max-w-md grid-cols-[1fr_auto_1fr] items-center gap-3 px-4">
-        <button className="pointer-events-auto inline-flex h-10 w-fit items-center gap-1 rounded-full border border-cyan-100/12 bg-slate-950/42 px-3 text-xs font-black text-cyan-50 shadow-[0_12px_32px_rgba(0,0,0,.25)] backdrop-blur" type="button">
-          <X className="h-4 w-4" />
-          Закрыть
-        </button>
-        <div className="glass inline-flex h-10 min-w-32 items-center justify-center gap-2 rounded-full px-4 text-sm font-black text-cyan-50 shadow-lg">
+      <div className="pointer-events-none fixed inset-x-0 top-[calc(56px+var(--safe-top))] z-40 flex justify-center">
+        <div className="glass inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-black text-cyan-50 shadow-lg">
           <Coins className="h-4 w-4 text-amber-200" />
           {Math.floor(optimisticCurrency || player.data?.user.currency || 0)}
-        </div>
-        <div className="pointer-events-auto ml-auto inline-flex h-10 items-center gap-1 rounded-full border border-cyan-100/12 bg-slate-950/42 px-2 text-cyan-50 shadow-[0_12px_32px_rgba(0,0,0,.25)] backdrop-blur">
-          <ChevronDown className="h-4 w-4" />
-          <MoreVertical className="h-4 w-4" />
         </div>
       </div>
       <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col">{content}</div>
