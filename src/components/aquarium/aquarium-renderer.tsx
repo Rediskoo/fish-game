@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import type { Container, Text } from "pixi.js";
 import type { FishView } from "@/types/game";
 import { createFishAgent, reactToFishClick, updateFishAgent, type FishAgent } from "@/components/aquarium/fish-ai";
-import { fishImageBySpecies } from "@/assets/aquarium-assets";
+import { fishAnimationBySpecies, fishImageBySpecies } from "@/assets/aquarium-assets";
 import { backgroundImageById, decorImageById } from "@/lib/app-assets";
 import { cn } from "@/lib/cn";
 import { playTone } from "@/stores/sound-store";
@@ -14,6 +14,7 @@ type PixiModule = typeof import("pixi.js");
 export function AquariumRenderer({ fish, className, interactive = false, backgroundId = "deep-lagoon", decor = [], pollution = 0 }: { fish: FishView[]; className?: string; interactive?: boolean; backgroundId?: string; decor?: string[]; pollution?: number }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const sceneBackRef = useRef<HTMLDivElement>(null);
+  const fishDomLayerRef = useRef<HTMLDivElement>(null);
   const fishRef = useRef(fish);
   const decorRef = useRef(decor);
   const backgroundImage = backgroundImageById[backgroundId] ?? backgroundImageById["deep-lagoon"];
@@ -38,7 +39,7 @@ export function AquariumRenderer({ fish, className, interactive = false, backgro
       const PIXI = await import("pixi.js");
       if (cancelled) return;
 
-      cleanup = await createScene(PIXI, host, sceneBackRef.current, fishRef, decorRef, interactive);
+      cleanup = await createScene(PIXI, host, sceneBackRef.current, fishDomLayerRef.current, fishRef, decorRef, interactive);
     }
 
     mount();
@@ -55,6 +56,7 @@ export function AquariumRenderer({ fish, className, interactive = false, backgro
         className="pointer-events-none absolute inset-0 z-0 origin-top-left bg-cover bg-center will-change-transform"
         style={{ backgroundImage: `url(${backgroundImage})` }}
       >
+        <div ref={fishDomLayerRef} className="pointer-events-none absolute inset-0 z-[3] overflow-hidden" />
         {seaweedDecor.length ? (
           <div className="pointer-events-none absolute inset-x-0 bottom-[-2%] z-[1] h-[28%] overflow-hidden">
             <div className="absolute inset-x-0 bottom-0 h-[65%] bg-[radial-gradient(ellipse_at_center,rgba(125,220,138,.24),transparent_70%)] blur-xl" />
@@ -127,6 +129,7 @@ async function createScene(
   PIXI: PixiModule,
   host: HTMLDivElement,
   sceneBack: HTMLDivElement | null,
+  fishDomLayer: HTMLDivElement | null,
   fishRef: React.MutableRefObject<FishView[]>,
   decorRef: React.MutableRefObject<string[]>,
   interactive: boolean
@@ -152,7 +155,7 @@ async function createScene(
   app.stage.addChild(world);
   world.addChild(background, particleLayer, fishLayer, labelLayer);
 
-  const agents = new Map<string, { agent: FishAgent; node: Container; label: Text; tail: Container; labelVisibleUntil: number }>();
+  const agents = new Map<string, { agent: FishAgent; node: Container; label: Text; tail: Container; labelVisibleUntil: number; domFish: HTMLImageElement | null }>();
   let nextAggroAt = 2.5 + Math.random() * 3;
   let nextSeaweedAt = 1.5 + Math.random() * 2.5;
   const bubbles = Array.from({ length: 46 }, () => createBubble(PIXI, app.screen.width, app.screen.height));
@@ -174,6 +177,7 @@ async function createScene(
       if (!visibleIds.has(id)) {
         fishLayer.removeChild(entry.node);
         labelLayer.removeChild(entry.label);
+        entry.domFish?.remove();
         agents.delete(id);
       }
     }
@@ -196,7 +200,10 @@ async function createScene(
       label.visible = interactive;
       fishLayer.addChild(sprite.node);
       labelLayer.addChild(label);
-      agents.set(item.id, { agent, node: sprite.node, tail: sprite.tail, label, labelVisibleUntil: 0 });
+      const layer = fishDomLayer;
+      const domFish = layer ? createDomFish(item) : null;
+      if (domFish) layer?.appendChild(domFish);
+      agents.set(item.id, { agent, node: sprite.node, tail: sprite.tail, label, labelVisibleUntil: 0, domFish });
     }
   }
 
@@ -307,6 +314,11 @@ async function createScene(
       entry.label.y = entry.agent.y - (entry.agent.fish.species === "GUPPY" ? 23 : 42);
       entry.label.text = `${entry.agent.fish.name} · ${formatAge(entry.agent.fish.ageSeconds + elapsed)}`;
       entry.label.visible = interactive || performance.now() < entry.labelVisibleUntil;
+      if (entry.domFish) {
+        entry.domFish.style.left = `${entry.agent.x}px`;
+        entry.domFish.style.top = `${entry.agent.y}px`;
+        entry.domFish.style.transform = `translate(-50%, -50%) scaleX(${entry.agent.direction}) rotate(${Math.sin(entry.agent.phase) * 5}deg)`;
+      }
     }
 
     for (const bubble of bubbles) {
@@ -463,6 +475,7 @@ async function createScene(
       app.canvas.removeEventListener("pointerup", onPointerUp);
       app.canvas.removeEventListener("pointercancel", onPointerUp);
       if (sceneBack) sceneBack.style.transform = "";
+      fishDomLayer?.replaceChildren();
       app.destroy(true);
     };
   }
@@ -475,6 +488,7 @@ async function createScene(
   return () => {
     window.removeEventListener("resize", onResize);
     app.canvas.removeEventListener("pointerup", onSimplePointerUp);
+    fishDomLayer?.replaceChildren();
     app.destroy(true);
   };
 }
@@ -493,13 +507,27 @@ function createFishNode(PIXI: PixiModule, fish: FishView) {
   fishSprite.anchor.set(0.5);
   fishSprite.width = fish.species === "GUPPY" ? 76 : fish.species === "NEON_TETRA" ? 86 : fish.species === "DRAGON_KOI" ? 138 : 116;
   fishSprite.height = fish.species === "DRAGON_KOI" ? 104 : fishSprite.width;
-  fishSprite.alpha = 1;
+  fishSprite.alpha = 0;
   fishSprite.tint = 0xffffff;
 
   node.addChild(aura, fishSprite);
   const scale = 1.05 + Math.min(0.32, fish.incomePerSecond / 18);
   node.scale.set(fish.species === "GUPPY" ? scale : scale);
   return { node, tail };
+}
+
+function createDomFish(fish: FishView) {
+  const image = document.createElement("img");
+  image.src = fishAnimationBySpecies[fish.species];
+  image.alt = "";
+  image.decoding = "async";
+  image.draggable = false;
+  image.className = "pointer-events-none absolute select-none object-contain opacity-100 drop-shadow-[0_12px_18px_rgba(0,0,0,.42)]";
+  image.style.width = `${fish.species === "GUPPY" ? 58 : fish.species === "NEON_TETRA" ? 68 : fish.species === "DRAGON_KOI" ? 124 : 96}px`;
+  image.style.height = "auto";
+  image.style.willChange = "left, top, transform";
+  image.style.transformOrigin = "center center";
+  return image;
 }
 
 function createBubble(PIXI: PixiModule, width: number, height: number) {
