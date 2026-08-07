@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Coins, Gift, Home, Package, Settings, ShoppingBag, User } from "lucide-react";
+import { aquariumAssets } from "@/assets/aquarium-assets";
 import { cn } from "@/lib/cn";
 import { AuthRequiredPanel } from "@/features/auth/auth-required-panel";
 import { TelegramBootstrap } from "@/features/auth/telegram-bootstrap";
@@ -13,12 +13,12 @@ import { useLiveIncome } from "@/features/income/use-live-income";
 import { useIncomeStore } from "@/stores/income-store";
 
 const navItems = [
-  { href: "/aquarium", label: "Аквариум", icon: Home },
-  { href: "/inventory", label: "Корм", icon: Package },
-  { href: "/marketplace", label: "Кейсы", icon: ShoppingBag },
-  { href: "/daily-rewards", label: "Награды", icon: Gift },
-  { href: "/profile", label: "Профиль", icon: User },
-  { href: "/settings", label: "Настройки", icon: Settings }
+  { href: "/aquarium", label: "Главная", icon: aquariumAssets.icons.navigation.home },
+  { href: "/inventory", label: "Склад", icon: aquariumAssets.icons.navigation.storage },
+  { href: "/marketplace", label: "Магазин", icon: aquariumAssets.icons.navigation.shop },
+  { href: "/daily-rewards", label: "Подарки", icon: aquariumAssets.icons.navigation.gifts },
+  { href: "/profile", label: "Профиль", icon: aquariumAssets.icons.navigation.profile },
+  { href: "/settings", label: "Настройки", icon: aquariumAssets.icons.navigation.settings }
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -49,7 +49,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <main className="ocean-shell relative min-h-dvh overflow-hidden pb-[calc(104px+var(--safe-bottom))] pt-[var(--safe-top)]">
+    <main className="ocean-shell relative min-h-dvh overflow-hidden pb-[calc(128px+var(--safe-bottom))] pt-[var(--safe-top)]">
       <TelegramBootstrap />
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <span className="screen-glow absolute left-[8%] top-[14%] h-32 w-32 rounded-full bg-cyan-300/10 blur-3xl" />
@@ -71,30 +71,29 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
       <div className="pointer-events-none fixed inset-x-0 top-[calc(56px+var(--safe-top))] z-40 flex justify-center">
         <div className="glass inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-black text-cyan-50 shadow-lg">
-          <Coins className="h-4 w-4 text-amber-200" />
+          <img className="h-5 w-5" src={aquariumAssets.icons.ui.currencyCoin} alt="" />
           {Math.floor(optimisticCurrency || player.data?.user.currency || 0)}
         </div>
       </div>
       <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col">{content}</div>
-      <nav className={cn("fixed inset-x-0 bottom-[calc(24px+var(--safe-bottom))] z-50 mx-auto max-w-md px-3 transition duration-200", hasModal && "pointer-events-none translate-y-6 opacity-0")}>
-        <div className="glass relative flex h-16 items-center justify-around overflow-hidden rounded-2xl px-1">
+      <nav className={cn("fixed inset-x-0 bottom-[calc(14px+var(--safe-bottom))] z-50 mx-auto max-w-md px-3 transition duration-200", hasModal && "pointer-events-none translate-y-6 opacity-0")}>
+        <div className="glass relative flex h-20 items-center justify-around overflow-hidden rounded-3xl px-1">
           {navItems.map((item) => {
             const active = pathname === item.href;
-            const Icon = item.icon;
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "mx-auto flex h-12 w-12 items-center justify-center rounded-xl text-sky-100/72 transition active:scale-95",
+                  "relative mx-auto flex h-16 min-w-12 flex-col items-center justify-center gap-1 rounded-2xl px-2 text-sky-100/72 transition active:scale-95",
                   active && "bg-cyan-300/18 text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,.16)]"
                 )}
                 aria-label={item.label}
                 title={item.label}
               >
-                <Icon className="h-5 w-5" />
+                <img className="h-5 w-5" src={active ? item.icon.active : item.icon.inactive} alt="" />
                 {item.href === "/profile" && profileNeedsAttention ? <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-rose-400 shadow-[0_0_10px_rgba(251,113,133,.8)]" /> : null}
-                <span className="sr-only">{item.label}</span>
+                <span className="max-w-14 truncate text-[10px] font-semibold leading-none">{item.label}</span>
               </Link>
             );
           })}

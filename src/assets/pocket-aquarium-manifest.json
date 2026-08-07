@@ -1,0 +1,1265 @@
+{
+  "version": "1.0.0",
+  "app": "pocket-aquarium",
+  "design": {
+    "style": "soft-3d-cartoon-marine",
+    "keyLight": "upper-left",
+    "mirrorFishInCode": true
+  },
+  "assets": {
+    "categories.storage.food-care": {
+      "type": "category",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/categories/storage/food-care.webp",
+        "webp2x": "assets/categories/storage/food-care@2x.webp",
+        "png2x": "assets/categories/storage/food-care@2x.png"
+      },
+      "semantic": "owned-inventory"
+    },
+    "categories.storage.decor": {
+      "type": "category",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/categories/storage/decor.webp",
+        "webp2x": "assets/categories/storage/decor@2x.webp",
+        "png2x": "assets/categories/storage/decor@2x.png"
+      },
+      "semantic": "owned-inventory"
+    },
+    "categories.storage.backgrounds": {
+      "type": "category",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/categories/storage/backgrounds.webp",
+        "webp2x": "assets/categories/storage/backgrounds@2x.webp",
+        "png2x": "assets/categories/storage/backgrounds@2x.png"
+      },
+      "semantic": "owned-inventory"
+    },
+    "categories.storage.fish": {
+      "type": "category",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/categories/storage/fish.webp",
+        "webp2x": "assets/categories/storage/fish@2x.webp",
+        "png2x": "assets/categories/storage/fish@2x.png"
+      },
+      "semantic": "owned-inventory"
+    },
+    "categories.shop.food-care": {
+      "type": "category",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/categories/shop/food-care.webp",
+        "webp2x": "assets/categories/shop/food-care@2x.webp",
+        "png2x": "assets/categories/shop/food-care@2x.png"
+      },
+      "semantic": "retail-purchase"
+    },
+    "categories.shop.decor": {
+      "type": "category",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/categories/shop/decor.webp",
+        "webp2x": "assets/categories/shop/decor@2x.webp",
+        "png2x": "assets/categories/shop/decor@2x.png"
+      },
+      "semantic": "retail-purchase"
+    },
+    "categories.shop.backgrounds": {
+      "type": "category",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/categories/shop/backgrounds.webp",
+        "webp2x": "assets/categories/shop/backgrounds@2x.webp",
+        "png2x": "assets/categories/shop/backgrounds@2x.png"
+      },
+      "semantic": "retail-purchase"
+    },
+    "categories.shop.fish-cases": {
+      "type": "category",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/categories/shop/fish-cases.webp",
+        "webp2x": "assets/categories/shop/fish-cases@2x.webp",
+        "png2x": "assets/categories/shop/fish-cases@2x.png"
+      },
+      "semantic": "retail-purchase"
+    },
+    "items.food-pellet-jar": {
+      "type": "item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/items/care/food-pellet-jar.webp",
+        "webp2x": "assets/items/care/food-pellet-jar@2x.webp",
+        "png2x": "assets/items/care/food-pellet-jar@2x.png"
+      }
+    },
+    "items.food-flakes-pouch": {
+      "type": "item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/items/care/food-flakes-pouch.webp",
+        "webp2x": "assets/items/care/food-flakes-pouch@2x.webp",
+        "png2x": "assets/items/care/food-flakes-pouch@2x.png"
+      }
+    },
+    "items.vitamin-drops": {
+      "type": "item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/items/care/vitamin-drops.webp",
+        "webp2x": "assets/items/care/vitamin-drops@2x.webp",
+        "png2x": "assets/items/care/vitamin-drops@2x.png"
+      }
+    },
+    "items.water-cleaner": {
+      "type": "item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/items/care/water-cleaner.webp",
+        "webp2x": "assets/items/care/water-cleaner@2x.webp",
+        "png2x": "assets/items/care/water-cleaner@2x.png"
+      }
+    },
+    "items.plant-small": {
+      "type": "item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/items/decor/plant-small.webp",
+        "webp2x": "assets/items/decor/plant-small@2x.webp",
+        "png2x": "assets/items/decor/plant-small@2x.png"
+      }
+    },
+    "items.plant-tall": {
+      "type": "item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/items/decor/plant-tall.webp",
+        "webp2x": "assets/items/decor/plant-tall@2x.webp",
+        "png2x": "assets/items/decor/plant-tall@2x.png"
+      }
+    },
+    "items.coral-red": {
+      "type": "item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/items/decor/coral-red.webp",
+        "webp2x": "assets/items/decor/coral-red@2x.webp",
+        "png2x": "assets/items/decor/coral-red@2x.png"
+      }
+    },
+    "items.coral-violet": {
+      "type": "item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/items/decor/coral-violet.webp",
+        "webp2x": "assets/items/decor/coral-violet@2x.webp",
+        "png2x": "assets/items/decor/coral-violet@2x.png"
+      }
+    },
+    "items.stone-bridge": {
+      "type": "item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/items/decor/stone-bridge.webp",
+        "webp2x": "assets/items/decor/stone-bridge@2x.webp",
+        "png2x": "assets/items/decor/stone-bridge@2x.png"
+      }
+    },
+    "items.pagoda-lantern": {
+      "type": "item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/items/decor/pagoda-lantern.webp",
+        "webp2x": "assets/items/decor/pagoda-lantern@2x.webp",
+        "png2x": "assets/items/decor/pagoda-lantern@2x.png"
+      }
+    },
+    "items.pebble-cave": {
+      "type": "item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/items/decor/pebble-cave.webp",
+        "webp2x": "assets/items/decor/pebble-cave@2x.webp",
+        "png2x": "assets/items/decor/pebble-cave@2x.png"
+      }
+    },
+    "items.treasure-amphora": {
+      "type": "item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/items/decor/treasure-amphora.webp",
+        "webp2x": "assets/items/decor/treasure-amphora@2x.webp",
+        "png2x": "assets/items/decor/treasure-amphora@2x.png"
+      }
+    },
+    "fish.goldfish": {
+      "type": "fish",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/fish/goldfish.webp",
+        "webp2x": "assets/fish/goldfish@2x.webp",
+        "png2x": "assets/fish/goldfish@2x.png"
+      },
+      "direction": "right",
+      "rarity": "common"
+    },
+    "fish.betta": {
+      "type": "fish",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/fish/betta.webp",
+        "webp2x": "assets/fish/betta@2x.webp",
+        "png2x": "assets/fish/betta@2x.png"
+      },
+      "direction": "right",
+      "rarity": "common"
+    },
+    "fish.angelfish": {
+      "type": "fish",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/fish/angelfish.webp",
+        "webp2x": "assets/fish/angelfish@2x.webp",
+        "png2x": "assets/fish/angelfish@2x.png"
+      },
+      "direction": "right",
+      "rarity": "uncommon"
+    },
+    "fish.clownfish": {
+      "type": "fish",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/fish/clownfish.webp",
+        "webp2x": "assets/fish/clownfish@2x.webp",
+        "png2x": "assets/fish/clownfish@2x.png"
+      },
+      "direction": "right",
+      "rarity": "uncommon"
+    },
+    "fish.neon-tetra": {
+      "type": "fish",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/fish/neon-tetra.webp",
+        "webp2x": "assets/fish/neon-tetra@2x.webp",
+        "png2x": "assets/fish/neon-tetra@2x.png"
+      },
+      "direction": "right",
+      "rarity": "common"
+    },
+    "fish.guppy": {
+      "type": "fish",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/fish/guppy.webp",
+        "webp2x": "assets/fish/guppy@2x.webp",
+        "png2x": "assets/fish/guppy@2x.png"
+      },
+      "direction": "right",
+      "rarity": "uncommon"
+    },
+    "fish.dwarf-gourami": {
+      "type": "fish",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/fish/dwarf-gourami.webp",
+        "webp2x": "assets/fish/dwarf-gourami@2x.webp",
+        "png2x": "assets/fish/dwarf-gourami@2x.png"
+      },
+      "direction": "right",
+      "rarity": "uncommon"
+    },
+    "fish.discus": {
+      "type": "fish",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/fish/discus.webp",
+        "webp2x": "assets/fish/discus@2x.webp",
+        "png2x": "assets/fish/discus@2x.png"
+      },
+      "direction": "right",
+      "rarity": "rare"
+    },
+    "fish.emerald-dragonfish": {
+      "type": "fish",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/fish/emerald-dragonfish.webp",
+        "webp2x": "assets/fish/emerald-dragonfish@2x.webp",
+        "png2x": "assets/fish/emerald-dragonfish@2x.png"
+      },
+      "direction": "right",
+      "rarity": "epic"
+    },
+    "fish.celestial-koi": {
+      "type": "fish",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/fish/celestial-koi.webp",
+        "webp2x": "assets/fish/celestial-koi@2x.webp",
+        "png2x": "assets/fish/celestial-koi@2x.png"
+      },
+      "direction": "right",
+      "rarity": "epic"
+    },
+    "fish.crystal-tang": {
+      "type": "fish",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/fish/crystal-tang.webp",
+        "webp2x": "assets/fish/crystal-tang@2x.webp",
+        "png2x": "assets/fish/crystal-tang@2x.png"
+      },
+      "direction": "right",
+      "rarity": "legendary"
+    },
+    "fish.midnight-manta": {
+      "type": "fish",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/fish/midnight-manta.webp",
+        "webp2x": "assets/fish/midnight-manta@2x.webp",
+        "png2x": "assets/fish/midnight-manta@2x.png"
+      },
+      "direction": "right",
+      "rarity": "legendary"
+    },
+    "profile.avatar-diver": {
+      "type": "profile",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/profile/avatar-diver.webp",
+        "webp2x": "assets/profile/avatar-diver@2x.webp",
+        "png2x": "assets/profile/avatar-diver@2x.png"
+      }
+    },
+    "profile.avatar-frame": {
+      "type": "frame",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/profile/avatar-frame.webp",
+        "webp2x": "assets/profile/avatar-frame@2x.webp",
+        "png2x": "assets/profile/avatar-frame@2x.png"
+      }
+    },
+    "rewards.daily-gift-closed": {
+      "type": "reward",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/rewards/daily-gift-closed.webp",
+        "webp2x": "assets/rewards/daily-gift-closed@2x.webp",
+        "png2x": "assets/rewards/daily-gift-closed@2x.png"
+      }
+    },
+    "rewards.daily-gift-open": {
+      "type": "reward",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/rewards/daily-gift-open.webp",
+        "webp2x": "assets/rewards/daily-gift-open@2x.webp",
+        "png2x": "assets/rewards/daily-gift-open@2x.png"
+      }
+    },
+    "achievements.first-fish": {
+      "type": "achievement",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/achievements/first-fish.webp",
+        "webp2x": "assets/achievements/first-fish@2x.webp",
+        "png2x": "assets/achievements/first-fish@2x.png"
+      }
+    },
+    "achievements.caretaker": {
+      "type": "achievement",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/achievements/caretaker.webp",
+        "webp2x": "assets/achievements/caretaker@2x.webp",
+        "png2x": "assets/achievements/caretaker@2x.png"
+      }
+    },
+    "achievements.collector": {
+      "type": "achievement",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/achievements/collector.webp",
+        "webp2x": "assets/achievements/collector@2x.webp",
+        "png2x": "assets/achievements/collector@2x.png"
+      }
+    },
+    "achievements.master-aquarist": {
+      "type": "achievement",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/achievements/master-aquarist.webp",
+        "webp2x": "assets/achievements/master-aquarist@2x.webp",
+        "png2x": "assets/achievements/master-aquarist@2x.png"
+      }
+    },
+    "rewards.quest-scroll": {
+      "type": "quest",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/rewards/quest-scroll.webp",
+        "webp2x": "assets/rewards/quest-scroll@2x.webp",
+        "png2x": "assets/rewards/quest-scroll@2x.png"
+      }
+    },
+    "rewards.favorite": {
+      "type": "meta",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/rewards/favorite.webp",
+        "webp2x": "assets/rewards/favorite@2x.webp",
+        "png2x": "assets/rewards/favorite@2x.png"
+      }
+    },
+    "rewards.friends": {
+      "type": "meta",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/rewards/friends.webp",
+        "webp2x": "assets/rewards/friends@2x.webp",
+        "png2x": "assets/rewards/friends@2x.png"
+      }
+    },
+    "rewards.locked-mystery": {
+      "type": "locked",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/rewards/locked-mystery.webp",
+        "webp2x": "assets/rewards/locked-mystery@2x.webp",
+        "png2x": "assets/rewards/locked-mystery@2x.png"
+      }
+    },
+    "backgrounds.deep-lagoon": {
+      "type": "background",
+      "size1x": [
+        360,
+        640
+      ],
+      "files": {
+        "webp1x": "assets/backgrounds/deep-lagoon.webp",
+        "webp2x": "assets/backgrounds/deep-lagoon@2x.webp"
+      },
+      "safeCenter": "central 55%"
+    },
+    "backgrounds.coral-garden": {
+      "type": "background",
+      "size1x": [
+        360,
+        640
+      ],
+      "files": {
+        "webp1x": "assets/backgrounds/coral-garden.webp",
+        "webp2x": "assets/backgrounds/coral-garden@2x.webp"
+      },
+      "safeCenter": "central 55%"
+    },
+    "backgrounds.moonlit-reef": {
+      "type": "background",
+      "size1x": [
+        360,
+        640
+      ],
+      "files": {
+        "webp1x": "assets/backgrounds/moonlit-reef.webp",
+        "webp2x": "assets/backgrounds/moonlit-reef@2x.webp"
+      },
+      "safeCenter": "central 55%"
+    },
+    "backgrounds.sunken-temple": {
+      "type": "background",
+      "size1x": [
+        360,
+        640
+      ],
+      "files": {
+        "webp1x": "assets/backgrounds/sunken-temple.webp",
+        "webp2x": "assets/backgrounds/sunken-temple@2x.webp"
+      },
+      "safeCenter": "central 55%"
+    },
+    "backgrounds.tropical-river": {
+      "type": "background",
+      "size1x": [
+        360,
+        640
+      ],
+      "files": {
+        "webp1x": "assets/backgrounds/tropical-river.webp",
+        "webp2x": "assets/backgrounds/tropical-river@2x.webp"
+      },
+      "safeCenter": "central 55%"
+    },
+    "backgrounds.night-grotto": {
+      "type": "background",
+      "size1x": [
+        360,
+        640
+      ],
+      "files": {
+        "webp1x": "assets/backgrounds/night-grotto.webp",
+        "webp2x": "assets/backgrounds/night-grotto@2x.webp"
+      },
+      "safeCenter": "central 55%"
+    },
+    "icons.navigation.home.inactive": {
+      "type": "svg-icon",
+      "state": "inactive",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/navigation/home-inactive.svg"
+    },
+    "icons.navigation.home.active": {
+      "type": "svg-icon",
+      "state": "active",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/navigation/home-active.svg"
+    },
+    "icons.navigation.storage.inactive": {
+      "type": "svg-icon",
+      "state": "inactive",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/navigation/storage-inactive.svg"
+    },
+    "icons.navigation.storage.active": {
+      "type": "svg-icon",
+      "state": "active",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/navigation/storage-active.svg"
+    },
+    "icons.navigation.shop.inactive": {
+      "type": "svg-icon",
+      "state": "inactive",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/navigation/shop-inactive.svg"
+    },
+    "icons.navigation.shop.active": {
+      "type": "svg-icon",
+      "state": "active",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/navigation/shop-active.svg"
+    },
+    "icons.navigation.gifts.inactive": {
+      "type": "svg-icon",
+      "state": "inactive",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/navigation/gifts-inactive.svg"
+    },
+    "icons.navigation.gifts.active": {
+      "type": "svg-icon",
+      "state": "active",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/navigation/gifts-active.svg"
+    },
+    "icons.navigation.profile.inactive": {
+      "type": "svg-icon",
+      "state": "inactive",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/navigation/profile-inactive.svg"
+    },
+    "icons.navigation.profile.active": {
+      "type": "svg-icon",
+      "state": "active",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/navigation/profile-active.svg"
+    },
+    "icons.navigation.settings.inactive": {
+      "type": "svg-icon",
+      "state": "inactive",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/navigation/settings-inactive.svg"
+    },
+    "icons.navigation.settings.active": {
+      "type": "svg-icon",
+      "state": "active",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/navigation/settings-active.svg"
+    },
+    "icons.ui.food": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/food.svg"
+    },
+    "icons.ui.care": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/care.svg"
+    },
+    "icons.ui.decor": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/decor.svg"
+    },
+    "icons.ui.backgrounds": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/backgrounds.svg"
+    },
+    "icons.ui.fish-cases": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/fish-cases.svg"
+    },
+    "icons.ui.currency-kelp": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/currency-kelp.svg"
+    },
+    "icons.ui.currency-coin": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/currency-coin.svg"
+    },
+    "icons.ui.favorite": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/favorite.svg"
+    },
+    "icons.ui.friends": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/friends.svg"
+    },
+    "icons.ui.level": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/level.svg"
+    },
+    "icons.ui.date": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/date.svg"
+    },
+    "icons.ui.achievement": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/achievement.svg"
+    },
+    "icons.ui.rarity": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/rarity.svg"
+    },
+    "icons.ui.info": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/info.svg"
+    },
+    "icons.ui.back": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/back.svg"
+    },
+    "icons.ui.chevron-left": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/chevron-left.svg"
+    },
+    "icons.ui.chevron-right": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/chevron-right.svg"
+    },
+    "icons.ui.eye": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/eye.svg"
+    },
+    "icons.ui.eye-off": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/eye-off.svg"
+    },
+    "icons.ui.cleanliness": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/cleanliness.svg"
+    },
+    "icons.ui.satiety": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/satiety.svg"
+    },
+    "icons.ui.mood": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/mood.svg"
+    },
+    "icons.ui.capacity": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/capacity.svg"
+    },
+    "icons.ui.quest": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/quest.svg"
+    },
+    "icons.ui.notification": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/notification.svg"
+    },
+    "icons.ui.lock": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/lock.svg"
+    },
+    "icons.ui.empty": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/empty.svg"
+    },
+    "icons.ui.close": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/close.svg"
+    },
+    "icons.ui.check": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/check.svg"
+    },
+    "icons.ui.plus": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/plus.svg"
+    },
+    "icons.ui.sound": {
+      "type": "svg-icon",
+      "size": [
+        24,
+        24
+      ],
+      "file": "assets/icons/ui/sound.svg"
+    }
+  },
+  "animations": {
+    "bubbles": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/bubbles.webp",
+      "frameSize": [
+        192,
+        192
+      ],
+      "frames": 12,
+      "layout": "horizontal",
+      "fps": 12,
+      "loop": true
+    },
+    "sparkle-glow": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/sparkle-glow.webp",
+      "frameSize": [
+        192,
+        192
+      ],
+      "frames": 12,
+      "layout": "horizontal",
+      "fps": 12,
+      "loop": true
+    },
+    "feeding": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/feeding.webp",
+      "frameSize": [
+        192,
+        192
+      ],
+      "frames": 12,
+      "layout": "horizontal",
+      "fps": 14,
+      "loop": true
+    },
+    "water-cleaning": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/water-cleaning.webp",
+      "frameSize": [
+        192,
+        192
+      ],
+      "frames": 16,
+      "layout": "horizontal",
+      "fps": 16,
+      "loop": false
+    },
+    "reward-reveal": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/reward-reveal.webp",
+      "frameSize": [
+        192,
+        192
+      ],
+      "frames": 12,
+      "layout": "horizontal",
+      "fps": 14,
+      "loop": false
+    },
+    "case-opening": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/case-opening.webp",
+      "frameSize": [
+        192,
+        192
+      ],
+      "frames": 14,
+      "layout": "horizontal",
+      "fps": 16,
+      "loop": false
+    },
+    "fish-idle-goldfish": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/fish-idle-goldfish.webp",
+      "frameSize": [
+        192,
+        192
+      ],
+      "frames": 16,
+      "layout": "horizontal",
+      "fps": 12,
+      "loop": true
+    },
+    "fish-swim-goldfish": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/fish-swim-goldfish.webp",
+      "animatedFile": "assets/animations/fish-swim-goldfish-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 10,
+      "loop": true,
+      "direction": "right",
+      "motion": "tail-sweep + body-rock + vertical-drift"
+    },
+    "fish-swim-betta": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/fish-swim-betta.webp",
+      "animatedFile": "assets/animations/fish-swim-betta-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 11,
+      "loop": true,
+      "direction": "right",
+      "motion": "tail-sweep + body-rock + vertical-drift"
+    },
+    "fish-swim-angelfish": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/fish-swim-angelfish.webp",
+      "animatedFile": "assets/animations/fish-swim-angelfish-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 12,
+      "loop": true,
+      "direction": "right",
+      "motion": "tail-sweep + body-rock + vertical-drift"
+    },
+    "fish-swim-clownfish": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/fish-swim-clownfish.webp",
+      "animatedFile": "assets/animations/fish-swim-clownfish-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 10,
+      "loop": true,
+      "direction": "right",
+      "motion": "tail-sweep + body-rock + vertical-drift"
+    },
+    "fish-swim-neon-tetra": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/fish-swim-neon-tetra.webp",
+      "animatedFile": "assets/animations/fish-swim-neon-tetra-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 11,
+      "loop": true,
+      "direction": "right",
+      "motion": "tail-sweep + body-rock + vertical-drift"
+    },
+    "fish-swim-guppy": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/fish-swim-guppy.webp",
+      "animatedFile": "assets/animations/fish-swim-guppy-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 12,
+      "loop": true,
+      "direction": "right",
+      "motion": "tail-sweep + body-rock + vertical-drift"
+    },
+    "fish-swim-dwarf-gourami": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/fish-swim-dwarf-gourami.webp",
+      "animatedFile": "assets/animations/fish-swim-dwarf-gourami-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 10,
+      "loop": true,
+      "direction": "right",
+      "motion": "tail-sweep + body-rock + vertical-drift"
+    },
+    "fish-swim-discus": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/fish-swim-discus.webp",
+      "animatedFile": "assets/animations/fish-swim-discus-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 11,
+      "loop": true,
+      "direction": "right",
+      "motion": "tail-sweep + body-rock + vertical-drift"
+    },
+    "fish-swim-emerald-dragonfish": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/fish-swim-emerald-dragonfish.webp",
+      "animatedFile": "assets/animations/fish-swim-emerald-dragonfish-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 12,
+      "loop": true,
+      "direction": "right",
+      "motion": "tail-sweep + body-rock + vertical-drift"
+    },
+    "fish-swim-celestial-koi": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/fish-swim-celestial-koi.webp",
+      "animatedFile": "assets/animations/fish-swim-celestial-koi-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 10,
+      "loop": true,
+      "direction": "right",
+      "motion": "tail-sweep + body-rock + vertical-drift"
+    },
+    "fish-swim-crystal-tang": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/fish-swim-crystal-tang.webp",
+      "animatedFile": "assets/animations/fish-swim-crystal-tang-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 11,
+      "loop": true,
+      "direction": "right",
+      "motion": "tail-sweep + body-rock + vertical-drift"
+    },
+    "fish-swim-midnight-manta": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/fish-swim-midnight-manta.webp",
+      "animatedFile": "assets/animations/fish-swim-midnight-manta-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 12,
+      "loop": true,
+      "direction": "right",
+      "motion": "tail-sweep + body-rock + vertical-drift"
+    }
+  }
+}

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import type { Container, Text } from "pixi.js";
 import type { FishView } from "@/types/game";
 import { createFishAgent, reactToFishClick, updateFishAgent, type FishAgent } from "@/components/aquarium/fish-ai";
+import { fishAnimationBySpecies, fishImageBySpecies } from "@/assets/aquarium-assets";
 import { backgroundImageById, decorImageById } from "@/lib/app-assets";
 import { cn } from "@/lib/cn";
 import { playTone } from "@/stores/sound-store";
@@ -480,6 +481,7 @@ async function createScene(
 
 function createFishNode(PIXI: PixiModule, fish: FishView) {
   const node = new PIXI.Container();
+  const visual = new PIXI.Container();
   const body = new PIXI.Graphics();
   const shine = new PIXI.Graphics();
   const markings = new PIXI.Graphics();
@@ -495,6 +497,12 @@ function createFishNode(PIXI: PixiModule, fish: FishView) {
   const aura = new PIXI.Graphics();
   aura.ellipse(0, 0, 52, 30).fill({ color: glow, alpha: auraAlpha * 0.24 });
   aura.ellipse(0, 0, 36, 20).fill({ color: glow, alpha: auraAlpha });
+
+  const fishSprite = PIXI.Sprite.from(fishAnimationBySpecies[fish.species] ?? fishImageBySpecies[fish.species]);
+  fishSprite.anchor.set(0.5);
+  fishSprite.width = fish.species === "GUPPY" ? 46 : fish.species === "NEON_TETRA" ? 58 : fish.species === "DRAGON_KOI" ? 98 : 78;
+  fishSprite.height = fishSprite.width;
+  fishSprite.alpha = 0.98;
 
   const eye = new PIXI.Graphics();
   const eyeX = fish.species === "DRAGON_KOI" ? 22 : 17;
@@ -564,9 +572,10 @@ function createFishNode(PIXI: PixiModule, fish: FishView) {
   shine.circle(17, -9, 2.6).fill({ color: 0xffffff, alpha: 0.13 });
 
   tail.addChild(tailShape, tailShine);
-  node.addChild(aura, tail, fins, body, belly, markings, shine, eye);
+  visual.addChild(fishSprite);
+  node.addChild(aura, visual);
   const scale = 0.9 + Math.min(0.42, fish.incomePerSecond / 12);
-  node.scale.set(fish.species === "GUPPY" ? scale / 3 : scale);
+  node.scale.set(fish.species === "GUPPY" ? scale : scale);
   return { node, tail };
 }
 

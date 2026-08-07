@@ -1,11 +1,12 @@
 "use client";
 
 import { FormEvent, type ReactNode, useMemo, useState } from "react";
-import { Eye, Fish, Gift, LockKeyhole, MoreHorizontal, Send, Sparkles, Trash2, Trophy, UserCheck, UserPlus, UserX, Users, X } from "lucide-react";
+import { Eye, Fish, Gift, MoreHorizontal, Send, Trash2, Trophy, UserCheck, UserPlus, UserX, Users, X } from "lucide-react";
 import { AquariumRenderer } from "@/components/aquarium/aquarium-renderer";
 import { FishRevealModal } from "@/components/fish/fish-reveal-modal";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
+import { aquariumAssets } from "@/assets/aquarium-assets";
 import { usePlayer } from "@/features/auth/use-player";
 import {
   useAddFriend,
@@ -105,8 +106,9 @@ export function ProfileScreen() {
       <Panel className="relative overflow-hidden border-fuchsia-200/20 bg-[linear-gradient(135deg,rgba(168,85,247,.18),rgba(34,211,238,.10),rgba(16,185,129,.08))]">
         <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-fuchsia-300/18 blur-3xl" />
         <div className="relative z-10 flex items-center gap-3">
-          <div className="grid h-20 w-20 shrink-0 place-items-center rounded-full border-4 border-amber-200/70 bg-[radial-gradient(circle,rgba(251,191,36,.26),rgba(8,36,52,.90))] text-cyan-50 shadow-[0_0_30px_rgba(251,191,36,.22)]">
-            <Fish className="h-8 w-8" />
+          <div className="relative grid h-20 w-20 shrink-0 place-items-center rounded-full bg-[radial-gradient(circle,rgba(251,191,36,.18),rgba(8,36,52,.88))] text-cyan-50 shadow-[0_0_30px_rgba(251,191,36,.22)]">
+            <img className="h-16 w-16 rounded-full object-contain" src={aquariumAssets.profile.avatarDiver} alt="" />
+            <img className="pointer-events-none absolute inset-0 h-full w-full object-contain" src={aquariumAssets.profile.avatarFrame} alt="" />
           </div>
           <div className="min-w-0">
             <div className="truncate text-xl font-black text-cyan-50">Аквариумист</div>
@@ -275,6 +277,7 @@ export function ProfileScreen() {
 function AchievementTile({ achievement, index }: { achievement: AchievementView; index: number }) {
   const unlocked = Boolean(achievement.unlockedAt);
   const colors = ["from-fuchsia-300/26 to-emerald-300/12", "from-emerald-300/24 to-cyan-300/10", "from-violet-300/24 to-fuchsia-300/10", "from-lime-300/20 to-amber-300/10"];
+  const images = [aquariumAssets.achievements.firstFish, aquariumAssets.achievements.caretaker, aquariumAssets.achievements.collector, aquariumAssets.achievements.masterAquarist];
   return (
     <div className={cn("relative min-h-28 overflow-hidden rounded-2xl border p-3", unlocked ? "border-amber-200/24 bg-gradient-to-br text-cyan-50 shadow-[0_0_24px_rgba(251,191,36,.10)]" : "border-cyan-100/10 bg-slate-950/30 text-cyan-100/52")}>
       <div className={cn("absolute -right-7 -top-7 h-20 w-20 rounded-full blur-2xl", unlocked ? colors[index % colors.length] : "bg-slate-400/10")} />
@@ -283,8 +286,8 @@ function AchievementTile({ achievement, index }: { achievement: AchievementView;
           <div className="line-clamp-2 text-sm font-black">{achievement.title}</div>
           <div className="mt-1 line-clamp-2 text-[11px] text-cyan-100/62">{unlocked ? `Открыто ${formatDate(achievement.unlockedAt)}` : achievement.description}</div>
         </div>
-        <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-xl", unlocked ? "bg-amber-200 text-slate-950" : "bg-slate-950/45 text-cyan-100/50")}>
-          {unlocked ? <Sparkles className="h-4 w-4" /> : <LockKeyhole className="h-4 w-4" />}
+        <span className={cn("grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl", unlocked ? "bg-amber-200/15" : "bg-slate-950/45 opacity-70")}>
+          <img className="h-8 w-8 object-contain" src={unlocked ? images[index % images.length] : aquariumAssets.rewards.lockedMystery} alt="" />
         </span>
       </div>
       <div className="relative z-10 mt-3 inline-flex rounded-full bg-slate-950/38 px-2 py-1 text-[11px] font-black text-amber-100">+{achievement.reward}</div>

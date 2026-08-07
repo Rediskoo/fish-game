@@ -1,12 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowLeft, Fish, PackageOpen, ShoppingBag, Sparkles } from "lucide-react";
+import { ArrowLeft, PackageOpen, ShoppingBag, Sparkles } from "lucide-react";
 import { CasinoRevealModal } from "@/components/fish/casino-reveal-modal";
 import { Button } from "@/components/ui/button";
 import { useRenameFish, useSellFish } from "@/features/inventory/use-fish-actions";
 import { useMarketplace, usePurchase } from "@/features/marketplace/use-marketplace";
-import { AppAssets, shopCategories, shopProducts, type ShopCategory, type ShopProduct } from "@/lib/app-assets";
+import { AppAssets, fishSpeciesAsset, shopCategories, shopProducts, type ShopCategory, type ShopProduct } from "@/lib/app-assets";
 import type { CaseResult, MarketplaceFish } from "@/types/game";
 
 export function MarketplaceScreen() {
@@ -184,7 +184,7 @@ function FishDropPreview({ fishTypes }: { fishTypes: MarketplaceFish[] }) {
             <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full blur-2xl" style={{ backgroundColor: `${fish.glowColor}30` }} />
             <div className="relative z-10 flex items-start justify-between gap-2">
               <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl" style={{ backgroundColor: `${fish.glowColor}24`, boxShadow: `0 0 28px ${fish.glowColor}34` }}>
-                <Fish className="h-7 w-7 drop-shadow-[0_0_10px_currentColor]" style={{ color: fish.color }} />
+                <img className="h-11 w-11 object-contain drop-shadow-[0_8px_14px_rgba(0,0,0,.32)]" src={fishSpeciesAsset[fish.species]} alt="" />
               </div>
               <span className="rounded-full bg-slate-950/50 px-2 py-1 text-[10px] font-black text-cyan-50/82">{(fish.dropChanceBps / 100).toFixed(2)}%</span>
             </div>

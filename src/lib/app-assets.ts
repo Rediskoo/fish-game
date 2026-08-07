@@ -1,34 +1,41 @@
 import type { FishSpecies } from "@prisma/client";
+import { aquariumAssets, fishImageBySpecies } from "@/assets/aquarium-assets";
 
 const asset = (path: string) => `/assets/${path}`;
 
 export const AppAssets = {
   shop: {
     building: asset("shop/shop_building.png"),
-    caseChest: asset("shop/case_chest.png"),
-    careFood: asset("shop/care_food.png"),
-    decorRuins: asset("shop/decor_ruins.png"),
-    equipmentFilter: asset("shop/equipment_filter.png"),
-    aquariumDisplay: asset("shop/aquarium_display.png")
+    caseChest: aquariumAssets.categories.shop.fishCases,
+    careFood: aquariumAssets.categories.shop.foodCare,
+    decorRuins: aquariumAssets.categories.shop.decor,
+    equipmentFilter: aquariumAssets.items.waterCleaner,
+    aquariumDisplay: aquariumAssets.categories.shop.backgrounds
+  },
+  storage: {
+    careFood: aquariumAssets.categories.storage.foodCare,
+    decor: aquariumAssets.categories.storage.decor,
+    backgrounds: aquariumAssets.categories.storage.backgrounds,
+    fish: aquariumAssets.categories.storage.fish
   },
   care: {
-    foodBasic: asset("care/food_basic.png"),
-    foodPremium: asset("care/food_premium.png"),
-    waterConditioner: asset("care/water_conditioner.png")
+    foodBasic: aquariumAssets.items.foodPelletJar,
+    foodPremium: aquariumAssets.items.foodFlakesPouch,
+    waterConditioner: aquariumAssets.items.waterCleaner
   },
   decor: {
-    plantSmall: asset("decor/plant_small.png"),
-    plantTall: asset("decor/plant_tall.png"),
-    coralRed: asset("decor/coral_red.png"),
-    coralPurple: asset("decor/coral_purple.png"),
-    rockPile: asset("decor/rock_pile.png"),
-    caveSmall: asset("decor/cave_small.png"),
-    caveLarge: asset("decor/cave_large.png"),
-    stoneBridge: asset("decor/stone_bridge.png"),
-    stoneArch: asset("decor/stone_arch.png"),
-    lantern: asset("decor/lantern.png"),
-    amphora: asset("decor/amphora.png"),
-    shell: asset("decor/shell.png")
+    plantSmall: aquariumAssets.items.plantSmall,
+    plantTall: aquariumAssets.items.plantTall,
+    coralRed: aquariumAssets.items.coralRed,
+    coralPurple: aquariumAssets.items.coralViolet,
+    rockPile: aquariumAssets.items.pebbleCave,
+    caveSmall: aquariumAssets.items.pebbleCave,
+    caveLarge: aquariumAssets.items.pebbleCave,
+    stoneBridge: aquariumAssets.items.stoneBridge,
+    stoneArch: aquariumAssets.items.stoneBridge,
+    lantern: aquariumAssets.items.pagodaLantern,
+    amphora: aquariumAssets.items.treasureAmphora,
+    shell: aquariumAssets.items.treasureAmphora
   },
   equipment: {
     internalFilter: asset("equipment/internal_filter.png"),
@@ -40,33 +47,33 @@ export const AppAssets = {
   },
   backgrounds: {
     full: {
-      deepLagoon: asset("backgrounds/full/deep_lagoon.png"),
-      coralGarden: asset("backgrounds/full/coral_garden.png"),
-      moonReef: asset("backgrounds/full/moon_reef.png"),
-      sunkenTemple: asset("backgrounds/full/sunken_temple.png"),
-      tropicalRiver: asset("backgrounds/full/tropical_river.png"),
-      nightCove: asset("backgrounds/full/night_cove.png")
+      deepLagoon: aquariumAssets.backgrounds.deepLagoon,
+      coralGarden: aquariumAssets.backgrounds.coralGarden,
+      moonReef: aquariumAssets.backgrounds.moonlitReef,
+      sunkenTemple: aquariumAssets.backgrounds.sunkenTemple,
+      tropicalRiver: aquariumAssets.backgrounds.tropicalRiver,
+      nightCove: aquariumAssets.backgrounds.nightGrotto
     },
     previews: {
-      deepLagoon: asset("backgrounds/previews/deep_lagoon.png"),
-      coralGarden: asset("backgrounds/previews/coral_garden.png"),
-      moonReef: asset("backgrounds/previews/moon_reef.png"),
-      sunkenTemple: asset("backgrounds/previews/sunken_temple.png"),
-      tropicalRiver: asset("backgrounds/previews/tropical_river.png"),
-      nightCove: asset("backgrounds/previews/night_cove.png")
+      deepLagoon: aquariumAssets.backgrounds.deepLagoon,
+      coralGarden: aquariumAssets.backgrounds.coralGarden,
+      moonReef: aquariumAssets.backgrounds.moonlitReef,
+      sunkenTemple: aquariumAssets.backgrounds.sunkenTemple,
+      tropicalRiver: aquariumAssets.backgrounds.tropicalRiver,
+      nightCove: aquariumAssets.backgrounds.nightGrotto
     }
   }
 } as const;
 
 export const fishSpeciesAsset: Record<FishSpecies, string> = {
-  GUPPY: AppAssets.shop.aquariumDisplay,
-  GOLDFISH: AppAssets.shop.caseChest,
-  BETTA: AppAssets.shop.caseChest,
-  NEON_TETRA: AppAssets.shop.aquariumDisplay,
-  ANGELFISH: AppAssets.shop.aquariumDisplay,
-  DISCUS: AppAssets.shop.aquariumDisplay,
-  MANDARINFISH: AppAssets.shop.caseChest,
-  DRAGON_KOI: AppAssets.shop.caseChest
+  GUPPY: fishImageBySpecies.GUPPY,
+  GOLDFISH: fishImageBySpecies.GOLDFISH,
+  BETTA: fishImageBySpecies.BETTA,
+  NEON_TETRA: fishImageBySpecies.NEON_TETRA,
+  ANGELFISH: fishImageBySpecies.ANGELFISH,
+  DISCUS: fishImageBySpecies.DISCUS,
+  MANDARINFISH: fishImageBySpecies.MANDARINFISH,
+  DRAGON_KOI: fishImageBySpecies.DRAGON_KOI
 };
 
 export type ShopCategory = "fish" | "care" | "decor" | "backgrounds";

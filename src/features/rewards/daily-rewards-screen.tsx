@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Gift, Trophy } from "lucide-react";
+import { Check, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
+import { aquariumAssets } from "@/assets/aquarium-assets";
 import { cn } from "@/lib/cn";
 import { usePlayer } from "@/features/auth/use-player";
 import { useDailyReward } from "@/features/rewards/use-daily-reward";
@@ -61,13 +62,15 @@ export function DailyRewardsScreen() {
             );
           })}
         </div>
-        <Gift className={cn("relative z-10 h-10 w-10", claimedToday ? "text-cyan-100/35" : "text-yellow-200")} />
-        <div>
-          <div className="text-2xl font-black">+{rewardAmount} водорослей</div>
-          <div className="text-sm text-cyan-100/60">
+        <div className="relative z-10 flex items-center gap-4">
+          <img className="h-24 w-24 shrink-0 object-contain drop-shadow-[0_18px_26px_rgba(0,0,0,.32)]" src={claimedToday ? aquariumAssets.rewards.dailyGiftOpen : aquariumAssets.rewards.dailyGiftClosed} alt="" />
+          <div className="min-w-0">
+            <div className="text-2xl font-black">+{rewardAmount} водорослей</div>
+            <div className="mt-1 text-sm text-cyan-100/60">
             {claimedToday && nextClaimTime
               ? `Бонус уже забран. Следующий подарок будет доступен ${nextClaimTime}.`
               : "Можно забрать один раз в 24 часа."}
+            </div>
           </div>
         </div>
         <Button className={claimedToday ? "bg-slate-700 text-cyan-100 shadow-none" : undefined} disabled={daily.isPending || claimedToday} onClick={() => daily.mutate()}>
@@ -94,6 +97,7 @@ export function DailyRewardsScreen() {
             <div key={achievement.id} className={cn("relative min-h-28 overflow-hidden rounded-2xl border p-3", achievement.unlockedAt ? "border-amber-200/26 bg-amber-300/14 shadow-[0_0_26px_rgba(251,191,36,.10)]" : "border-cyan-100/10 bg-slate-950/30 opacity-70")}>
               <div className={cn("absolute -right-6 -top-6 h-20 w-20 rounded-full blur-2xl", achievement.unlockedAt ? (index % 3 === 0 ? "bg-fuchsia-300/20" : index % 3 === 1 ? "bg-emerald-300/18" : "bg-violet-300/18") : "bg-slate-400/10")} />
               <div className="relative z-10 flex items-start justify-between gap-2">
+                <img className="h-10 w-10 shrink-0 object-contain" src={achievement.unlockedAt ? aquariumAssets.achievements.firstFish : aquariumAssets.rewards.lockedMystery} alt="" />
                 <div className="min-w-0">
                   <div className="line-clamp-2 text-sm font-black text-cyan-50">{achievement.title}</div>
                   <div className="mt-1 line-clamp-2 text-[11px] text-cyan-100/62">

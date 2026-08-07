@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, type ReactNode, useMemo, useState } from "react";
-import { ArrowLeft, Box, CalendarDays, ChevronRight, Fish, Heart, Image as ImageIcon, Info, Package, Pencil, Sparkles, Star, Trash2, Utensils, Waves, X } from "lucide-react";
+import { ArrowLeft, Box, CalendarDays, ChevronRight, Fish, Heart, Image as ImageIcon, Info, Package, Pencil, Sparkles, Trash2, Utensils, Waves, X } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AquariumRenderer } from "@/components/aquarium/aquarium-renderer";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { usePlayer } from "@/features/auth/use-player";
 import { useRenameFish, useSellFish, useToggleFavoriteFish } from "@/features/inventory/use-fish-actions";
 import { useFeedFish } from "@/features/inventory/use-feed-fish";
 import { api } from "@/lib/api/client";
-import { AppAssets, decorProducts, shopProducts, type ShopProduct } from "@/lib/app-assets";
+import { AppAssets, decorProducts, fishSpeciesAsset, shopProducts, type ShopProduct } from "@/lib/app-assets";
 import { cn } from "@/lib/cn";
 import { aquariumFishCapacity } from "@/lib/fish-capacity";
 import type { AquariumSnapshot, FishView } from "@/types/game";
@@ -25,10 +25,10 @@ const inventoryTabs: Array<{ id: InventoryTab; label: string; icon: typeof Packa
 ];
 
 const inventoryTabMeta: Record<InventoryTab, { subtitle: string; accent: string; image: string }> = {
-  food: { subtitle: "корм, очистители и уход", accent: "#E5B74F", image: AppAssets.shop.careFood },
-  decor: { subtitle: "растения, пузыри и украшения", accent: "#62D4AC", image: AppAssets.shop.decorRuins },
-  backgrounds: { subtitle: "фоны и настроение воды", accent: "#9B7BEF", image: AppAssets.shop.aquariumDisplay },
-  fish: { subtitle: "все рыбки и перенаселение", accent: "#49C7E8", image: AppAssets.shop.caseChest }
+  food: { subtitle: "корм, очистители и уход", accent: "#E5B74F", image: AppAssets.storage.careFood },
+  decor: { subtitle: "растения, пузыри и украшения", accent: "#62D4AC", image: AppAssets.storage.decor },
+  backgrounds: { subtitle: "фоны и настроение воды", accent: "#9B7BEF", image: AppAssets.storage.backgrounds },
+  fish: { subtitle: "все рыбки и перенаселение", accent: "#49C7E8", image: AppAssets.storage.fish }
 };
 
 function inventoryBadge(tab: InventoryTab, data: {
@@ -80,7 +80,6 @@ export function InventoryScreen() {
   const fishList = useMemo(() => [...(player.data?.fish ?? [])].sort((a, b) => Number(b.isFavorite) - Number(a.isFavorite)), [player.data?.fish]);
   const selectedFish = useMemo(() => fishList.find((fish) => fish.id === selectedFishId) ?? null, [fishList, selectedFishId]);
   const capacity = aquariumFishCapacity;
-  const uniqueSpecies = useMemo(() => new Set(fishList.map((fish) => fish.species)).size, [fishList]);
 
   const counts = {
     food,
@@ -102,7 +101,7 @@ export function InventoryScreen() {
 
       {!activeTab ? (
         <div className="space-y-4">
-          <InventorySummary activeFish={activeFishCount} capacity={capacity} totalItems={totalItems} uniqueSpecies={uniqueSpecies} activeDecor={activeDecor.length} />
+          <InventorySummary activeFish={activeFishCount} capacity={capacity} totalItems={totalItems} activeDecor={activeDecor.length} />
           <div className="space-y-3">
             {inventoryTabs.map((tab) => (
               <InventoryCategoryCard
@@ -172,21 +171,18 @@ function InventorySummary({
   activeFish,
   capacity,
   totalItems,
-  uniqueSpecies,
   activeDecor
 }: {
   activeFish: number;
   capacity: number;
   totalItems: number;
-  uniqueSpecies: number;
   activeDecor: number;
 }) {
   const fishPercent = Math.min(100, Math.round((activeFish / capacity) * 100));
   return (
-    <Panel className="grid grid-cols-4 gap-2 overflow-hidden rounded-[18px] border-cyan-100/18 p-3">
+    <Panel className="grid grid-cols-3 gap-2 overflow-hidden rounded-[18px] border-cyan-100/18 p-3">
       <SummaryCell icon={<Fish className="h-5 w-5" />} label="Рыбы в аквариуме" value={`${activeFish}/${capacity}`} detail={<div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-950/55"><div className="h-full rounded-full bg-cyan-300" style={{ width: `${fishPercent}%` }} /></div>} tone="cyan" />
       <SummaryCell icon={<Box className="h-5 w-5" />} label="Всего предметов" value={String(totalItems)} detail="4 категории" tone="amber" />
-      <SummaryCell icon={<Star className="h-5 w-5" />} label="Коллекция рыб" value={String(uniqueSpecies)} detail="видов" tone="yellow" />
       <SummaryCell icon={<CalendarDays className="h-5 w-5" />} label="Активный декор" value={String(activeDecor)} detail="предмета" tone="blue" />
     </Panel>
   );
@@ -341,7 +337,7 @@ function FishSection({ fishList, capacity, onFavorite, onSelect }: { fishList: F
                 <Heart className={cn("h-4 w-4", fish.isFavorite && "fill-current")} />
               </button>
               <div className="absolute inset-x-3 top-12 z-10 grid h-24 place-items-center">
-                <Fish className="h-16 w-16 drop-shadow-[0_0_14px_currentColor]" style={{ color: fish.color }} />
+                <img className="h-24 w-24 object-contain drop-shadow-[0_18px_24px_rgba(0,0,0,.34)]" src={fishSpeciesAsset[fish.species]} alt="" />
               </div>
               <div className="absolute inset-x-3 bottom-14 z-10 min-w-0">
                 <div className="truncate text-sm font-black leading-tight text-cyan-50">{fish.name}</div>

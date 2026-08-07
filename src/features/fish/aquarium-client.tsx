@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, ArrowRight, Droplets, Eye, Fish, Utensils, X } from "lucide-react";
+import { AlertTriangle, ArrowRight } from "lucide-react";
 import { AquariumRenderer } from "@/components/aquarium/aquarium-renderer";
+import { aquariumAssets } from "@/assets/aquarium-assets";
 import { Button } from "@/components/ui/button";
 import { usePlayer } from "@/features/auth/use-player";
 import { api } from "@/lib/api/client";
@@ -57,12 +58,12 @@ export function AquariumClient() {
         </button>
       ) : null}
       <div className={`absolute left-4 right-4 z-30 grid grid-cols-3 gap-2 text-[11px] font-black text-cyan-50 ${hasPollutionWarning ? "top-[calc(168px+var(--safe-top))]" : "top-[calc(104px+var(--safe-top))]"}`}>
-        <AquariumStat icon={<Droplets className="h-3.5 w-3.5" />} label="Чистота" value={`${cleanliness}%`} tone="lime" />
-        <AquariumStat icon={<Fish className="h-3.5 w-3.5" />} label="Рыбки" value={`${aquariumFish.length}/${fish.length}`} tone="cyan" />
-        <AquariumStat icon={<Utensils className="h-3.5 w-3.5" />} label="Сытость" value={`${averageSatiety}%`} tone="amber" />
+        <AquariumStat icon={aquariumAssets.icons.ui.cleanliness} label="Чистота" value={`${cleanliness}%`} tone="lime" />
+        <AquariumStat icon={aquariumAssets.icons.ui.capacity} label="Рыбки" value={`${aquariumFish.length}/${fish.length}`} tone="cyan" />
+        <AquariumStat icon={aquariumAssets.icons.ui.satiety} label="Сытость" value={`${averageSatiety}%`} tone="amber" />
       </div>
       <Button className="absolute right-4 bottom-[calc(214px+var(--safe-bottom))] z-40 h-14 w-14 rounded-2xl px-0" onClick={() => setObserveMode(true)} aria-label="Режим наблюдения">
-        <Eye className="h-5 w-5" />
+        <img className="h-6 w-6" src={aquariumAssets.icons.ui.eye} alt="" />
       </Button>
       {fullyPolluted && cleaner > 0 ? (
         <div className="absolute bottom-[calc(190px+var(--safe-bottom))] left-4 z-40 w-36 rounded-2xl border border-cyan-100/18 bg-slate-950/56 p-3 shadow-[0_18px_42px_rgba(0,0,0,.34)] backdrop-blur">
@@ -88,7 +89,7 @@ export function AquariumClient() {
         <div className="fixed inset-0 z-[70] bg-[#031018]">
           <AquariumRenderer fish={aquariumFish} backgroundId={backgroundId} decor={decor} pollution={pollution} className="min-h-dvh rounded-none" interactive />
           <Button className="absolute right-4 top-[calc(94px+var(--safe-top))] z-10 h-11 w-11 bg-cyan-100 px-0" onClick={() => setObserveMode(false)} aria-label="Выйти из режима наблюдения">
-            <X className="h-5 w-5" />
+            <img className="h-5 w-5" src={aquariumAssets.icons.ui.eyeOff} alt="" />
           </Button>
         </div>
       ) : null}
@@ -124,12 +125,12 @@ function QuickAction({ image, label, badge, onClick }: { image: string; label: s
   );
 }
 
-function AquariumStat({ icon, label, value, tone }: { icon: ReactNode; label: string; value: string; tone: "lime" | "cyan" | "amber" }) {
+function AquariumStat({ icon, label, value, tone }: { icon: string; label: string; value: string; tone: "lime" | "cyan" | "amber" }) {
   const color = tone === "lime" ? "bg-lime-300" : tone === "amber" ? "bg-amber-300" : "bg-cyan-300";
   return (
     <div className="rounded-xl border border-cyan-100/14 bg-slate-950/48 p-2 shadow-[0_12px_30px_rgba(0,0,0,.24)] backdrop-blur">
       <div className="flex items-center justify-between gap-1">
-        <span className="flex min-w-0 items-center gap-1 text-cyan-100/72">{icon}<span className="truncate">{label}</span></span>
+        <span className="flex min-w-0 items-center gap-1 text-cyan-100/72"><img className="h-3.5 w-3.5" src={icon} alt="" /><span className="truncate">{label}</span></span>
         <span className="text-cyan-50">{value}</span>
       </div>
       <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-950/70">
