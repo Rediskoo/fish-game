@@ -105,20 +105,21 @@ export function ProfileScreen() {
       <Panel className="relative overflow-hidden border-fuchsia-200/20 bg-[linear-gradient(135deg,rgba(168,85,247,.18),rgba(34,211,238,.10),rgba(16,185,129,.08))]">
         <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-fuchsia-300/18 blur-3xl" />
         <div className="relative z-10 flex items-center gap-3">
-          <div className="grid h-16 w-16 shrink-0 place-items-center rounded-[22px] border border-cyan-100/14 bg-slate-950/36 text-cyan-50 shadow-[0_0_28px_rgba(168,85,247,.18)]">
+          <div className="grid h-20 w-20 shrink-0 place-items-center rounded-full border-4 border-amber-200/70 bg-[radial-gradient(circle,rgba(251,191,36,.26),rgba(8,36,52,.90))] text-cyan-50 shadow-[0_0_30px_rgba(251,191,36,.22)]">
             <Fish className="h-8 w-8" />
           </div>
           <div className="min-w-0">
-            <div className="truncate text-xl font-black text-cyan-50">{player.data?.user.firstName ?? "Игрок"}</div>
+            <div className="truncate text-xl font-black text-cyan-50">Аквариумист</div>
             <div className="mt-1 text-sm text-cyan-100/66">В игре с {formatGameSince(player.data?.user.createdAt)}</div>
             <div className="mt-1 truncate text-xs text-cyan-100/42">Telegram ID {player.data?.user.telegramId ?? "загрузка"}</div>
           </div>
         </div>
       </Panel>
 
-      <Panel className="grid grid-cols-2 gap-3">
+      <Panel className="grid grid-cols-3 gap-2">
         <Stat icon={<Fish className="h-5 w-5" />} label="Рыбки" value={player.data?.fish.length ?? 0} />
         <Stat icon={<Trophy className="h-5 w-5" />} label="Уровень" value={player.data?.aquarium.level ?? 1} />
+        <Stat icon={<Sparkles className="h-5 w-5" />} label="Достижения" value={unlockedAchievements} />
       </Panel>
 
       <Panel className="space-y-3 overflow-hidden border-fuchsia-200/20 bg-[linear-gradient(135deg,rgba(168,85,247,.18),rgba(34,197,94,.12),rgba(34,211,238,.08),rgba(251,191,36,.10))]">
@@ -453,13 +454,13 @@ function FriendInfo({ label, value }: { label: string; value: string }) {
 
 function Stat({ icon, label, value }: { icon: ReactNode; label: string; value: number }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-fuchsia-200/22 bg-[linear-gradient(135deg,rgba(168,85,247,.22),rgba(34,211,238,.08),rgba(5,18,31,.34))] p-3 shadow-[0_0_28px_rgba(168,85,247,.14)]">
+    <div className="relative min-w-0 overflow-hidden rounded-2xl border border-fuchsia-200/22 bg-[linear-gradient(135deg,rgba(168,85,247,.22),rgba(34,211,238,.08),rgba(5,18,31,.34))] p-3 text-center shadow-[0_0_28px_rgba(168,85,247,.14)]">
       <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-fuchsia-300/22 blur-2xl" />
-      <div className="relative z-10 flex items-center gap-2 text-fuchsia-100/85">
+      <div className="relative z-10 grid place-items-center gap-1 text-fuchsia-100/85">
         <span className="grid h-9 w-9 place-items-center rounded-2xl bg-slate-950/36 text-fuchsia-100">{icon}</span>
-        <span className="text-sm font-bold">{label}</span>
+        <span className="max-w-full truncate text-xs font-bold">{label}</span>
       </div>
-      <div className="relative z-10 mt-3 text-3xl font-black text-cyan-50 text-glow">{value}</div>
+      <div className="relative z-10 mt-2 text-2xl font-black text-cyan-50 text-glow">{value}</div>
     </div>
   );
 }

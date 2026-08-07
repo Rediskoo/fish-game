@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Gift, Trophy } from "lucide-react";
+import { Check, Gift, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { cn } from "@/lib/cn";
@@ -49,6 +49,18 @@ export function DailyRewardsScreen() {
       </header>
       <Panel className="relative space-y-4 overflow-hidden border-amber-200/20 bg-[linear-gradient(145deg,rgba(251,191,36,.16),rgba(34,211,238,.10),rgba(5,18,31,.55))]">
         <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-amber-200/20 blur-3xl" />
+        <div className="relative z-10 grid grid-cols-7 gap-1">
+          {Array.from({ length: 7 }).map((_, index) => {
+            const active = !claimedToday && index === 4;
+            const done = claimedToday ? index <= 4 : index < 4;
+            return (
+              <div key={index} className={cn("grid min-h-12 place-items-center rounded-xl border text-[10px] font-black", active ? "border-cyan-100/35 bg-cyan-300 text-slate-950" : done ? "border-emerald-200/22 bg-emerald-300/16 text-emerald-100" : "border-cyan-100/10 bg-slate-950/30 text-cyan-100/42")}>
+                <span>Д{index + 1}</span>
+                {done ? <Check className="h-3.5 w-3.5" /> : <span className="h-3.5" />}
+              </div>
+            );
+          })}
+        </div>
         <Gift className={cn("relative z-10 h-10 w-10", claimedToday ? "text-cyan-100/35" : "text-yellow-200")} />
         <div>
           <div className="text-2xl font-black">+{rewardAmount} водорослей</div>

@@ -47,12 +47,12 @@ export function MarketplaceScreen() {
   return (
     <div className="space-y-4 p-4">
       <header className="pt-20">
-        <div className="relative min-h-40 overflow-hidden rounded-[26px] border border-cyan-100/15 bg-[linear-gradient(145deg,rgba(8,31,48,.94),rgba(5,16,27,.86))] p-4 shadow-[0_18px_70px_rgba(0,0,0,.32)]">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_40%,rgba(73,199,232,.24),transparent_38%),radial-gradient(circle_at_20%_100%,rgba(98,212,172,.14),transparent_36%)]" />
-          <img className="absolute -right-6 bottom-0 h-40 w-40 object-contain opacity-95 drop-shadow-[0_22px_28px_rgba(0,0,0,.45)]" src={AppAssets.shop.building} alt="" />
-          <div className="relative z-10 max-w-[66%]">
+        <div className="relative min-h-36 overflow-hidden p-1">
+          <div className="absolute right-[-6px] top-0 h-36 w-36 rounded-full bg-cyan-300/10 blur-2xl" />
+          <img className="absolute -right-3 top-0 h-36 w-36 object-contain opacity-95 drop-shadow-[0_22px_28px_rgba(0,0,0,.45)]" src={AppAssets.shop.building} alt="" />
+          <div className="relative z-10 max-w-[62%] pt-4">
             <h1 className="text-4xl font-black leading-none text-cyan-50 text-glow">Магазин</h1>
-            <p className="mt-3 text-sm leading-5 text-cyan-100/68">Всё для аквариума: рыбки, уход, декор и фоны.</p>
+            <p className="mt-3 text-sm leading-5 text-cyan-100/74">Всё для аквариума: рыбки, уход, декорации и фоны.</p>
           </div>
         </div>
       </header>
@@ -62,7 +62,7 @@ export function MarketplaceScreen() {
           {shopCategories.map((category) => (
             <button
               key={category.id}
-              className="group relative grid aspect-square overflow-hidden rounded-[24px] border border-cyan-100/14 bg-[linear-gradient(150deg,rgba(12,47,69,.92),rgba(5,18,31,.90))] p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.32)] transition active:scale-[.98]"
+              className="group relative grid aspect-square overflow-hidden rounded-[18px] border border-cyan-100/18 bg-[linear-gradient(150deg,rgba(14,57,78,.82),rgba(6,25,42,.80))] p-3 text-left shadow-[0_16px_45px_rgba(0,0,0,.28),inset_0_1px_0_rgba(255,255,255,.08)] transition active:scale-[.98]"
               onClick={() => setActiveCategory(category.id)}
             >
               <div className="absolute inset-0 opacity-90" style={{ background: `radial-gradient(circle at 76% 32%, ${category.accent}42, transparent 44%), linear-gradient(180deg, transparent, rgba(0,0,0,.24))` }} />
@@ -70,8 +70,8 @@ export function MarketplaceScreen() {
               <span className="absolute left-3 top-3 z-10 rounded-full bg-slate-950/42 px-2 py-1 text-[11px] font-bold text-cyan-100/82 backdrop-blur">
                 {category.id === "fish" ? "777" : `${productCounts[category.id]} шт.`}
               </span>
-              <img className="absolute bottom-3 right-[-10px] h-[64%] w-[70%] object-contain drop-shadow-[0_18px_24px_rgba(0,0,0,.44)] transition duration-200 group-active:scale-95" src={category.image} alt="" />
-              <div className="relative z-10 mt-auto min-w-0 pr-12">
+              <img className="relative z-10 mx-auto mt-7 h-[48%] w-[78%] object-contain drop-shadow-[0_18px_24px_rgba(0,0,0,.44)] transition duration-200 group-active:scale-95" src={category.image} alt="" />
+              <div className="relative z-10 mt-auto min-w-0">
                 <div className="truncate text-xl font-black text-cyan-50 text-glow">{category.title}</div>
                 <div className="mt-1 text-xs leading-4 text-cyan-100/66">{category.subtitle}</div>
               </div>
