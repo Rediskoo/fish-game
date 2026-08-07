@@ -25,6 +25,7 @@ export function AquariumClient() {
   const backgroundId = player.data?.aquarium.backgroundId;
   const decor = player.data?.aquarium.decor ?? [];
   const pollution = player.data?.aquarium.pollution ?? 0;
+  const hasPollutionWarning = pollution > 15;
   const [observeMode, setObserveMode] = useState(false);
   const cleaner = player.data?.inventory.cleaner ?? 0;
   const cleanAquarium = useMutation({
@@ -40,7 +41,7 @@ export function AquariumClient() {
   return (
     <div className="absolute inset-0">
       <AquariumRenderer fish={aquariumFish} backgroundId={backgroundId} decor={decor} pollution={pollution} />
-      {pollution > 15 ? (
+      {hasPollutionWarning ? (
         <button
           className="absolute left-4 right-4 top-[calc(104px+var(--safe-top))] z-40 flex items-center gap-3 rounded-2xl border border-amber-200/30 bg-[linear-gradient(135deg,rgba(113,63,18,.74),rgba(9,39,51,.70))] px-3 py-2 text-left text-xs font-bold text-amber-100 shadow-[0_16px_40px_rgba(0,0,0,.28)] backdrop-blur transition active:scale-[.99]"
           disabled={cleanAquarium.isPending}
@@ -55,7 +56,7 @@ export function AquariumClient() {
           <ArrowRight className="h-4 w-4 shrink-0 text-cyan-100" />
         </button>
       ) : null}
-      <div className="absolute left-4 right-4 top-[calc(168px+var(--safe-top))] z-30 grid grid-cols-3 gap-2 text-[11px] font-black text-cyan-50">
+      <div className={`absolute left-4 right-4 z-30 grid grid-cols-3 gap-2 text-[11px] font-black text-cyan-50 ${hasPollutionWarning ? "top-[calc(168px+var(--safe-top))]" : "top-[calc(104px+var(--safe-top))]"}`}>
         <AquariumStat icon={<Droplets className="h-3.5 w-3.5" />} label="Чистота" value={`${cleanliness}%`} tone="lime" />
         <AquariumStat icon={<Fish className="h-3.5 w-3.5" />} label="Рыбки" value={`${aquariumFish.length}/${fish.length}`} tone="cyan" />
         <AquariumStat icon={<Utensils className="h-3.5 w-3.5" />} label="Сытость" value={`${averageSatiety}%`} tone="amber" />

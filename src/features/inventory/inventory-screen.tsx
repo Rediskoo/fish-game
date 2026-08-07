@@ -1,7 +1,7 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
-import { ArrowLeft, Fish, Heart, Image as ImageIcon, Info, Package, Pencil, Sparkles, Trash2, Utensils, Waves, X } from "lucide-react";
+import { FormEvent, type ReactNode, useMemo, useState } from "react";
+import { ArrowLeft, Box, CalendarDays, ChevronRight, Fish, Heart, Image as ImageIcon, Info, Package, Pencil, Sparkles, Star, Trash2, Utensils, Waves, X } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AquariumRenderer } from "@/components/aquarium/aquarium-renderer";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,7 @@ const inventoryTabMeta: Record<InventoryTab, { subtitle: string; accent: string;
   fish: { subtitle: "все рыбки и перенаселение", accent: "#49C7E8", image: AppAssets.shop.caseChest }
 };
 
-function inventoryCount(tab: InventoryTab, data: {
+function inventoryBadge(tab: InventoryTab, data: {
   food: number;
   cleaner: number;
   decor: number;
@@ -80,6 +80,7 @@ export function InventoryScreen() {
   const fishList = useMemo(() => [...(player.data?.fish ?? [])].sort((a, b) => Number(b.isFavorite) - Number(a.isFavorite)), [player.data?.fish]);
   const selectedFish = useMemo(() => fishList.find((fish) => fish.id === selectedFishId) ?? null, [fishList, selectedFishId]);
   const capacity = aquariumFishCapacity;
+  const uniqueSpecies = useMemo(() => new Set(fishList.map((fish) => fish.species)).size, [fishList]);
 
   const counts = {
     food,
@@ -89,6 +90,8 @@ export function InventoryScreen() {
     fish: fishList.length,
     capacity
   };
+  const totalItems = food + cleaner + activeDecor.length + backgroundProducts.length + fishList.length;
+  const activeFishCount = Math.min(fishList.length, capacity);
 
   return (
     <div className="space-y-4 p-4">
@@ -98,31 +101,23 @@ export function InventoryScreen() {
       </header>
 
       {!activeTab ? (
-        <div className="grid grid-cols-2 gap-3">
-          {inventoryTabs.map((tab) => {
-            const Icon = tab.icon;
-            const meta = inventoryTabMeta[tab.id];
-            return (
-              <button
+        <div className="space-y-4">
+          <InventorySummary activeFish={activeFishCount} capacity={capacity} totalItems={totalItems} uniqueSpecies={uniqueSpecies} activeDecor={activeDecor.length} />
+          <div className="space-y-3">
+            {inventoryTabs.map((tab) => (
+              <InventoryCategoryCard
                 key={tab.id}
-                className="group relative grid aspect-square grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-[18px] border border-cyan-100/26 bg-[linear-gradient(150deg,rgba(12,51,71,.78),rgba(5,25,40,.74))] p-3 text-left shadow-[0_16px_45px_rgba(0,0,0,.26),inset_0_0_0_1px_rgba(103,232,249,.08)] transition active:scale-[.98]"
+                tab={tab.id}
+                title={tab.label}
+                subtitle={inventoryTabMeta[tab.id].subtitle}
+                image={inventoryTabMeta[tab.id].image}
+                accent={inventoryTabMeta[tab.id].accent}
+                badge={inventoryBadge(tab.id, counts)}
+                icon={tab.icon}
                 onClick={() => setActiveTab(tab.id)}
-                type="button"
-              >
-                <div className="absolute inset-0 opacity-90" style={{ background: `radial-gradient(circle at 76% 32%, ${meta.accent}42, transparent 44%), linear-gradient(180deg, transparent, rgba(0,0,0,.24))` }} />
-                <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full blur-2xl" style={{ backgroundColor: `${meta.accent}24` }} />
-                <span className="absolute right-3 top-3 z-10 rounded-full bg-slate-950/48 px-2 py-1 text-[10px] font-black text-cyan-100/78 backdrop-blur">{inventoryCount(tab.id, counts)}</span>
-                <img className="relative z-10 mx-auto mt-5 h-full max-h-20 w-[82%] object-contain opacity-95 drop-shadow-[0_18px_24px_rgba(0,0,0,.44)] transition duration-200 group-active:scale-95" src={meta.image} alt="" />
-                <span className="absolute left-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-2xl bg-slate-950/34 text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,.12)]">
-                  <Icon className="h-5 w-5" />
-                </span>
-                <div className="relative z-10 mt-auto min-w-0">
-                  <div className="truncate text-base font-black text-cyan-50 text-glow sm:text-lg">{tab.label}</div>
-                  <div className="mt-1 line-clamp-2 text-xs leading-4 text-cyan-100/66">{meta.subtitle}</div>
-                </div>
-              </button>
-            );
-          })}
+              />
+            ))}
+          </div>
         </div>
       ) : (
         <section className="space-y-4">
@@ -170,6 +165,92 @@ export function InventoryScreen() {
         />
       ) : null}
     </div>
+  );
+}
+
+function InventorySummary({
+  activeFish,
+  capacity,
+  totalItems,
+  uniqueSpecies,
+  activeDecor
+}: {
+  activeFish: number;
+  capacity: number;
+  totalItems: number;
+  uniqueSpecies: number;
+  activeDecor: number;
+}) {
+  const fishPercent = Math.min(100, Math.round((activeFish / capacity) * 100));
+  return (
+    <Panel className="grid grid-cols-4 gap-2 overflow-hidden rounded-[18px] border-cyan-100/18 p-3">
+      <SummaryCell icon={<Fish className="h-5 w-5" />} label="Рыбы в аквариуме" value={`${activeFish}/${capacity}`} detail={<div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-950/55"><div className="h-full rounded-full bg-cyan-300" style={{ width: `${fishPercent}%` }} /></div>} tone="cyan" />
+      <SummaryCell icon={<Box className="h-5 w-5" />} label="Всего предметов" value={String(totalItems)} detail="4 категории" tone="amber" />
+      <SummaryCell icon={<Star className="h-5 w-5" />} label="Коллекция рыб" value={String(uniqueSpecies)} detail="видов" tone="yellow" />
+      <SummaryCell icon={<CalendarDays className="h-5 w-5" />} label="Активный декор" value={String(activeDecor)} detail="предмета" tone="blue" />
+    </Panel>
+  );
+}
+
+function SummaryCell({ icon, label, value, detail, tone }: { icon: ReactNode; label: string; value: string; detail: ReactNode; tone: "cyan" | "amber" | "yellow" | "blue" }) {
+  const toneClass = {
+    cyan: "bg-cyan-300/16 text-cyan-100",
+    amber: "bg-amber-300/16 text-amber-100",
+    yellow: "bg-yellow-300/16 text-yellow-100",
+    blue: "bg-sky-300/16 text-sky-100"
+  }[tone];
+  return (
+    <div className="min-w-0 border-r border-cyan-100/8 px-1 last:border-r-0">
+      <div className={cn("mb-2 grid h-9 w-9 place-items-center rounded-xl", toneClass)}>{icon}</div>
+      <div className="line-clamp-2 min-h-8 text-[10px] leading-4 text-cyan-100/68">{label}</div>
+      <div className="mt-1 truncate text-xl font-black text-cyan-50">{value}</div>
+      <div className="mt-1 min-h-4 truncate text-[11px] text-cyan-100/74">{detail}</div>
+    </div>
+  );
+}
+
+function InventoryCategoryCard({
+  tab,
+  title,
+  subtitle,
+  image,
+  accent,
+  badge,
+  icon: Icon,
+  onClick
+}: {
+  tab: InventoryTab;
+  title: string;
+  subtitle: string;
+  image: string;
+  accent: string;
+  badge: string;
+  icon: typeof Package;
+  onClick: () => void;
+}) {
+  const toneClass = tab === "food" ? "border-amber-200/24" : tab === "backgrounds" ? "border-violet-200/24" : "border-cyan-100/18";
+  return (
+    <button
+      className={cn("group relative grid min-h-36 grid-cols-[72px_minmax(0,1fr)_38%_44px] items-center gap-2 overflow-hidden rounded-[18px] border bg-[linear-gradient(145deg,rgba(10,48,64,.78),rgba(4,22,36,.78))] p-3 text-left shadow-[0_18px_48px_rgba(0,0,0,.26),inset_0_0_0_1px_rgba(103,232,249,.08)] transition active:scale-[.99]", toneClass)}
+      onClick={onClick}
+      type="button"
+    >
+      <div className="absolute inset-0 opacity-90" style={{ background: `radial-gradient(circle at 70% 45%, ${accent}28, transparent 42%)` }} />
+      <span className="relative z-10 grid h-14 w-14 place-items-center rounded-2xl text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,.14)]" style={{ backgroundColor: `${accent}24` }}>
+        <Icon className="h-7 w-7" />
+      </span>
+      <div className="relative z-10 min-w-0">
+        <div className="truncate text-xl font-black text-cyan-50 text-glow">{title}</div>
+        <div className="mt-2 line-clamp-2 text-sm leading-5 text-cyan-100/72">{subtitle}</div>
+      </div>
+      <div className="relative z-10 min-w-0 self-stretch">
+        <span className="absolute right-0 top-2 z-20 rounded-full bg-slate-950/42 px-3 py-1 text-xs font-black text-cyan-50/88 backdrop-blur">{badge}</span>
+        <img className="absolute bottom-0 right-0 h-[92%] max-h-28 w-full object-contain object-bottom drop-shadow-[0_18px_24px_rgba(0,0,0,.44)] transition duration-200 group-active:scale-95" src={image} alt="" />
+      </div>
+      <span className="relative z-10 grid h-12 w-10 place-items-center justify-self-end rounded-2xl text-cyan-50 shadow-[0_0_20px_rgba(34,211,238,.12)]" style={{ backgroundColor: `${accent}28` }}>
+        <ChevronRight className="h-6 w-6" />
+      </span>
+    </button>
   );
 }
 
