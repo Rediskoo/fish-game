@@ -102,7 +102,7 @@ export function InventoryScreen() {
       {!activeTab ? (
         <div className="space-y-4">
           <InventorySummary activeFish={activeFishCount} capacity={capacity} totalItems={totalItems} activeDecor={activeDecor.length} />
-          <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
             {inventoryTabs.map((tab) => (
               <InventoryCategoryCard
                 key={tab.id}
@@ -224,27 +224,29 @@ function InventoryCategoryCard({
   icon: typeof Package;
   onClick: () => void;
 }) {
-  const toneClass = tab === "food" ? "border-amber-200/24" : tab === "backgrounds" ? "border-violet-200/24" : "border-cyan-100/18";
+  const toneClass = tab === "food" ? "border-amber-200/26" : tab === "backgrounds" ? "border-violet-200/26" : "border-cyan-100/20";
   return (
     <button
-      className={cn("group relative grid min-h-36 grid-cols-[72px_minmax(0,1fr)_38%_44px] items-center gap-2 overflow-hidden rounded-[18px] border bg-[linear-gradient(145deg,rgba(10,48,64,.78),rgba(4,22,36,.78))] p-3 text-left shadow-[0_18px_48px_rgba(0,0,0,.26),inset_0_0_0_1px_rgba(103,232,249,.08)] transition active:scale-[.99]", toneClass)}
+      className={cn("group relative grid aspect-square grid-rows-[auto_1fr_auto] overflow-hidden rounded-[18px] border bg-[linear-gradient(145deg,rgba(10,48,64,.84),rgba(4,22,36,.82))] p-3 text-left shadow-[0_18px_48px_rgba(0,0,0,.26),inset_0_0_0_1px_rgba(103,232,249,.08)] transition active:scale-[.98]", toneClass)}
       onClick={onClick}
       type="button"
     >
       <div className="absolute inset-0 opacity-90" style={{ background: `radial-gradient(circle at 70% 45%, ${accent}28, transparent 42%)` }} />
-      <span className="relative z-10 grid h-14 w-14 place-items-center rounded-2xl text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,.14)]" style={{ backgroundColor: `${accent}24` }}>
-        <Icon className="h-7 w-7" />
-      </span>
-      <div className="relative z-10 min-w-0">
-        <div className="truncate text-xl font-black text-cyan-50 text-glow">{title}</div>
-        <div className="mt-2 line-clamp-2 text-sm leading-5 text-cyan-100/72">{subtitle}</div>
+      <div className="relative z-20 flex items-start justify-between gap-2">
+        <span className="grid h-11 w-11 place-items-center rounded-2xl text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,.14)]" style={{ backgroundColor: `${accent}24` }}>
+          <Icon className="h-6 w-6" />
+        </span>
+        <span className="rounded-full bg-slate-950/48 px-2.5 py-1 text-[11px] font-black text-cyan-50/88 backdrop-blur">{badge}</span>
       </div>
-      <div className="relative z-10 min-w-0 self-stretch">
-        <span className="absolute right-0 top-2 z-20 rounded-full bg-slate-950/42 px-3 py-1 text-xs font-black text-cyan-50/88 backdrop-blur">{badge}</span>
-        <img className="absolute bottom-0 right-0 h-[92%] max-h-28 w-full object-contain object-bottom drop-shadow-[0_18px_24px_rgba(0,0,0,.44)] transition duration-200 group-active:scale-95" src={image} alt="" />
+      <div className="relative z-10 grid min-h-0 place-items-center">
+        <img className="h-full max-h-28 w-[92%] object-contain object-center drop-shadow-[0_18px_24px_rgba(0,0,0,.44)] transition duration-200 group-active:scale-95" src={image} alt="" />
       </div>
-      <span className="relative z-10 grid h-12 w-10 place-items-center justify-self-end rounded-2xl text-cyan-50 shadow-[0_0_20px_rgba(34,211,238,.12)]" style={{ backgroundColor: `${accent}28` }}>
-        <ChevronRight className="h-6 w-6" />
+      <div className="relative z-10 min-w-0 pr-8">
+        <div className="truncate text-lg font-black text-cyan-50 text-glow">{title}</div>
+        <div className="mt-1 line-clamp-2 text-xs leading-4 text-cyan-100/72">{subtitle}</div>
+      </div>
+      <span className="absolute bottom-3 right-3 z-20 grid h-9 w-9 place-items-center rounded-xl text-cyan-50 shadow-[0_0_20px_rgba(34,211,238,.12)]" style={{ backgroundColor: `${accent}28` }}>
+        <ChevronRight className="h-5 w-5" />
       </span>
     </button>
   );

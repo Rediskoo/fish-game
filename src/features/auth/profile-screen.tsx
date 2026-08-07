@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, type ReactNode, useMemo, useState } from "react";
 import { Eye, Fish, Gift, MoreHorizontal, Send, Trash2, Trophy, UserCheck, UserPlus, UserX, Users, X } from "lucide-react";
@@ -19,6 +19,7 @@ import {
 } from "@/features/friends/use-friends";
 import { useSellFish } from "@/features/inventory/use-fish-actions";
 import { cn } from "@/lib/cn";
+import { fishSpeciesAsset } from "@/lib/app-assets";
 import type { AchievementView, AcquiredFish, FishView, FriendView, PendingGiftView } from "@/types/game";
 
 const giftOptions = [
@@ -88,7 +89,9 @@ export function ProfileScreen() {
   );
   const achievements = player.data?.achievements ?? [];
   const unlockedAchievements = achievements.filter((achievement) => achievement.unlockedAt).length;
-  const visibleAchievements = showAllAchievements ? achievements : achievements.slice(0, 4);
+  const visibleAchievements = showAllAchievements ? achievements : achievements.slice(0, 3);
+  const favoriteFish = (player.data?.fish ?? []).filter((fish) => fish.isFavorite).slice(0, 4);
+  const friendsCount = friends.data?.friends.length ?? 0;
 
   function handleAddFriend(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -118,34 +121,42 @@ export function ProfileScreen() {
         </div>
       </Panel>
 
-      <Panel className="grid grid-cols-2 gap-3">
+      <Panel className="grid grid-cols-4 gap-2 overflow-hidden rounded-[18px] border-fuchsia-200/18 bg-[linear-gradient(135deg,rgba(168,85,247,.18),rgba(34,211,238,.10),rgba(16,185,129,.08))] p-3">
         <Stat icon={<Fish className="h-5 w-5" />} label="Рыбки" value={player.data?.fish.length ?? 0} />
         <Stat icon={<Trophy className="h-5 w-5" />} label="Уровень" value={player.data?.aquarium.level ?? 1} />
+        <Stat icon={<Users className="h-5 w-5" />} label="Друзья" value={friendsCount} />
+        <Stat icon={<Gift className="h-5 w-5" />} label="Избранное" value={favoriteFish.length} />
       </Panel>
 
-      <Panel className="space-y-3 overflow-hidden border-fuchsia-200/20 bg-[linear-gradient(135deg,rgba(168,85,247,.18),rgba(34,197,94,.12),rgba(34,211,238,.08),rgba(251,191,36,.10))]">
+      <Panel className="space-y-3 overflow-hidden rounded-[18px] border-fuchsia-200/20 bg-[linear-gradient(135deg,rgba(168,85,247,.16),rgba(34,197,94,.10),rgba(34,211,238,.08))]">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 font-black text-cyan-50">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-amber-300/18 text-amber-100 shadow-[0_0_22px_rgba(251,191,36,.18)]">
-              <Trophy className="h-5 w-5" />
-            </span>
-            <div>
-              <div>Достижения</div>
-              <div className="text-xs font-bold text-cyan-100/58">открытые и будущие награды</div>
-            </div>
-          </div>
-          <div className="rounded-full bg-slate-950/45 px-3 py-1 text-xs font-black text-amber-100">{unlockedAchievements}/{achievements.length || 10}</div>
+          <div className="text-lg font-black text-cyan-50">Последние достижения</div>
+          <div className="rounded-full bg-slate-950/45 px-3 py-1 text-xs font-black text-cyan-100">{unlockedAchievements}/{achievements.length || 10}</div>
         </div>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-2">
           {visibleAchievements.map((achievement, index) => (
             <AchievementTile key={achievement.id} achievement={achievement} index={index} />
           ))}
         </div>
-        {achievements.length > 4 ? (
+        {achievements.length > 3 ? (
           <Button className="w-full bg-violet-300" onClick={() => setShowAllAchievements((value) => !value)}>
             {showAllAchievements ? "Скрыть" : "Все достижения"}
           </Button>
         ) : null}
+      </Panel>
+
+      <Panel className="space-y-3 overflow-hidden rounded-[18px] border-cyan-100/16 bg-[linear-gradient(145deg,rgba(8,43,59,.76),rgba(4,18,31,.86))]">
+        <div className="flex items-center justify-between gap-3">
+          <div className="text-lg font-black text-cyan-50">Избранные рыбки и декор</div>
+          <div className="rounded-full bg-slate-950/45 px-3 py-1 text-xs font-black text-cyan-100">{favoriteFish.length}</div>
+        </div>
+        <div className="grid grid-cols-4 gap-2">
+          {(favoriteFish.length ? favoriteFish : (player.data?.fish ?? []).slice(0, 4)).map((fish) => (
+            <div key={fish.id} className="grid aspect-square place-items-center overflow-hidden rounded-2xl border border-cyan-100/14 bg-slate-950/32">
+              <img className="h-16 w-16 object-contain drop-shadow-[0_12px_18px_rgba(0,0,0,.42)]" src={fishSpeciesAsset[fish.species]} alt="" />
+            </div>
+          ))}
+        </div>
       </Panel>
       <Panel className="space-y-3">
         <div className="flex items-center gap-2">
@@ -466,3 +477,4 @@ function Stat({ icon, label, value }: { icon: ReactNode; label: string; value: n
     </div>
   );
 }
+

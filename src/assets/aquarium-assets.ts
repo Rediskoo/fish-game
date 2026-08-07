@@ -51,18 +51,18 @@ export const aquariumAssets = {
     treasureAmphora: assetFile("items.treasure-amphora")
   },
   fish: {
-    goldfish: assetFile("fish.goldfish"),
-    betta: assetFile("fish.betta"),
-    angelfish: assetFile("fish.angelfish"),
-    clownfish: assetFile("fish.clownfish"),
-    neonTetra: assetFile("fish.neon-tetra"),
-    guppy: assetFile("fish.guppy"),
-    dwarfGourami: assetFile("fish.dwarf-gourami"),
-    discus: assetFile("fish.discus"),
-    emeraldDragonfish: assetFile("fish.emerald-dragonfish"),
-    celestialKoi: assetFile("fish.celestial-koi"),
-    crystalTang: assetFile("fish.crystal-tang"),
-    midnightManta: assetFile("fish.midnight-manta")
+    goldfish: assetFile("fish.goldfish", "png2x"),
+    betta: assetFile("fish.betta", "png2x"),
+    angelfish: assetFile("fish.angelfish", "png2x"),
+    clownfish: assetFile("fish.clownfish", "png2x"),
+    neonTetra: assetFile("fish.neon-tetra", "png2x"),
+    guppy: assetFile("fish.guppy", "png2x"),
+    dwarfGourami: assetFile("fish.dwarf-gourami", "png2x"),
+    discus: assetFile("fish.discus", "png2x"),
+    emeraldDragonfish: assetFile("fish.emerald-dragonfish", "png2x"),
+    celestialKoi: assetFile("fish.celestial-koi", "png2x"),
+    crystalTang: assetFile("fish.crystal-tang", "png2x"),
+    midnightManta: assetFile("fish.midnight-manta", "png2x")
   },
   profile: {
     avatarDiver: assetFile("profile.avatar-diver"),
