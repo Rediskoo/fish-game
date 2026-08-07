@@ -21,6 +21,12 @@ export function MarketplaceScreen() {
     () => shopProducts.filter((product) => product.category === activeCategory),
     [activeCategory]
   );
+  const productCounts = useMemo(() => {
+    return shopCategories.reduce<Record<ShopCategory, number>>((acc, category) => {
+      acc[category.id] = shopProducts.filter((product) => product.category === category.id).length;
+      return acc;
+    }, {} as Record<ShopCategory, number>);
+  }, []);
 
   function buy(product: ShopProduct) {
     if (product.id === "fish-case") {
@@ -61,7 +67,9 @@ export function MarketplaceScreen() {
             >
               <div className="absolute inset-0 opacity-90" style={{ background: `radial-gradient(circle at 76% 32%, ${category.accent}42, transparent 44%), linear-gradient(180deg, transparent, rgba(0,0,0,.24))` }} />
               <div className="absolute -right-7 bottom-0 h-[70%] w-[76%] rounded-full blur-2xl" style={{ backgroundColor: `${category.accent}24` }} />
-              <span className="absolute left-3 top-3 z-10 rounded-full bg-slate-950/42 px-2 py-1 text-[11px] font-bold text-cyan-100/82 backdrop-blur">Раздел</span>
+              <span className="absolute left-3 top-3 z-10 rounded-full bg-slate-950/42 px-2 py-1 text-[11px] font-bold text-cyan-100/82 backdrop-blur">
+                {category.id === "fish" ? "777" : `${productCounts[category.id]} шт.`}
+              </span>
               <img className="absolute bottom-3 right-[-10px] h-[64%] w-[70%] object-contain drop-shadow-[0_18px_24px_rgba(0,0,0,.44)] transition duration-200 group-active:scale-95" src={category.image} alt="" />
               <div className="relative z-10 mt-auto min-w-0 pr-12">
                 <div className="truncate text-xl font-black text-cyan-50 text-glow">{category.title}</div>

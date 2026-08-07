@@ -73,7 +73,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </div>
       <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col">{content}</div>
-      <nav className={cn("fixed inset-x-0 bottom-[calc(18px+var(--safe-bottom))] z-50 mx-auto max-w-md px-3 transition duration-200", hasModal && "pointer-events-none translate-y-6 opacity-0")}>
+      <nav className={cn("fixed inset-x-0 bottom-[calc(24px+var(--safe-bottom))] z-50 mx-auto max-w-md px-3 transition duration-200", hasModal && "pointer-events-none translate-y-6 opacity-0")}>
         <div className="glass relative flex h-16 items-center justify-around overflow-hidden rounded-2xl px-1">
           <span className="menu-bubble absolute bottom-1 left-[8%] h-2 w-2" />
           <span className="menu-bubble menu-bubble-delayed absolute bottom-3 right-[13%] h-3 w-3" />
@@ -85,8 +85,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "mx-auto flex h-12 w-12 items-center justify-center rounded-xl text-sky-100/60 transition",
-                  active && "bg-cyan-300/16 text-cyan-100"
+                  "mx-auto flex h-12 w-12 items-center justify-center rounded-xl text-sky-100/72 transition active:scale-95",
+                  active && "bg-cyan-300/18 text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,.16)]"
                 )}
                 aria-label={item.label}
                 title={item.label}

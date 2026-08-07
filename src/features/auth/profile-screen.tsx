@@ -76,6 +76,7 @@ export function ProfileScreen() {
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
   const [selectedGiftFriendId, setSelectedGiftFriendId] = useState<string | null>(null);
   const [revealedFish, setRevealedFish] = useState<AcquiredFish | null>(null);
+  const [showAllAchievements, setShowAllAchievements] = useState(false);
   const selectedFriend = useMemo(
     () => friends.data?.friends.find((friend) => friend.id === selectedFriendId) ?? null,
     [friends.data?.friends, selectedFriendId]
@@ -86,6 +87,7 @@ export function ProfileScreen() {
   );
   const achievements = player.data?.achievements ?? [];
   const unlockedAchievements = achievements.filter((achievement) => achievement.unlockedAt).length;
+  const visibleAchievements = showAllAchievements ? achievements : achievements.slice(0, 4);
 
   function handleAddFriend(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -100,15 +102,23 @@ export function ProfileScreen() {
         <h1 className="text-3xl font-black text-cyan-50 text-glow">{player.data?.user.firstName ?? "Игрок"}</h1>
       </header>
 
+      <Panel className="relative overflow-hidden border-fuchsia-200/20 bg-[linear-gradient(135deg,rgba(168,85,247,.18),rgba(34,211,238,.10),rgba(16,185,129,.08))]">
+        <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-fuchsia-300/18 blur-3xl" />
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="grid h-16 w-16 shrink-0 place-items-center rounded-[22px] border border-cyan-100/14 bg-slate-950/36 text-cyan-50 shadow-[0_0_28px_rgba(168,85,247,.18)]">
+            <Fish className="h-8 w-8" />
+          </div>
+          <div className="min-w-0">
+            <div className="truncate text-xl font-black text-cyan-50">{player.data?.user.firstName ?? "Игрок"}</div>
+            <div className="mt-1 text-sm text-cyan-100/66">В игре с {formatGameSince(player.data?.user.createdAt)}</div>
+            <div className="mt-1 truncate text-xs text-cyan-100/42">Telegram ID {player.data?.user.telegramId ?? "загрузка"}</div>
+          </div>
+        </div>
+      </Panel>
+
       <Panel className="grid grid-cols-2 gap-3">
         <Stat icon={<Fish className="h-5 w-5" />} label="Рыбки" value={player.data?.fish.length ?? 0} />
         <Stat icon={<Trophy className="h-5 w-5" />} label="Уровень" value={player.data?.aquarium.level ?? 1} />
-      </Panel>
-
-      <Panel>
-        <div className="text-sm text-cyan-100/60">Telegram User ID</div>
-        <div className="font-mono text-lg">{player.data?.user.telegramId ?? "Загрузка..."}</div>
-        <div className="mt-2 text-sm text-cyan-100/60">В игре с {formatGameSince(player.data?.user.createdAt)}</div>
       </Panel>
 
       <Panel className="space-y-3 overflow-hidden border-fuchsia-200/20 bg-[linear-gradient(135deg,rgba(168,85,247,.18),rgba(34,197,94,.12),rgba(34,211,238,.08),rgba(251,191,36,.10))]">
@@ -125,10 +135,15 @@ export function ProfileScreen() {
           <div className="rounded-full bg-slate-950/45 px-3 py-1 text-xs font-black text-amber-100">{unlockedAchievements}/{achievements.length || 10}</div>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          {achievements.map((achievement, index) => (
+          {visibleAchievements.map((achievement, index) => (
             <AchievementTile key={achievement.id} achievement={achievement} index={index} />
           ))}
         </div>
+        {achievements.length > 4 ? (
+          <Button className="w-full bg-violet-300" onClick={() => setShowAllAchievements((value) => !value)}>
+            {showAllAchievements ? "Скрыть" : "Все достижения"}
+          </Button>
+        ) : null}
       </Panel>
       <Panel className="space-y-3">
         <div className="flex items-center gap-2">

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Bell, Check, Smartphone, Sparkles, Volume2, Waves } from "lucide-react";
+import { Bell, CircleDollarSign, Fish, MousePointerClick, Smartphone, Volume2, Waves } from "lucide-react";
 import { Panel } from "@/components/ui/panel";
 import { cn } from "@/lib/cn";
 import { useSoundStore } from "@/stores/sound-store";
@@ -35,10 +35,10 @@ export function SettingsScreen() {
           <Waves className="h-5 w-5 text-cyan-100/45" />
         </div>
         <div className="grid gap-2">
-          <Toggle label="Все звуки" detail="главный выключатель" checked={sounds.all} onChange={(value) => sounds.setSound("all", value)} />
-          <Toggle label="Кнопки" detail="клики и подтверждения" checked={sounds.buttons} onChange={(value) => sounds.setSound("buttons", value)} />
-          <Toggle label="Казино" detail="777, выигрыш и ожидание" checked={sounds.roulette} onChange={(value) => sounds.setSound("roulette", value)} />
-          <Toggle label="Рыбки" detail="тапы и реакции рыб" checked={sounds.fish} onChange={(value) => sounds.setSound("fish", value)} />
+          <Toggle icon={<Volume2 className="h-4 w-4" />} label="Все звуки" detail="главный выключатель" checked={sounds.all} onChange={(value) => sounds.setSound("all", value)} />
+          <Toggle icon={<MousePointerClick className="h-4 w-4" />} label="Кнопки" detail="клики и подтверждения" checked={sounds.buttons} onChange={(value) => sounds.setSound("buttons", value)} />
+          <Toggle icon={<CircleDollarSign className="h-4 w-4" />} label="Казино" detail="777, выигрыш и ожидание" checked={sounds.roulette} onChange={(value) => sounds.setSound("roulette", value)} />
+          <Toggle icon={<Fish className="h-4 w-4" />} label="Рыбки" detail="тапы и реакции рыб" checked={sounds.fish} onChange={(value) => sounds.setSound("fish", value)} />
         </div>
       </Panel>
     </div>
@@ -58,12 +58,12 @@ function StatusTile({ icon, title, value, tone }: { icon: ReactNode; title: stri
   );
 }
 
-function Toggle({ label, detail, checked, onChange }: { label: string; detail: string; checked: boolean; onChange: (checked: boolean) => void }) {
+function Toggle({ icon, label, detail, checked, onChange }: { icon: ReactNode; label: string; detail: string; checked: boolean; onChange: (checked: boolean) => void }) {
   return (
     <button className={cn("flex items-center justify-between gap-3 rounded-2xl border p-3 text-left transition active:scale-[.99]", checked ? "border-emerald-200/28 bg-emerald-300/12" : "border-cyan-100/10 bg-slate-950/30")} onClick={() => onChange(!checked)} type="button">
       <div className="flex min-w-0 items-center gap-3">
-        <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-2xl", checked ? "bg-emerald-300 text-slate-950" : "bg-slate-950/45 text-cyan-100/52")}>
-          {checked ? <Check className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
+        <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-2xl", checked ? "bg-cyan-300/20 text-cyan-50" : "bg-slate-950/45 text-cyan-100/52")}>
+          {icon}
         </span>
         <span className="min-w-0">
           <span className="block truncate font-black text-cyan-50">{label}</span>

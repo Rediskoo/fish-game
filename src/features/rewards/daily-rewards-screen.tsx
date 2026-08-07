@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Gift, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
@@ -33,17 +34,22 @@ function formatAchievementTime(value: string | null) {
 export function DailyRewardsScreen() {
   const player = usePlayer();
   const daily = useDailyReward();
+  const [showAllAchievements, setShowAllAchievements] = useState(false);
   const claimedToday = player.data?.dailyReward.claimedToday ?? false;
   const rewardAmount = player.data?.dailyReward.amount ?? 100;
   const nextClaimTime = formatClaimTime(player.data?.dailyReward.nextClaimAt);
+  const achievements = player.data?.achievements ?? [];
+  const unlockedAchievements = achievements.filter((achievement) => achievement.unlockedAt).length;
+  const visibleAchievements = showAllAchievements ? achievements : achievements.slice(0, 4);
 
   return (
     <div className="space-y-4 p-4">
       <header className="pt-20">
         <h1 className="text-3xl font-black text-cyan-50 text-glow">Ежедневный бонус</h1>
       </header>
-      <Panel className="space-y-4">
-        <Gift className={cn("h-10 w-10", claimedToday ? "text-cyan-100/35" : "text-yellow-200")} />
+      <Panel className="relative space-y-4 overflow-hidden border-amber-200/20 bg-[linear-gradient(145deg,rgba(251,191,36,.16),rgba(34,211,238,.10),rgba(5,18,31,.55))]">
+        <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-amber-200/20 blur-3xl" />
+        <Gift className={cn("relative z-10 h-10 w-10", claimedToday ? "text-cyan-100/35" : "text-yellow-200")} />
         <div>
           <div className="text-2xl font-black">+{rewardAmount} водорослей</div>
           <div className="text-sm text-cyan-100/60">
@@ -66,12 +72,13 @@ export function DailyRewardsScreen() {
             </span>
             <div>
               <div className="text-cyan-50">Достижения</div>
-              <div className="text-xs text-cyan-100/58">прогресс коллекции и аквариума</div>
+              <div className="text-xs text-cyan-100/58">открыто {unlockedAchievements}/{achievements.length || 10}</div>
             </div>
           </div>
+          <div className="rounded-full bg-slate-950/45 px-3 py-1 text-xs font-black text-amber-100">{unlockedAchievements}/{achievements.length || 10}</div>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          {player.data?.achievements.map((achievement, index) => (
+          {visibleAchievements.map((achievement, index) => (
             <div key={achievement.id} className={cn("relative min-h-28 overflow-hidden rounded-2xl border p-3", achievement.unlockedAt ? "border-amber-200/26 bg-amber-300/14 shadow-[0_0_26px_rgba(251,191,36,.10)]" : "border-cyan-100/10 bg-slate-950/30 opacity-70")}>
               <div className={cn("absolute -right-6 -top-6 h-20 w-20 rounded-full blur-2xl", achievement.unlockedAt ? (index % 3 === 0 ? "bg-fuchsia-300/20" : index % 3 === 1 ? "bg-emerald-300/18" : "bg-violet-300/18") : "bg-slate-400/10")} />
               <div className="relative z-10 flex items-start justify-between gap-2">
@@ -86,6 +93,11 @@ export function DailyRewardsScreen() {
             </div>
           ))}
         </div>
+        {achievements.length > 4 ? (
+          <Button className="w-full bg-violet-300" onClick={() => setShowAllAchievements((value) => !value)}>
+            {showAllAchievements ? "Скрыть" : "Все достижения"}
+          </Button>
+        ) : null}
       </Panel>
     </div>
   );

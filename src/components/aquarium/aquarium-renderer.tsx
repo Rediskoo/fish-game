@@ -305,6 +305,7 @@ async function createScene(
       entry.label.x = entry.agent.x;
       entry.label.y = entry.agent.y - (entry.agent.fish.species === "GUPPY" ? 23 : 42);
       entry.label.text = `${entry.agent.fish.name} · ${formatAge(entry.agent.fish.ageSeconds + elapsed)}`;
+      entry.label.visible = interactive || performance.now() < entry.labelVisibleUntil;
     }
 
     for (const bubble of bubbles) {
@@ -489,11 +490,11 @@ function createFishNode(PIXI: PixiModule, fish: FishView) {
   const tailShine = new PIXI.Graphics();
   const color = Number.parseInt(fish.color.replace("#", ""), 16);
   const glow = Number.parseInt(fish.glowColor.replace("#", ""), 16);
-  const auraAlpha = fish.rarity === "LEGENDARY" ? 0.52 : fish.rarity === "EPIC" ? 0.36 : fish.rarity === "RARE" ? 0.25 : 0.15;
+  const auraAlpha = fish.rarity === "LEGENDARY" ? 0.24 : fish.rarity === "EPIC" ? 0.16 : fish.rarity === "RARE" ? 0.1 : 0.05;
 
   const aura = new PIXI.Graphics();
-  aura.ellipse(0, 0, 68, 40).fill({ color: glow, alpha: auraAlpha * 0.32 });
-  aura.ellipse(0, 0, 48, 28).fill({ color: glow, alpha: auraAlpha });
+  aura.ellipse(0, 0, 52, 30).fill({ color: glow, alpha: auraAlpha * 0.24 });
+  aura.ellipse(0, 0, 36, 20).fill({ color: glow, alpha: auraAlpha });
 
   const eye = new PIXI.Graphics();
   const eyeX = fish.species === "DRAGON_KOI" ? 22 : 17;

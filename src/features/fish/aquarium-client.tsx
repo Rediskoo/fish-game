@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Eye, X } from "lucide-react";
 import { AquariumRenderer } from "@/components/aquarium/aquarium-renderer";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function AquariumClient() {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const player = usePlayer();
   const devLogin = useMutation({
     mutationFn: () => api<AquariumSnapshot>("/api/auth/dev", { method: "POST" }),
@@ -23,15 +25,30 @@ export function AquariumClient() {
   const decor = player.data?.aquarium.decor ?? [];
   const pollution = player.data?.aquarium.pollution ?? 0;
   const [observeMode, setObserveMode] = useState(false);
+  const cleaner = player.data?.inventory.cleaner ?? 0;
+  const cleanAquarium = useMutation({
+    mutationFn: () => api<AquariumSnapshot>("/api/aquarium", { method: "PATCH", body: JSON.stringify({ clean: true }) }),
+    onSuccess: (snapshot) => queryClient.setQueryData(["snapshot"], snapshot)
+  });
+  const cleanliness = Math.max(0, 100 - pollution * 4);
 
   return (
     <div className="absolute inset-0">
       <AquariumRenderer fish={aquariumFish} backgroundId={backgroundId} decor={decor} pollution={pollution} />
       {pollution > 15 ? (
-        <div className="absolute left-4 right-4 top-[calc(92px+var(--safe-top))] z-40 rounded-2xl border border-amber-200/30 bg-amber-950/62 p-3 text-sm font-bold text-amber-100 shadow-[0_16px_40px_rgba(0,0,0,.28)] backdrop-blur">
-          Грязный аквариум · используй очиститель на складе
-        </div>
+        <button
+          className="absolute left-4 right-4 top-[calc(92px+var(--safe-top))] z-40 rounded-2xl border border-amber-200/30 bg-amber-950/62 px-3 py-2 text-left text-sm font-bold text-amber-100 shadow-[0_16px_40px_rgba(0,0,0,.28)] backdrop-blur transition active:scale-[.99]"
+          disabled={cleanAquarium.isPending}
+          onClick={() => cleaner > 0 ? cleanAquarium.mutate() : router.push("/marketplace")}
+          type="button"
+        >
+          Аквариум загрязнён · {cleaner > 0 ? "очистить" : "купить очиститель"}
+        </button>
       ) : null}
+      <div className="absolute left-4 top-[calc(144px+var(--safe-top))] z-30 flex max-w-[calc(100%-2rem)] gap-2 text-[11px] font-black text-cyan-50">
+        <span className="rounded-full border border-cyan-100/15 bg-slate-950/42 px-3 py-1.5 backdrop-blur">Чистота {cleanliness}%</span>
+        <span className="rounded-full border border-cyan-100/15 bg-slate-950/42 px-3 py-1.5 backdrop-blur">Рыбки {aquariumFish.length}/{fish.length}</span>
+      </div>
       <Button className="absolute right-4 bottom-24 z-40 h-11 w-11 px-0" onClick={() => setObserveMode(true)} aria-label="Режим наблюдения">
         <Eye className="h-5 w-5" />
       </Button>
