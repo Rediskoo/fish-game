@@ -19,8 +19,13 @@ export function AquariumRenderer({ fish, className, interactive = false, backgro
   const decorImages = useMemo(() => decor.map((id) => ({ id, image: decorImageById[id] })).filter((item): item is { id: string; image: string } => Boolean(item.image)), [decor]);
   const seaweedDecor = useMemo(() => decor.filter((id) => id === "seaweed-grove" || id === "glow-seaweed"), [decor]);
   const bubbleJets = useMemo(() => decor.flatMap((id) => id === "bubble-cannon" ? [0] : id === "double-bubble-cannon" ? [1, 2] : []), [decor]);
-  fishRef.current = fish;
-  decorRef.current = decor;
+  useEffect(() => {
+    fishRef.current = fish;
+  }, [fish]);
+
+  useEffect(() => {
+    decorRef.current = decor;
+  }, [decor]);
 
   useEffect(() => {
     let cancelled = false;

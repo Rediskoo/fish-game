@@ -38,20 +38,17 @@ export function TelegramBootstrap() {
   const [debug, setDebug] = useState("Telegram debug loading...");
   const startedRef = useRef(false);
 
-  const auth = useMutation({
+  const { mutate: authenticate } = useMutation({
     mutationFn: (initData: string) =>
       api<AquariumSnapshot>("/api/auth/telegram", {
         method: "POST",
         body: JSON.stringify({ initData })
       }),
-    onSuccess: async (snapshot) => {
+    onSuccess: (snapshot) => {
       setDebug("Telegram auth success");
 
       queryClient.setQueryData(["snapshot"], snapshot);
 
-      await queryClient.invalidateQueries({
-        queryKey: ["snapshot"]
-      });
     },
     onError: (error) => {
       setDebug(
@@ -94,7 +91,7 @@ export function TelegramBootstrap() {
 
       if (webApp?.initData && !startedRef.current) {
         startedRef.current = true;
-        auth.mutate(webApp.initData);
+        authenticate(webApp.initData);
       }
     };
 
@@ -117,7 +114,7 @@ export function TelegramBootstrap() {
     return () => {
       window.clearInterval(interval);
     };
-  }, []);
+  }, [authenticate]);
   
   if (!DEBUG_TELEGRAM_AUTH) {
     return null;

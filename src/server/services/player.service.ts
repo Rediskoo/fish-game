@@ -7,12 +7,9 @@ import { calculateFishIncome, claimOfflineIncome } from "@/server/services/incom
 import { fishToView } from "@/server/services/fish.service";
 import { evaluateAchievements } from "@/server/services/rewards.service";
 import { shopProductsById } from "@/lib/app-assets";
+import { aquariumFishCapacity } from "@/lib/fish-capacity";
 
 const dailyRewardAmount = 100;
-
-function startOfUtcDay(date = new Date()) {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-}
 
 function nextUtcDay(date = new Date()) {
   const next = new Date(date);
@@ -69,7 +66,7 @@ export class PlayerService {
     const nextClaimAt = lastDailyReward ? nextUtcDay(lastDailyReward.claimedAt) : new Date(0);
     const claimedToday = nextClaimAt.getTime() > Date.now();
 
-    const incomePerSecond = calculateFishIncome(snapshot.fish);
+    const incomePerSecond = calculateFishIncome(snapshot.fish.slice(0, aquariumFishCapacity));
     const achievements = await this.db.achievement.findMany({
       include: { users: { where: { ownerId: userId }, take: 1 } },
       orderBy: { createdAt: "asc" }

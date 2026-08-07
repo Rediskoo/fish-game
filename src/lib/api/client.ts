@@ -9,7 +9,10 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
     },
     credentials: "include"
   });
-  const payload = (await response.json()) as ApiResponse<T>;
+  const contentType = response.headers.get("content-type") ?? "";
+  const payload = contentType.includes("application/json")
+    ? ((await response.json()) as ApiResponse<T>)
+    : ({ ok: false, error: (await response.text()) || response.statusText || "Request failed" } satisfies ApiResponse<T>);
 
   if (!payload.ok) {
     throw new Error(payload.error);

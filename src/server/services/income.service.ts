@@ -1,5 +1,6 @@
 import { TransactionType, type PrismaClient } from "@prisma/client";
 import { applyHungerDecay } from "@/server/services/hunger.service";
+import { aquariumFishCapacity } from "@/lib/fish-capacity";
 
 const maxOfflineSeconds = 60 * 60 * 24 * 7;
 
@@ -31,7 +32,7 @@ export async function claimOfflineIncome(db: PrismaClient, userId: string) {
     maxOfflineSeconds,
     Math.max(0, Math.floor((now.getTime() - snapshot.aquarium.lastIncomeAt.getTime()) / 1000))
   );
-  const incomePerSecond = calculateFishIncome(snapshot.fish);
+  const incomePerSecond = calculateFishIncome(snapshot.fish.slice(0, aquariumFishCapacity));
   const amount = Math.floor(incomePerSecond * offlineSeconds);
 
   if (amount <= 0) {
