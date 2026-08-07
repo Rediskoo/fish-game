@@ -99,6 +99,7 @@ export const shopCategories: Array<{ id: ShopCategory; title: string; subtitle: 
 ];
 
 export const shopProducts: ShopProduct[] = [
+  { id: "big-water-cleaner", title: "Большой очиститель", category: "care", price: 150, image: AppAssets.care.waterConditioner, description: "Моментально очищает весь аквариум после покупки.", accent: "#41D9EA", status: "полная очистка", repeatable: true },
   { id: "fish-case", title: "Рыбки", category: "fish", price: 100, image: AppAssets.shop.caseChest, description: "Открывает казино 777 с рыбками и призами.", accent: "#49C7E8", status: "777", repeatable: true },
   { id: "food-basic", title: "Обычный корм", category: "care", price: 10, image: AppAssets.care.foodBasic, description: "+10 корма для ежедневного ухода.", accent: "#E5B74F", status: "+10", repeatable: true },
   { id: "food-premium", title: "Улучшенный корм", category: "care", price: 30, image: AppAssets.care.foodPremium, description: "Премиальная порция корма. Сейчас добавляет +25 корма.", accent: "#E5B74F", status: "+25", repeatable: true },

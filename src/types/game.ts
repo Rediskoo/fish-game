@@ -46,6 +46,7 @@ export type AquariumSnapshot = {
   inventory: {
     food: number;
     cleaner: number;
+    ownedItemIds: string[];
   };
   dailyReward: {
     amount: number;

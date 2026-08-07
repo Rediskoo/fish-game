@@ -58,6 +58,10 @@ export function useSendFriendGift() {
     onSuccess: ({ friends, snapshot }) => {
       queryClient.setQueryData(["friends"], friends);
       queryClient.setQueryData(["snapshot"], snapshot);
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ["friends"] });
+      void queryClient.invalidateQueries({ queryKey: ["snapshot"] });
     }
   });
 }
@@ -73,6 +77,10 @@ export function useClaimFriendGift() {
     onSuccess: ({ friends, snapshot }) => {
       queryClient.setQueryData(["friends"], friends);
       queryClient.setQueryData(["snapshot"], snapshot);
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ["friends"] });
+      void queryClient.invalidateQueries({ queryKey: ["snapshot"] });
     }
   });
 }

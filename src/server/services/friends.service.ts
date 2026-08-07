@@ -293,21 +293,27 @@ export class FriendsService {
 
   async claimGift(userId: string, giftId: string) {
     const result = await this.db.$transaction(async (tx) => {
-      const gift = await tx.friendGift.findFirstOrThrow({
+      const gift = await tx.friendGift.findFirst({
         where: { id: giftId, receiverId: userId, claimedAt: null }
       });
+      if (!gift) throw new Error("Gift is already claimed or unavailable");
       const now = new Date();
       let acquiredFish = null;
 
       if (gift.type === GiftType.FISH_CASE) {
         const types = await tx.fishType.findMany();
+        if (types.length === 0) throw new Error("Fish catalog is empty");
         const selected = pickWeighted(types);
         const fish = await createOwnedFish(tx, userId, selected);
         acquiredFish = fishToAcquiredView(fish);
       } else if (gift.type === GiftType.OWNED_FISH) {
         if (!gift.fishId) throw new Error("Gift fish was not found");
+        const giftFish = await tx.fish.findFirst({
+          where: { id: gift.fishId, ownerId: gift.senderId, isGiftLocked: true }
+        });
+        if (!giftFish) throw new Error("Gift fish was already moved or is unavailable");
         const fish = await tx.fish.update({
-          where: { id: gift.fishId },
+          where: { id: giftFish.id },
           data: {
             ownerId: userId,
             isGiftLocked: false,

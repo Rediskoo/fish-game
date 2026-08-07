@@ -67,6 +67,8 @@ export class PlayerService {
     const claimedToday = nextClaimAt.getTime() > Date.now();
 
     const incomePerSecond = calculateFishIncome(snapshot.fish.slice(0, aquariumFishCapacity));
+    const decor = Array.isArray(snapshot.aquarium.decor) ? snapshot.aquarium.decor.filter((item): item is string => typeof item === "string") : [];
+    const ownedItemIds = await this.getOwnedItemIds(userId, decor, snapshot.aquarium.backgroundId);
     const achievements = await this.db.achievement.findMany({
       include: { users: { where: { ownerId: userId }, take: 1 } },
       orderBy: { createdAt: "asc" }
@@ -88,10 +90,10 @@ export class PlayerService {
         experience: snapshot.aquarium.experience,
         lastIncomeAt: snapshot.aquarium.lastIncomeAt.toISOString(),
         backgroundId: snapshot.aquarium.backgroundId,
-        decor: Array.isArray(snapshot.aquarium.decor) ? snapshot.aquarium.decor.filter((item): item is string => typeof item === "string") : [],
+        decor,
         pollution: snapshot.aquarium.pollution
       },
-      inventory: { food: snapshot.inventory.food, cleaner: snapshot.inventory.cleaner },
+      inventory: { food: snapshot.inventory.food, cleaner: snapshot.inventory.cleaner, ownedItemIds },
       dailyReward: {
         amount: dailyRewardAmount,
         claimedToday,
@@ -175,6 +177,25 @@ export class PlayerService {
     return snapshot;
   }
 
+  private async getOwnedItemIds(userId: string, activeDecor: string[], activeBackgroundId: string) {
+    const purchases = await this.db.transaction.findMany({
+      where: { ownerId: userId, type: TransactionType.PURCHASE_ITEM },
+      select: { metadata: true }
+    });
+    const owned = new Set<string>(["deep-lagoon", activeBackgroundId, ...activeDecor]);
+    for (const purchase of purchases) {
+      const metadata = purchase.metadata;
+      if (metadata && typeof metadata === "object" && !Array.isArray(metadata) && "productId" in metadata) {
+        const productId = metadata.productId;
+        if (typeof productId === "string") owned.add(productId);
+      }
+    }
+    return [...owned].filter((id) => {
+      const product = shopProductsById[id];
+      return id === "deep-lagoon" || product?.category === "decor" || product?.category === "backgrounds";
+    });
+  }
+
 
   async buyProduct(userId: string, productId: string) {
     const product = shopProductsById[productId];
@@ -182,6 +203,7 @@ export class PlayerService {
 
     const foodAmount = product.id === "food-basic" ? 10 : product.id === "food-premium" ? 25 : 0;
     const cleanerAmount = product.id === "water-conditioner" ? 1 : 0;
+    const fullClean = product.id === "big-water-cleaner";
 
     return this.db.$transaction(async (tx) => {
       const user = await tx.user.findUniqueOrThrow({ where: { id: userId } });
@@ -189,7 +211,15 @@ export class PlayerService {
 
       const aquarium = await tx.aquarium.findUniqueOrThrow({ where: { ownerId: userId } });
       const currentDecor = Array.isArray(aquarium.decor) ? aquarium.decor.filter((item): item is string => typeof item === "string") : [];
-      if (!product.repeatable && (currentDecor.includes(product.id) || aquarium.backgroundId === product.id)) {
+      const purchases = await tx.transaction.findMany({
+        where: { ownerId: userId, type: TransactionType.PURCHASE_ITEM },
+        select: { metadata: true }
+      });
+      const alreadyOwned = purchases.some((purchase) => {
+        const metadata = purchase.metadata;
+        return metadata && typeof metadata === "object" && !Array.isArray(metadata) && "productId" in metadata && metadata.productId === product.id;
+      });
+      if (!product.repeatable && (alreadyOwned || currentDecor.includes(product.id) || aquarium.backgroundId === product.id)) {
         throw new Error("Item already owned");
       }
 
@@ -197,6 +227,9 @@ export class PlayerService {
 
       if (product.category === "care") {
         await tx.inventory.update({ where: { ownerId: userId }, data: { food: { increment: foodAmount }, cleaner: { increment: cleanerAmount } } });
+        if (fullClean) {
+          await tx.aquarium.update({ where: { ownerId: userId }, data: { pollution: 0, lastPollutionAt: new Date() } });
+        }
       } else if (product.category === "decor") {
         await tx.aquarium.update({ where: { ownerId: userId }, data: { decor: [...currentDecor, product.id] } });
       } else if (product.category === "backgrounds") {
@@ -255,14 +288,27 @@ export class PlayerService {
     await this.db.$transaction(async (tx) => {
       const aquarium = await tx.aquarium.findUniqueOrThrow({ where: { ownerId: userId } });
       const currentDecor = Array.isArray(aquarium.decor) ? aquarium.decor.filter((item): item is string => typeof item === "string") : [];
+      const purchases = await tx.transaction.findMany({
+        where: { ownerId: userId, type: TransactionType.PURCHASE_ITEM },
+        select: { metadata: true }
+      });
+      const owned = new Set<string>(["deep-lagoon", aquarium.backgroundId, ...currentDecor]);
+      for (const purchase of purchases) {
+        const metadata = purchase.metadata;
+        if (metadata && typeof metadata === "object" && !Array.isArray(metadata) && "productId" in metadata && typeof metadata.productId === "string") {
+          owned.add(metadata.productId);
+        }
+      }
       const data: { backgroundId?: string; decor?: string[] } = {};
 
       if (backgroundProduct) {
+        if (!owned.has(backgroundProduct.id)) throw new Error("Background is not owned");
         data.backgroundId = backgroundProduct.id;
       }
 
       if (decorProduct) {
         const enabled = input.enabled ?? !currentDecor.includes(decorProduct.id);
+        if (enabled && !owned.has(decorProduct.id)) throw new Error("Decor is not owned");
         data.decor = enabled ? [...new Set([...currentDecor, decorProduct.id])].slice(0, 8) : currentDecor.filter((id) => id !== decorProduct.id);
       }
 

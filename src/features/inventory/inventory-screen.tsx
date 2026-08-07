@@ -72,9 +72,18 @@ export function InventoryScreen() {
   });
   const food = player.data?.inventory.food ?? 0;
   const cleaner = player.data?.inventory.cleaner ?? 0;
-  const activeDecor = player.data?.aquarium.decor ?? [];
+  const activeDecor = useMemo(() => player.data?.aquarium.decor ?? [], [player.data?.aquarium.decor]);
   const activeBackground = player.data?.aquarium.backgroundId ?? "deep-lagoon";
-  const backgroundProducts = useMemo(() => shopProducts.filter((product) => product.category === "backgrounds"), []);
+  const ownedItemIds = useMemo(() => player.data?.inventory.ownedItemIds ?? ["deep-lagoon"], [player.data?.inventory.ownedItemIds]);
+  const ownedProducts = useMemo(() => shopProducts.filter((product) => ownedItemIds.includes(product.id)), [ownedItemIds]);
+  const ownedDecorProducts = useMemo(
+    () => decorProducts.filter((product) => ownedItemIds.includes(product.id) || activeDecor.includes(product.id)),
+    [activeDecor, ownedItemIds]
+  );
+  const backgroundProducts = useMemo(
+    () => shopProducts.filter((product) => product.category === "backgrounds" && (ownedItemIds.includes(product.id) || product.id === activeBackground)),
+    [activeBackground, ownedItemIds]
+  );
   const [activeTab, setActiveTab] = useState<InventoryTab | null>(null);
   const [selectedFishId, setSelectedFishId] = useState<string | null>(null);
   const fishList = useMemo(() => [...(player.data?.fish ?? [])].sort((a, b) => Number(b.isFavorite) - Number(a.isFavorite)), [player.data?.fish]);
@@ -84,12 +93,12 @@ export function InventoryScreen() {
   const counts = {
     food,
     cleaner,
-    decor: activeDecor.length,
+    decor: ownedDecorProducts.length,
     backgrounds: backgroundProducts.length,
     fish: fishList.length,
     capacity
   };
-  const totalItems = food + cleaner + activeDecor.length + backgroundProducts.length + fishList.length;
+  const totalItems = food + cleaner + ownedProducts.length + fishList.length;
   const activeFishCount = Math.min(fishList.length, capacity);
 
   return (
@@ -131,7 +140,7 @@ export function InventoryScreen() {
           </div>
 
           {activeTab === "food" ? <FoodSection food={food} cleaner={cleaner} pollution={player.data?.aquarium.pollution ?? 0} isBusy={customize.isPending} onClean={() => customize.mutate({ clean: true })} /> : null}
-          {activeTab === "decor" ? <DecorSection activeDecor={activeDecor} isBusy={customize.isPending} onToggle={(product, enabled) => customize.mutate({ decorId: product.id, enabled })} /> : null}
+          {activeTab === "decor" ? <DecorSection products={ownedDecorProducts} activeDecor={activeDecor} isBusy={customize.isPending} onToggle={(product, enabled) => customize.mutate({ decorId: product.id, enabled })} /> : null}
           {activeTab === "backgrounds" ? <BackgroundSection products={backgroundProducts} activeBackground={activeBackground} isBusy={customize.isPending} onSelect={(product) => customize.mutate({ backgroundId: product.id })} /> : null}
           {activeTab === "fish" ? (
             <FishSection
@@ -277,10 +286,11 @@ function FoodSection({ food, cleaner, pollution, isBusy, onClean }: { food: numb
   );
 }
 
-function DecorSection({ activeDecor, isBusy, onToggle }: { activeDecor: string[]; isBusy: boolean; onToggle: (product: ShopProduct, enabled: boolean) => void }) {
+function DecorSection({ products, activeDecor, isBusy, onToggle }: { products: ShopProduct[]; activeDecor: string[]; isBusy: boolean; onToggle: (product: ShopProduct, enabled: boolean) => void }) {
+  if (!products.length) return <EmptyInventory title="Декор не куплен" text="Купи растения, пузыри или украшения в магазине, и они появятся здесь." />;
   return (
     <div className="grid grid-cols-2 gap-3">
-      {decorProducts.map((product) => {
+      {products.map((product) => {
         const active = activeDecor.includes(product.id);
         return (
           <button key={product.id} className={cn("relative grid aspect-square overflow-hidden rounded-[22px] border p-3 text-left transition active:scale-[.98]", active ? "border-emerald-200/35 bg-emerald-300/12" : "border-cyan-100/12 bg-slate-950/32")} disabled={isBusy} onClick={() => onToggle(product, !active)}>
@@ -299,6 +309,7 @@ function DecorSection({ activeDecor, isBusy, onToggle }: { activeDecor: string[]
 }
 
 function BackgroundSection({ products, activeBackground, isBusy, onSelect }: { products: ShopProduct[]; activeBackground: string; isBusy: boolean; onSelect: (product: ShopProduct) => void }) {
+  if (!products.length) return <EmptyInventory title="Фоны не куплены" text="После покупки фона в магазине он появится в этом разделе." />;
   return (
     <div className="grid grid-cols-2 gap-3">
       {products.map((product) => {
@@ -315,6 +326,15 @@ function BackgroundSection({ products, activeBackground, isBusy, onSelect }: { p
           </button>
         );
       })}
+    </div>
+  );
+}
+
+function EmptyInventory({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="rounded-[22px] border border-cyan-100/12 bg-slate-950/32 p-5 text-center shadow-[0_18px_54px_rgba(0,0,0,.22)]">
+      <div className="text-lg font-black text-cyan-50">{title}</div>
+      <div className="mt-2 text-sm text-cyan-100/62">{text}</div>
     </div>
   );
 }

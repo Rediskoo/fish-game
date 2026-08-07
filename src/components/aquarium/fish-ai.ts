@@ -98,11 +98,12 @@ export function updateFishAgent(agent: FishAgent, deltaSeconds: number, width: n
     const awayX = agent.x - other.x;
     const awayY = agent.y - other.y;
     const gap = Math.hypot(awayX, awayY);
-    const minGap = agent.fish.species === "GUPPY" || other.fish.species === "GUPPY" ? 30 : 58;
+    const minGap = personalSpace(agent) + personalSpace(other);
     if (gap > 0 && gap < minGap) {
-      const push = (minGap - gap) / minGap;
-      dx += (awayX / gap) * push * 90;
-      dy += (awayY / gap) * push * 64;
+      const push = ((minGap - gap) / minGap) ** 1.35;
+      dx += (awayX / gap) * push * 190;
+      dy += (awayY / gap) * push * 132;
+      agent.nextDecision = Math.min(agent.nextDecision, 0.7);
     }
   }
 
@@ -121,3 +122,9 @@ export function updateFishAgent(agent: FishAgent, deltaSeconds: number, width: n
 
 function distance(x1: number, y1: number, x2: number, y2: number) { return Math.hypot(x2 - x1, y2 - y1); }
 function clamp(value: number, min: number, max: number) { return Math.min(max, Math.max(min, value)); }
+function personalSpace(agent: FishAgent) {
+  if (agent.fish.species === "DRAGON_KOI") return 58;
+  if (agent.fish.species === "ANGELFISH" || agent.fish.species === "DISCUS") return 46;
+  if (agent.fish.species === "GUPPY" || agent.fish.species === "NEON_TETRA") return 28;
+  return 38;
+}
