@@ -7,6 +7,7 @@ import { AquariumRenderer } from "@/components/aquarium/aquarium-renderer";
 import { Button } from "@/components/ui/button";
 import { usePlayer } from "@/features/auth/use-player";
 import { api } from "@/lib/api/client";
+import { AppAssets } from "@/lib/app-assets";
 import { splitFishByCapacity } from "@/lib/fish-capacity";
 import type { AquariumSnapshot } from "@/types/game";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -31,6 +32,7 @@ export function AquariumClient() {
     onSuccess: (snapshot) => queryClient.setQueryData(["snapshot"], snapshot)
   });
   const cleanliness = Math.max(0, 100 - pollution * 4);
+  const fullyPolluted = pollution >= 25;
   const averageSatiety = aquariumFish.length
     ? Math.round(aquariumFish.reduce((sum, item) => sum + Math.max(0, item.maxHunger - item.hunger) / item.maxHunger, 0) / aquariumFish.length * 100)
     : 0;
@@ -58,9 +60,29 @@ export function AquariumClient() {
         <AquariumStat icon={<Fish className="h-3.5 w-3.5" />} label="Рыбки" value={`${aquariumFish.length}/${fish.length}`} tone="cyan" />
         <AquariumStat icon={<Utensils className="h-3.5 w-3.5" />} label="Сытость" value={`${averageSatiety}%`} tone="amber" />
       </div>
-      <Button className="absolute right-4 bottom-24 z-40 h-11 w-11 px-0" onClick={() => setObserveMode(true)} aria-label="Режим наблюдения">
+      <Button className="absolute right-4 bottom-[calc(214px+var(--safe-bottom))] z-40 h-14 w-14 rounded-2xl px-0" onClick={() => setObserveMode(true)} aria-label="Режим наблюдения">
         <Eye className="h-5 w-5" />
       </Button>
+      {fullyPolluted && cleaner > 0 ? (
+        <div className="absolute bottom-[calc(190px+var(--safe-bottom))] left-4 z-40 w-36 rounded-2xl border border-cyan-100/18 bg-slate-950/56 p-3 shadow-[0_18px_42px_rgba(0,0,0,.34)] backdrop-blur">
+          <div className="flex items-center gap-2">
+            <img className="h-12 w-12 shrink-0 object-contain drop-shadow-[0_10px_18px_rgba(0,0,0,.35)]" src={AppAssets.care.waterConditioner} alt="" />
+            <div className="min-w-0">
+              <div className="line-clamp-2 text-sm font-bold leading-4 text-cyan-50">Очиститель воды</div>
+              <div className="mt-1 text-xs font-black text-cyan-100/78">x{cleaner}</div>
+            </div>
+          </div>
+          <Button className="mt-3 h-10 w-full bg-cyan-300" disabled={cleanAquarium.isPending} onClick={() => cleanAquarium.mutate()}>
+            Применить
+          </Button>
+        </div>
+      ) : null}
+      <div className="absolute bottom-[calc(108px+var(--safe-bottom))] left-4 right-4 z-30 grid grid-cols-4 gap-2">
+        <QuickAction image={AppAssets.care.foodBasic} label="Покормить" onClick={() => router.push("/inventory")} />
+        <QuickAction image={AppAssets.care.waterConditioner} label="Почистить" badge={pollution > 15 ? "1" : undefined} onClick={() => cleaner > 0 ? cleanAquarium.mutate() : router.push("/marketplace")} />
+        <QuickAction image={AppAssets.shop.decorRuins} label="Декор" onClick={() => router.push("/inventory")} />
+        <QuickAction image={AppAssets.shop.aquariumDisplay} label="Фон" onClick={() => router.push("/inventory")} />
+      </div>
       {observeMode ? (
         <div className="fixed inset-0 z-[70] bg-[#031018]">
           <AquariumRenderer fish={aquariumFish} backgroundId={backgroundId} decor={decor} pollution={pollution} className="min-h-dvh rounded-none" interactive />
@@ -84,6 +106,20 @@ export function AquariumClient() {
         </div>
       ) : null}
     </div>
+  );
+}
+
+function QuickAction({ image, label, badge, onClick }: { image: string; label: string; badge?: string; onClick: () => void }) {
+  return (
+    <button
+      className="relative grid min-h-24 min-w-0 grid-rows-[1fr_auto] place-items-center overflow-hidden rounded-2xl border border-cyan-100/18 bg-slate-950/46 p-2 text-cyan-50 shadow-[0_14px_34px_rgba(0,0,0,.28)] backdrop-blur transition active:scale-[.98]"
+      onClick={onClick}
+      type="button"
+    >
+      {badge ? <span className="absolute right-2 top-2 grid h-5 min-w-5 place-items-center rounded-full bg-rose-400 px-1 text-[11px] font-black text-white shadow-[0_0_12px_rgba(251,113,133,.65)]">{badge}</span> : null}
+      <img className="h-11 w-11 object-contain drop-shadow-[0_10px_16px_rgba(0,0,0,.34)]" src={image} alt="" />
+      <span className="max-w-full truncate text-xs font-black">{label}</span>
+    </button>
   );
 }
 

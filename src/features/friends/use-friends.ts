@@ -4,10 +4,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
 import type { AcquiredFish, AquariumSnapshot, FriendsPayload } from "@/types/game";
 
-export function useFriends() {
+export function useFriends(enabled = true) {
   return useQuery({
     queryKey: ["friends"],
-    queryFn: () => api<FriendsPayload>("/api/friends")
+    queryFn: () => api<FriendsPayload>("/api/friends"),
+    enabled
   });
 }
 

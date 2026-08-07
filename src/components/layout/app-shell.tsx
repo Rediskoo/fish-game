@@ -8,6 +8,7 @@ import { cn } from "@/lib/cn";
 import { AuthRequiredPanel } from "@/features/auth/auth-required-panel";
 import { TelegramBootstrap } from "@/features/auth/telegram-bootstrap";
 import { usePlayer } from "@/features/auth/use-player";
+import { useFriends } from "@/features/friends/use-friends";
 import { useLiveIncome } from "@/features/income/use-live-income";
 import { useIncomeStore } from "@/stores/income-store";
 
@@ -23,9 +24,11 @@ const navItems = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const player = usePlayer();
+  const friends = useFriends(Boolean(player.data));
   const [hasModal, setHasModal] = useState(false);
   useLiveIncome(player.data);
   const optimisticCurrency = useIncomeStore((state) => state.optimisticCurrency);
+  const profileNeedsAttention = Boolean(friends.data?.friends.some((friend) => friend.pendingGift) || friends.data?.requests.some((request) => request.direction === "incoming"));
 
   useEffect(() => {
     const checkModals = () => setHasModal(Boolean(document.querySelector("[data-app-modal='true']")));
@@ -75,8 +78,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col">{content}</div>
       <nav className={cn("fixed inset-x-0 bottom-[calc(24px+var(--safe-bottom))] z-50 mx-auto max-w-md px-3 transition duration-200", hasModal && "pointer-events-none translate-y-6 opacity-0")}>
         <div className="glass relative flex h-16 items-center justify-around overflow-hidden rounded-2xl px-1">
-          <span className="menu-bubble absolute bottom-1 left-[8%] h-2 w-2" />
-          <span className="menu-bubble menu-bubble-delayed absolute bottom-3 right-[13%] h-3 w-3" />
           {navItems.map((item) => {
             const active = pathname === item.href;
             const Icon = item.icon;
@@ -92,6 +93,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 title={item.label}
               >
                 <Icon className="h-5 w-5" />
+                {item.href === "/profile" && profileNeedsAttention ? <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-rose-400 shadow-[0_0_10px_rgba(251,113,133,.8)]" /> : null}
                 <span className="sr-only">{item.label}</span>
               </Link>
             );
