@@ -139,16 +139,41 @@ input {
   animation: aquarium-bubble-jet 2s ease-in infinite;
 }
 
-.aquarium-dom-fish {
-  animation-name: aquarium-dom-fish-swim;
-  animation-timing-function: ease-in-out;
+.aquarium-dom-fish-track {
+  left: -150px;
+  animation-name: aquarium-dom-fish-cross;
+  animation-timing-function: linear;
   animation-iteration-count: infinite;
-  will-change: margin-left, margin-top;
+  will-change: left;
 }
 
-@keyframes aquarium-dom-fish-swim {
-  0%, 100% { margin-left: -12px; margin-top: 0; }
-  50% { margin-left: 18px; margin-top: -10px; }
+.aquarium-dom-fish-track-reverse {
+  left: 100%;
+  animation-name: aquarium-dom-fish-cross-reverse;
+}
+
+.aquarium-dom-fish-track-reverse .aquarium-dom-fish-sprite {
+  transform: scaleX(-1);
+}
+
+.aquarium-dom-fish-sprite {
+  animation: aquarium-dom-fish-drift 4.8s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes aquarium-dom-fish-cross {
+  from { left: -150px; }
+  to { left: calc(100% + 150px); }
+}
+
+@keyframes aquarium-dom-fish-cross-reverse {
+  from { left: calc(100% + 150px); }
+  to { left: -150px; }
+}
+
+@keyframes aquarium-dom-fish-drift {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -10px; }
 }
 
 @keyframes feed-drop {
