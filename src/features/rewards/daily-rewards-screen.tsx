@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Check, Gift, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
@@ -8,8 +7,6 @@ import { aquariumAssets } from "@/assets/aquarium-assets";
 import { cn } from "@/lib/cn";
 import { usePlayer } from "@/features/auth/use-player";
 import { useDailyReward } from "@/features/rewards/use-daily-reward";
-
-const tabs = ["Награды", "Задания", "Достижения", "Подарки"];
 
 function formatClaimTime(value?: string) {
   if (!value) return "";
@@ -21,7 +18,6 @@ function formatClaimTime(value?: string) {
 export function DailyRewardsScreen() {
   const player = usePlayer();
   const daily = useDailyReward();
-  const [activeTab, setActiveTab] = useState("Награды");
   const claimedToday = player.data?.dailyReward.claimedToday ?? false;
   const rewardAmount = player.data?.dailyReward.amount ?? 100;
   const nextClaimTime = formatClaimTime(player.data?.dailyReward.nextClaimAt);
@@ -32,16 +28,8 @@ export function DailyRewardsScreen() {
     <div className="space-y-4 p-4">
       <header className="pt-20">
         <h1 className="text-3xl font-black text-cyan-50 text-glow">Подарки</h1>
-        <p className="mt-2 text-sm text-cyan-100/62">Награды, задания, достижения и подарки от друзей.</p>
+        <p className="mt-2 text-sm text-cyan-100/62">Ежедневные награды, задания и достижения.</p>
       </header>
-
-      <div className="grid grid-cols-4 gap-2 rounded-2xl border border-cyan-100/12 bg-slate-950/28 p-1">
-        {tabs.map((tab) => (
-          <button key={tab} className={cn("h-9 rounded-xl text-[11px] font-black text-cyan-100/68 transition", activeTab === tab && "bg-cyan-300/18 text-cyan-50 shadow-[0_0_18px_rgba(34,211,238,.16)]")} onClick={() => setActiveTab(tab)} type="button">
-            {tab}
-          </button>
-        ))}
-      </div>
 
       <Panel className="relative space-y-4 overflow-hidden rounded-[18px] border-cyan-100/18 bg-[linear-gradient(145deg,rgba(8,45,62,.82),rgba(5,20,34,.88))]">
         <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-amber-200/16 blur-3xl" />
@@ -83,7 +71,7 @@ export function DailyRewardsScreen() {
         <Quest title="Купи предмет в магазине" reward="+50" progress="0/1" tone="cyan" />
       </Panel>
 
-      <Panel className="space-y-3 overflow-hidden rounded-[18px] border-fuchsia-200/18 bg-[linear-gradient(135deg,rgba(168,85,247,.14),rgba(34,211,238,.08),rgba(5,18,31,.72))]">
+      <Panel className="space-y-3 overflow-hidden rounded-[18px] border-cyan-100/18 bg-[linear-gradient(145deg,rgba(8,43,59,.76),rgba(4,18,31,.86))]">
         <div className="flex items-center justify-between gap-2 font-bold">
           <div className="flex items-center gap-2">
             <span className="grid h-10 w-10 place-items-center rounded-2xl bg-amber-300/18 text-amber-100">

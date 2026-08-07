@@ -1,7 +1,7 @@
 ﻿"use client";
 
-import { FormEvent, type ReactNode, useMemo, useState } from "react";
-import { Eye, Fish, Gift, MoreHorizontal, Send, Trash2, Trophy, UserCheck, UserPlus, UserX, Users, X } from "lucide-react";
+import { FormEvent, useMemo, useState } from "react";
+import { Eye, Fish, Gift, MoreHorizontal, Send, Trash2, UserCheck, UserPlus, UserX, Users, X } from "lucide-react";
 import { AquariumRenderer } from "@/components/aquarium/aquarium-renderer";
 import { FishRevealModal } from "@/components/fish/fish-reveal-modal";
 import { Button } from "@/components/ui/button";
@@ -91,7 +91,6 @@ export function ProfileScreen() {
   const unlockedAchievements = achievements.filter((achievement) => achievement.unlockedAt).length;
   const visibleAchievements = showAllAchievements ? achievements : achievements.slice(0, 3);
   const favoriteFish = (player.data?.fish ?? []).filter((fish) => fish.isFavorite).slice(0, 4);
-  const friendsCount = friends.data?.friends.length ?? 0;
 
   function handleAddFriend(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -127,13 +126,6 @@ export function ProfileScreen() {
             </div>
           </div>
         </div>
-      </Panel>
-
-      <Panel className="grid grid-cols-4 gap-2 overflow-hidden rounded-[18px] border-cyan-100/18 bg-[linear-gradient(145deg,rgba(8,43,59,.78),rgba(4,18,31,.86))] p-3">
-        <Stat icon={<Fish className="h-5 w-5" />} label="Рыбки" value={player.data?.fish.length ?? 0} />
-        <Stat icon={<Trophy className="h-5 w-5" />} label="Уровень" value={player.data?.aquarium.level ?? 1} />
-        <Stat icon={<Users className="h-5 w-5" />} label="Друзья" value={friendsCount} />
-        <Stat icon={<Gift className="h-5 w-5" />} label="Избранное" value={favoriteFish.length} />
       </Panel>
 
       <Panel className="space-y-3 overflow-hidden rounded-[18px] border-cyan-100/18 bg-[linear-gradient(145deg,rgba(8,43,59,.76),rgba(4,18,31,.86))]">
@@ -472,17 +464,3 @@ function FriendInfo({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-
-function Stat({ icon, label, value }: { icon: ReactNode; label: string; value: number }) {
-  return (
-    <div className="relative min-w-0 overflow-hidden rounded-2xl border border-cyan-100/14 bg-slate-950/26 p-2 text-center shadow-[0_0_24px_rgba(34,211,238,.08)]">
-      <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-cyan-300/16 blur-2xl" />
-      <div className="relative z-10 grid place-items-center gap-1 text-cyan-100/85">
-        <span className="grid h-9 w-9 place-items-center rounded-2xl bg-cyan-300/12 text-cyan-100">{icon}</span>
-        <span className="max-w-full truncate text-xs font-bold">{label}</span>
-      </div>
-      <div className="relative z-10 mt-2 text-2xl font-black text-cyan-50 text-glow">{value}</div>
-    </div>
-  );
-}
-

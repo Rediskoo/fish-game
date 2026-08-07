@@ -34,7 +34,6 @@ export function AquariumClient() {
   });
 
   const cleanliness = Math.max(0, 100 - pollution * 4);
-  const fullyPolluted = pollution >= 25;
   const averageSatiety = aquariumFish.length
     ? Math.round((aquariumFish.reduce((sum, item) => sum + Math.max(0, item.maxHunger - item.hunger) / item.maxHunger, 0) / aquariumFish.length) * 100)
     : 0;
@@ -57,21 +56,6 @@ export function AquariumClient() {
       <Button className="absolute right-4 bottom-[calc(214px+var(--safe-bottom))] z-40 h-14 w-14 rounded-2xl px-0" onClick={() => setObserveMode(true)} aria-label="Режим наблюдения">
         <img className="h-6 w-6" src={aquariumAssets.icons.ui.eye} alt="" />
       </Button>
-
-      {fullyPolluted && cleaner > 0 ? (
-        <div className="absolute bottom-[calc(190px+var(--safe-bottom))] left-4 z-40 w-36 rounded-2xl border border-cyan-100/18 bg-slate-950/56 p-3 shadow-[0_18px_42px_rgba(0,0,0,.34)] backdrop-blur">
-          <div className="flex items-center gap-2">
-            <img className="h-12 w-12 shrink-0 object-contain drop-shadow-[0_10px_18px_rgba(0,0,0,.35)]" src={AppAssets.care.waterConditioner} alt="" />
-            <div className="min-w-0">
-              <div className="line-clamp-2 text-sm font-bold leading-4 text-cyan-50">Очиститель воды</div>
-              <div className="mt-1 text-xs font-black text-cyan-100/78">x{cleaner}</div>
-            </div>
-          </div>
-          <Button className="mt-3 h-10 w-full bg-cyan-300" disabled={cleanAquarium.isPending} onClick={() => cleanAquarium.mutate()}>
-            Применить
-          </Button>
-        </div>
-      ) : null}
 
       <div className="absolute bottom-[calc(108px+var(--safe-bottom))] left-4 right-4 z-30 grid grid-cols-4 gap-2">
         <QuickAction image={AppAssets.care.foodBasic} label="Покормить" onClick={() => router.push("/inventory")} />

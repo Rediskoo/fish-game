@@ -55,6 +55,24 @@ export function AquariumRenderer({ fish, className, interactive = false, backgro
         className="pointer-events-none absolute inset-0 z-0 origin-top-left bg-cover bg-center will-change-transform"
         style={{ backgroundImage: `url(${backgroundImage})` }}
       >
+        <div className="pointer-events-none absolute inset-0 z-[3]">
+          {fish.map((item, index) => (
+            <img
+              key={item.id}
+              className="aquarium-dom-fish absolute object-contain opacity-100 drop-shadow-[0_12px_18px_rgba(0,0,0,.42)]"
+              src={fishImageBySpecies[item.species]}
+              alt=""
+              style={{
+                left: `${fishPosition(item.id, index, 10, 74)}%`,
+                top: `${fishPosition(item.id, index + 17, 18, 62)}%`,
+                width: `${item.species === "GUPPY" ? 58 : item.species === "NEON_TETRA" ? 68 : item.species === "DRAGON_KOI" ? 124 : 96}px`,
+                transform: `scaleX(${fishDirection(item.id)})`,
+                animationDelay: `${-(index % 7) * 0.7}s`,
+                animationDuration: `${6 + (index % 5) * 0.8}s`
+              }}
+            />
+          ))}
+        </div>
         {seaweedDecor.length ? (
           <div className="pointer-events-none absolute inset-x-0 bottom-[-2%] z-[1] h-[28%] overflow-hidden">
             <div className="absolute inset-x-0 bottom-0 h-[65%] bg-[radial-gradient(ellipse_at_center,rgba(125,220,138,.24),transparent_70%)] blur-xl" />
@@ -510,6 +528,16 @@ function createBubble(PIXI: PixiModule, width: number, height: number) {
   bubble.y = Math.random() * height;
   bubble.alpha = 0.24 + Math.random() * 0.42;
   return bubble;
+}
+
+function fishPosition(id: string, index: number, min: number, spread: number) {
+  let hash = index * 31;
+  for (let i = 0; i < id.length; i += 1) hash = (hash * 33 + id.charCodeAt(i)) % 997;
+  return min + (hash % spread);
+}
+
+function fishDirection(id: string) {
+  return id.charCodeAt(0) % 2 === 0 ? 1 : -1;
 }
 
 function formatAge(ageSeconds: number) {

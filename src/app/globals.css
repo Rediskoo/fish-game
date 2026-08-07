@@ -139,6 +139,18 @@ input {
   animation: aquarium-bubble-jet 2s ease-in infinite;
 }
 
+.aquarium-dom-fish {
+  animation-name: aquarium-dom-fish-swim;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: margin-left, margin-top;
+}
+
+@keyframes aquarium-dom-fish-swim {
+  0%, 100% { margin-left: -12px; margin-top: 0; }
+  50% { margin-left: 18px; margin-top: -10px; }
+}
+
 @keyframes feed-drop {
   0% { opacity: 0; transform: translateY(0) scale(.75); }
   18% { opacity: 1; }
