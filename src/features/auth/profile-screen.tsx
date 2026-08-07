@@ -1,7 +1,7 @@
 ﻿"use client";
 
-import { FormEvent, useMemo, useState } from "react";
-import { Eye, Fish, Gift, MoreHorizontal, Send, Trash2, UserCheck, UserPlus, UserX, Users, X } from "lucide-react";
+import { FormEvent, ReactNode, useMemo, useState } from "react";
+import { Eye, Fish, Gift, MoreHorizontal, Send, Star, Trash2, Trophy, UserCheck, UserPlus, UserX, Users, X } from "lucide-react";
 import { AquariumRenderer } from "@/components/aquarium/aquarium-renderer";
 import { FishRevealModal } from "@/components/fish/fish-reveal-modal";
 import { Button } from "@/components/ui/button";
@@ -91,6 +91,7 @@ export function ProfileScreen() {
   const unlockedAchievements = achievements.filter((achievement) => achievement.unlockedAt).length;
   const visibleAchievements = showAllAchievements ? achievements : achievements.slice(0, 3);
   const favoriteFish = (player.data?.fish ?? []).filter((fish) => fish.isFavorite).slice(0, 4);
+  const friendsCount = friends.data?.friends.length ?? 0;
 
   function handleAddFriend(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -126,6 +127,13 @@ export function ProfileScreen() {
             </div>
           </div>
         </div>
+      </Panel>
+
+      <Panel className="relative z-0 grid grid-cols-4 gap-2 rounded-[18px] border-cyan-100/18 bg-[linear-gradient(145deg,rgba(8,43,59,.76),rgba(4,18,31,.86))]">
+        <Stat icon={<Fish className="h-5 w-5" />} label="Рыбки" value={(player.data?.fish.length ?? 0).toString()} />
+        <Stat icon={<Trophy className="h-5 w-5" />} label="Уровень" value={(player.data?.aquarium.level ?? 1).toString()} />
+        <Stat icon={<Users className="h-5 w-5" />} label="Друзья" value={friendsCount.toString()} />
+        <Stat icon={<Star className="h-5 w-5" />} label="Избранное" value={favoriteFish.length.toString()} />
       </Panel>
 
       <Panel className="space-y-3 overflow-hidden rounded-[18px] border-cyan-100/18 bg-[linear-gradient(145deg,rgba(8,43,59,.76),rgba(4,18,31,.86))]">
@@ -305,6 +313,19 @@ function AchievementTile({ achievement, index }: { achievement: AchievementView;
     </div>
   );
 }
+
+function Stat({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-2xl border border-cyan-100/10 bg-slate-950/26 p-2 text-center shadow-[inset_0_1px_0_rgba(255,255,255,.06)]">
+      <div className="mx-auto grid h-9 w-9 place-items-center rounded-xl bg-cyan-300/12 text-cyan-200">
+        {icon}
+      </div>
+      <div className="mt-2 truncate text-base font-black text-cyan-50">{value}</div>
+      <div className="truncate text-[10px] font-semibold text-cyan-100/58">{label}</div>
+    </div>
+  );
+}
+
 function FriendModal({
   friend,
   isBusy,

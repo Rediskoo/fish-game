@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import type { Container, Text } from "pixi.js";
 import type { FishView } from "@/types/game";
 import { createFishAgent, reactToFishClick, updateFishAgent, type FishAgent } from "@/components/aquarium/fish-ai";
-import { fishAnimationBySpecies, fishImageBySpecies } from "@/assets/aquarium-assets";
+import { fishImageBySpecies } from "@/assets/aquarium-assets";
 import { backgroundImageById, decorImageById } from "@/lib/app-assets";
 import { cn } from "@/lib/cn";
 import { playTone } from "@/stores/sound-store";
@@ -55,26 +55,6 @@ export function AquariumRenderer({ fish, className, interactive = false, backgro
         className="pointer-events-none absolute inset-0 z-0 origin-top-left bg-cover bg-center will-change-transform"
         style={{ backgroundImage: `url(${backgroundImage})` }}
       >
-        <div className="pointer-events-none absolute inset-0 z-[3] overflow-hidden">
-          {fish.map((item, index) => (
-            <div
-              key={item.id}
-              className={cn("aquarium-dom-fish-track absolute", fishDirection(item.id) < 0 && "aquarium-dom-fish-track-reverse")}
-              style={{
-                top: `${fishPosition(item.id, index + 17, 17, 59)}%`,
-                width: `${item.species === "GUPPY" ? 58 : item.species === "NEON_TETRA" ? 68 : item.species === "DRAGON_KOI" ? 124 : 96}px`,
-                animationDelay: `${-fishPosition(item.id, index, 0, 19)}s`,
-                animationDuration: `${16 + fishPosition(item.id, index + 5, 0, 12)}s`
-              }}
-            >
-              <img
-                className="aquarium-dom-fish-sprite h-auto w-full object-contain opacity-100 drop-shadow-[0_12px_18px_rgba(0,0,0,.42)]"
-                src={fishAnimationBySpecies[item.species]}
-                alt=""
-              />
-            </div>
-          ))}
-        </div>
         {seaweedDecor.length ? (
           <div className="pointer-events-none absolute inset-x-0 bottom-[-2%] z-[1] h-[28%] overflow-hidden">
             <div className="absolute inset-x-0 bottom-0 h-[65%] bg-[radial-gradient(ellipse_at_center,rgba(125,220,138,.24),transparent_70%)] blur-xl" />
@@ -513,7 +493,7 @@ function createFishNode(PIXI: PixiModule, fish: FishView) {
   fishSprite.anchor.set(0.5);
   fishSprite.width = fish.species === "GUPPY" ? 76 : fish.species === "NEON_TETRA" ? 86 : fish.species === "DRAGON_KOI" ? 138 : 116;
   fishSprite.height = fish.species === "DRAGON_KOI" ? 104 : fishSprite.width;
-  fishSprite.alpha = 0;
+  fishSprite.alpha = 1;
   fishSprite.tint = 0xffffff;
 
   node.addChild(aura, fishSprite);
@@ -530,18 +510,6 @@ function createBubble(PIXI: PixiModule, width: number, height: number) {
   bubble.y = Math.random() * height;
   bubble.alpha = 0.24 + Math.random() * 0.42;
   return bubble;
-}
-
-function fishPosition(id: string, index: number, min: number, spread: number) {
-  let hash = index * 31;
-  for (let i = 0; i < id.length; i += 1) hash = (hash * 33 + id.charCodeAt(i)) % 997;
-  return min + (hash % spread);
-}
-
-function fishDirection(id: string) {
-  let hash = 0;
-  for (let i = 0; i < id.length; i += 1) hash += id.charCodeAt(i) * (i + 1);
-  return hash % 2 === 0 ? 1 : -1;
 }
 
 function formatAge(ageSeconds: number) {
