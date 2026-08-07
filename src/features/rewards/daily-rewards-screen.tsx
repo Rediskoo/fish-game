@@ -68,7 +68,7 @@ export function DailyRewardsScreen() {
             <div className="mt-1 text-sm text-cyan-100/60">{claimedToday ? `Бонус уже забран${nextClaimTime ? `. Следующий в ${nextClaimTime}` : ""}` : "Можно забрать один раз в 24 часа."}</div>
           </div>
         </div>
-        <Button className={claimedToday ? "bg-slate-700 text-cyan-100 shadow-none" : "bg-cyan-300"} disabled={daily.isPending || claimedToday} onClick={() => daily.mutate()}>
+        <Button className={cn("h-12 w-full", claimedToday ? "bg-slate-700 text-cyan-100 shadow-none" : "bg-cyan-300")} disabled={daily.isPending || claimedToday} onClick={() => daily.mutate()}>
           {claimedToday ? "Получено" : "Забрать"}
         </Button>
       </Panel>

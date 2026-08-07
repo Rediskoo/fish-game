@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import type { Container, Text } from "pixi.js";
 import type { FishView } from "@/types/game";
 import { createFishAgent, reactToFishClick, updateFishAgent, type FishAgent } from "@/components/aquarium/fish-ai";
-import { fishAnimationBySpecies } from "@/assets/aquarium-assets";
+import { fishImageBySpecies } from "@/assets/aquarium-assets";
 import { backgroundImageById, decorImageById } from "@/lib/app-assets";
 import { cn } from "@/lib/cn";
 import { playTone } from "@/stores/sound-store";
@@ -489,7 +489,7 @@ function createFishNode(PIXI: PixiModule, fish: FishView) {
   aura.ellipse(0, 0, 70, 38).fill({ color: glow, alpha: auraAlpha * 0.22 });
   aura.ellipse(0, 0, 46, 25).fill({ color: glow, alpha: auraAlpha * 0.5 });
 
-  const fishSprite = PIXI.Sprite.from(fishAnimationBySpecies[fish.species]);
+  const fishSprite = PIXI.Sprite.from(fishImageBySpecies[fish.species]);
   fishSprite.anchor.set(0.5);
   fishSprite.width = fish.species === "GUPPY" ? 76 : fish.species === "NEON_TETRA" ? 86 : fish.species === "DRAGON_KOI" ? 138 : 116;
   fishSprite.height = fish.species === "DRAGON_KOI" ? 104 : fishSprite.width;
