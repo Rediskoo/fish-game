@@ -63,9 +63,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <main className={cn("ocean-shell relative min-h-dvh overflow-hidden pb-[calc(128px+var(--safe-bottom))] pt-[var(--safe-top)]", theme === "night" && "brightness-[.82] saturate-[.8]")}>
+    <main data-theme={theme} className={cn("ocean-shell relative min-h-dvh overflow-hidden pb-[calc(128px+var(--safe-bottom))] pt-[var(--safe-top)]", `theme-${theme}`)}>
       <TelegramBootstrap />
       <LanguageTranslator />
+      <ThemeAtmosphere theme={theme} />
       <Onboarding />
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <span className="screen-glow absolute left-[8%] top-[14%] h-32 w-32 rounded-full bg-cyan-300/10 blur-3xl" />
@@ -117,4 +118,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </nav>
     </main>
   );
+}
+
+function ThemeAtmosphere({ theme }: { theme: string }) {
+  if (theme === "halloween") return <div className="pointer-events-none fixed inset-0 z-[1] overflow-hidden" aria-hidden><span className="absolute left-3 top-20 text-5xl opacity-35">🕸️</span><span className="absolute right-2 top-1/3 text-4xl opacity-30">🕷️</span><span className="absolute bottom-28 left-5 text-4xl opacity-35">🎃</span></div>;
+  if (theme === "snow") return <div className="pointer-events-none fixed inset-0 z-[1] overflow-hidden" aria-hidden><span className="absolute bottom-20 left-2 text-5xl opacity-45">🎄</span><span className="absolute bottom-20 right-2 text-5xl opacity-35">🌲</span>{Array.from({ length: 24 }).map((_, index) => <i key={index} className="theme-snowflake absolute text-white/70" style={{ left: `${index * 37 % 100}%`, animationDelay: `${index * -0.41}s`, animationDuration: `${5 + index % 5}s` }}>❄</i>)}</div>;
+  return null;
 }

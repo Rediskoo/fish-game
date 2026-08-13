@@ -128,6 +128,41 @@ input {
   animation-delay: -3.5s;
 }
 
+/* Full app themes. Ocean remains the baseline and default. */
+.theme-halloween {
+  --border-soft: rgba(251, 146, 60, .28); --border-active: rgba(249, 115, 22, .62); --glass: rgba(38, 12, 48, .78);
+  --cyan: #fb923c; --cyan-bright: #fdba74; --green: #a3e635; --purple: #c084fc;
+  background: radial-gradient(circle at 18% 10%, rgba(249,115,22,.22), transparent 28%), radial-gradient(circle at 88% 40%, rgba(126,34,206,.2), transparent 32%), linear-gradient(160deg,#050308,#16051f 52%,#09040b) !important;
+}
+.theme-midnight {
+  --border-soft: rgba(203,213,225,.16); --border-active: rgba(226,232,240,.4); --glass: rgba(9,9,11,.84);
+  --cyan: #cbd5e1; --cyan-bright: #f8fafc; --green: #a3a3a3; --purple: #71717a;
+  background: radial-gradient(circle at 50% -10%,rgba(148,163,184,.12),transparent 32%),linear-gradient(180deg,#000,#09090b 55%,#020202) !important;
+}
+.theme-snow {
+  --border-soft: rgba(224,242,254,.35); --border-active: rgba(255,255,255,.68); --glass: rgba(30,78,111,.68);
+  --cyan: #bae6fd; --cyan-bright: #fff; --green: #86efac; --purple: #c4b5fd;
+  background: radial-gradient(circle at 20% 0%,rgba(255,255,255,.55),transparent 28%),radial-gradient(circle at 82% 24%,rgba(186,230,253,.38),transparent 32%),linear-gradient(180deg,#315f7b,#164e63 55%,#082f49) !important;
+}
+.theme-sunset { --border-soft:rgba(251,113,133,.28);--border-active:rgba(251,191,36,.52);--glass:rgba(76,29,149,.62);--cyan:#fda4af;--cyan-bright:#fde68a;--green:#fbbf24;--purple:#c084fc;background:radial-gradient(circle at 15% 10%,rgba(251,191,36,.28),transparent 28%),radial-gradient(circle at 90% 45%,rgba(244,63,94,.24),transparent 34%),linear-gradient(160deg,#43145f,#7c2d5a 48%,#172554) !important;}
+.theme-violet { --border-soft:rgba(232,121,249,.25);--border-active:rgba(192,132,252,.58);--glass:rgba(46,16,101,.7);--cyan:#e879f9;--cyan-bright:#f5d0fe;--green:#67e8f9;--purple:#a78bfa;background:radial-gradient(circle at 18% 8%,rgba(217,70,239,.28),transparent 30%),radial-gradient(circle at 85% 44%,rgba(59,130,246,.24),transparent 34%),linear-gradient(155deg,#18052d,#2e1065 52%,#0c173b) !important;}
+.theme-emerald { --border-soft:rgba(110,231,183,.24);--border-active:rgba(52,211,153,.54);--glass:rgba(3,78,64,.68);--cyan:#6ee7b7;--cyan-bright:#d1fae5;--green:#a7f3d0;--purple:#5eead4;background:radial-gradient(circle at 14% 8%,rgba(52,211,153,.24),transparent 30%),radial-gradient(circle at 88% 48%,rgba(13,148,136,.22),transparent 34%),linear-gradient(155deg,#022c22,#064e3b 52%,#042f2e) !important;}
+
+.ocean-shell:not(.theme-ocean) .glass,
+.ocean-shell:not(.theme-ocean) [class*="bg-slate-950"],
+.ocean-shell:not(.theme-ocean) [class*="bg-[linear-gradient"] {
+  background-color: color-mix(in srgb, var(--glass) 78%, transparent) !important;
+  border-color: var(--border-soft) !important;
+}
+.ocean-shell:not(.theme-ocean) [class*="text-cyan"], .ocean-shell:not(.theme-ocean) .text-glow { color: var(--cyan-bright) !important; }
+.ocean-shell:not(.theme-ocean) [class*="bg-cyan-300"] { background-color: color-mix(in srgb, var(--cyan) 78%, transparent) !important; }
+.ocean-shell:not(.theme-ocean) .screen-bubble { border-color: var(--cyan-bright); }
+.theme-halloween .screen-bubble { border-radius: 40% 60% 55% 45%; border-color: rgba(251,146,60,.5); }
+.theme-midnight .screen-glow { opacity: .18; filter: grayscale(1); }
+.theme-snow::after { content:"";position:fixed;z-index:1;pointer-events:none;inset:auto 0 0;height:54px;background:linear-gradient(180deg,transparent,rgba(255,255,255,.3)),radial-gradient(ellipse at 20% 100%,#e0f2fe 0 28%,transparent 30%),radial-gradient(ellipse at 70% 100%,#fff 0 32%,transparent 34%); }
+.theme-snowflake { top:-2rem; animation:snowfall linear infinite; }
+@keyframes snowfall { to { transform:translate3d(24px,110dvh,0) rotate(360deg); } }
+
 @keyframes aquarium-bubble-jet {
   0% { opacity: 0; transform: translate3d(0, 0, 0) scale(.55); }
   15% { opacity: .85; }
