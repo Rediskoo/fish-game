@@ -5,7 +5,7 @@ import type { AquariumSnapshot } from "@/types/game";
 import { applyHungerDecay } from "@/server/services/hunger.service";
 import { calculateFishIncome, claimOfflineIncome } from "@/server/services/income.service";
 import { fishToView } from "@/server/services/fish.service";
-import { evaluateAchievements } from "@/server/services/rewards.service";
+import { evaluateAchievements, getAchievementProgress } from "@/server/services/rewards.service";
 import { shopProductsById } from "@/lib/app-assets";
 import { aquariumFishCapacity } from "@/lib/fish-capacity";
 
@@ -76,10 +76,11 @@ export class PlayerService {
     const incomePerSecond = calculateFishIncome(snapshot.fish.slice(0, aquariumFishCapacity));
     const decor = Array.isArray(snapshot.aquarium.decor) ? snapshot.aquarium.decor.filter((item): item is string => typeof item === "string") : [];
     const ownedItemIds = await this.getOwnedItemIds(userId, decor, snapshot.aquarium.backgroundId);
-    const achievements = await this.db.achievement.findMany({
-      include: { users: { where: { ownerId: userId }, take: 1 } },
-      orderBy: { createdAt: "asc" }
-    });
+    const [achievements, achievementProgress] = await Promise.all([
+      this.db.achievement.findMany({ include: { users: { where: { ownerId: userId }, take: 1 } }, orderBy: { createdAt: "asc" } }),
+      getAchievementProgress(this.db, userId)
+    ]);
+    const progressByKey = new Map(achievementProgress.map((item) => [item.key, item]));
 
     return {
       user: {
@@ -125,7 +126,9 @@ export class PlayerService {
         title: achievement.title,
         description: achievement.description,
         reward: achievement.reward,
-        unlockedAt: achievement.users[0]?.unlockedAt.toISOString() ?? null
+        unlockedAt: achievement.users[0]?.unlockedAt.toISOString() ?? null,
+        current: progressByKey.get(achievement.key)?.current ?? 0,
+        target: progressByKey.get(achievement.key)?.target ?? 1
       })),
       fish: snapshot.fish.map(fishToView),
       incomePerSecond,

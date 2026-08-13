@@ -65,12 +65,11 @@ export function DailyRewardsScreen() {
 
       <Panel className="space-y-3 rounded-[18px] border-cyan-100/16 bg-[linear-gradient(145deg,rgba(8,43,59,.76),rgba(4,18,31,.86))]">
         <div className="flex items-center justify-between">
-          <div className="text-lg font-black text-cyan-50">Задания</div>
-          <div className="text-xs text-cyan-100/58">3 доступно</div>
+          <div className="text-lg font-black text-cyan-50">Прогресс достижений</div>
+          <div className="text-xs text-cyan-100/58">{unlockedAchievements}/{achievements.length}</div>
         </div>
-        <Quest title="Покорми рыб 5 раз" reward="+30" progress="3/5" tone="amber" />
-        <Quest title="Очисти аквариум" reward="+20" progress="1/1" tone="emerald" done />
-        <Quest title="Купи предмет в магазине" reward="+50" progress="0/1" tone="cyan" />
+        {achievements.slice(0, 5).map((achievement, index) => <Quest key={achievement.id} title={achievement.title} reward={`+${achievement.reward}`} current={achievement.current} target={achievement.target} tone={index % 3 === 0 ? "amber" : index % 3 === 1 ? "emerald" : "cyan"} done={Boolean(achievement.unlockedAt)} />)}
+        {!achievements.length ? <p className="text-sm text-cyan-100/55">Достижения ещё загружаются.</p> : null}
       </Panel>
 
       <Panel className="space-y-3 overflow-hidden rounded-[18px] border-cyan-100/18 bg-[linear-gradient(145deg,rgba(8,43,59,.76),rgba(4,18,31,.86))]">
@@ -102,8 +101,9 @@ export function DailyRewardsScreen() {
   );
 }
 
-function Quest({ title, reward, progress, tone, done = false }: { title: string; reward: string; progress: string; tone: "amber" | "emerald" | "cyan"; done?: boolean }) {
+function Quest({ title, reward, current, target, tone, done = false }: { title: string; reward: string; current: number; target: number; tone: "amber" | "emerald" | "cyan"; done?: boolean }) {
   const bar = tone === "amber" ? "bg-amber-300" : tone === "emerald" ? "bg-emerald-300" : "bg-cyan-300";
+  const percent = Math.min(100, Math.round(current / Math.max(1, target) * 100));
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-cyan-100/10 bg-slate-950/28 p-3">
       <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-2xl", done ? "bg-emerald-300/18 text-emerald-100" : "bg-cyan-300/14 text-cyan-100")}>
@@ -112,12 +112,12 @@ function Quest({ title, reward, progress, tone, done = false }: { title: string;
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-black text-cyan-50">{title}</div>
         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-950/64">
-          <div className={cn("h-full rounded-full", bar)} style={{ width: done ? "100%" : "60%" }} />
+          <div className={cn("h-full rounded-full", bar)} style={{ width: done ? "100%" : `${percent}%` }} />
         </div>
       </div>
       <div className="shrink-0 text-right">
         <div className="text-sm font-black text-amber-100">{reward}</div>
-        <div className="text-[10px] text-cyan-100/55">{progress}</div>
+        <div className="text-[10px] text-cyan-100/55">{Math.min(current, target)}/{target}</div>
       </div>
     </div>
   );

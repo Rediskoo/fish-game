@@ -15,5 +15,5 @@ export function useStartBreeding() {
 
 export function useBreedingAction() {
   const queryClient = useQueryClient();
-  return useMutation({ mutationFn: (input: { jobId: string; action: "incubate" | "speed-up" | "claim" }) => api<BreedingPayload>("/api/breeding", { method: "PATCH", body: JSON.stringify(input) }), onSuccess: (data, input) => { queryClient.setQueryData(["breeding"], data); if (input.action === "claim") queryClient.invalidateQueries({ queryKey: ["snapshot"] }); } });
+  return useMutation({ mutationFn: (input: { jobId: string; action: "incubate" | "speed-up" | "claim" }) => api<BreedingPayload>("/api/breeding", { method: "PATCH", body: JSON.stringify(input) }), onSuccess: (data) => { queryClient.setQueryData(["breeding"], data); queryClient.invalidateQueries({ queryKey: ["snapshot"] }); } });
 }

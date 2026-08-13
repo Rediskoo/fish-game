@@ -33,3 +33,21 @@ export function developmentProgress(job: TimedJob, now: Date) {
   const end = new Date(job.adultAt).getTime();
   return Math.max(0, Math.min(1, (now.getTime() - start) / Math.max(1, end - start)));
 }
+
+export function applyIncubatorTimes(job: Pick<TimedJob, "hatchAt" | "babyAt" | "adultAt">, now: Date, reductionMs = 60 * 60 * 1000) {
+  const oldHatch = new Date(job.hatchAt).getTime();
+  const hatchAt = new Date(Math.max(now.getTime() + 5 * 60 * 1000, oldHatch - reductionMs));
+  const shift = oldHatch - hatchAt.getTime();
+  return {
+    hatchAt,
+    babyAt: new Date(new Date(job.babyAt).getTime() - shift),
+    adultAt: new Date(new Date(job.adultAt).getTime() - shift)
+  };
+}
+
+export function applyFryFoodTimes(job: Pick<TimedJob, "babyAt" | "adultAt">, stage: "fry" | "baby", now: Date, reductionMs = 2 * 60 * 60 * 1000) {
+  const floor = now.getTime() + 5 * 60 * 1000;
+  const babyAt = stage === "fry" ? new Date(Math.max(floor, new Date(job.babyAt).getTime() - reductionMs)) : new Date(job.babyAt);
+  const adultAt = new Date(Math.max(babyAt.getTime() + 5 * 60 * 1000, floor, new Date(job.adultAt).getTime() - reductionMs));
+  return { babyAt, adultAt };
+}

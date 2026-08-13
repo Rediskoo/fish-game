@@ -168,4 +168,6 @@ export type AchievementView = {
   description: string;
   reward: number;
   unlockedAt: string | null;
+  current: number;
+  target: number;
 };

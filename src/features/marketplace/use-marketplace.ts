@@ -19,6 +19,9 @@ export function usePurchase() {
         method: "POST",
         body: JSON.stringify(input)
       }),
-    onSuccess: ({ snapshot }) => queryClient.setQueryData(["snapshot"], snapshot)
+    onSuccess: ({ snapshot }, input) => {
+      queryClient.setQueryData(["snapshot"], snapshot);
+      if (input.item === "product") queryClient.invalidateQueries({ queryKey: ["breeding"] });
+    }
   });
 }

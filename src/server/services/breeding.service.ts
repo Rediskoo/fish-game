@@ -2,7 +2,7 @@ import { randomInt } from "node:crypto";
 import { BreedingStatus, FishLifeStage, FishOrigin, FishPersonality, Rarity, TransactionType, type Prisma, type PrismaClient } from "@prisma/client";
 import { aquariumFishCapacity } from "@/lib/fish-capacity";
 import { breedingGeneticsVersion, createChildGenome, findHybrid } from "@/features/breeding/breeding-genetics";
-import { resolveBreedingStatus, resolveLifeStage } from "@/features/breeding/breeding-time";
+import { applyFryFoodTimes, applyIncubatorTimes, resolveBreedingStatus, resolveLifeStage } from "@/features/breeding/breeding-time";
 import { validateBreedingParents, type ParentEligibility } from "@/features/breeding/breeding-rules";
 import type { BreedingJobView, BreedingParentSnapshot, FishGenome } from "@/features/breeding/types";
 
@@ -125,9 +125,7 @@ export class BreedingService {
       if (job.speedupsUsed >= 3) throw new Error("Лимит ускорений для этого малыша исчерпан");
       const inventory = await tx.inventory.findUniqueOrThrow({ where: { ownerId } });
       if (inventory.fryFood <= 0) throw new Error("Нет корма для малышей");
-      const floor = now.getTime() + 5 * 60 * 1000;
-      const babyAt = view.lifeStage === "fry" ? new Date(Math.max(floor, job.babyAt.getTime() - speedupMs)) : job.babyAt;
-      const adultAt = new Date(Math.max(babyAt.getTime() + 5 * 60 * 1000, floor, job.adultAt.getTime() - speedupMs));
+      const { babyAt, adultAt } = applyFryFoodTimes(jobView(job, now), view.lifeStage as "fry" | "baby", now, speedupMs);
       await tx.inventory.update({ where: { ownerId }, data: { fryFood: { decrement: 1 } } });
       const updated = await tx.breedingJob.update({ where: { id: job.id }, data: { babyAt, adultAt, speedupsUsed: { increment: 1 } } });
       await tx.transaction.create({ data: { ownerId, type: TransactionType.BREEDING_SPEEDUP, amount: -1, metadata: { jobId, item: "fry-food" } } });
@@ -143,10 +141,11 @@ export class BreedingService {
       if (!(view.lifeStage === "egg" || view.lifeStage === "embryo")) throw new Error("Инкубатор работает только с икрой");
       const inventory = await tx.inventory.findUniqueOrThrow({ where: { ownerId: userId } });
       if (inventory.eggIncubator <= 0) throw new Error("Нет инкубатора икры");
-      const hatchAt = new Date(Math.max(now.getTime() + 300_000, job.hatchAt.getTime() - 3_600_000));
-      const shift = job.hatchAt.getTime() - hatchAt.getTime();
+      const times = applyIncubatorTimes(jobView(job, now), now);
       await tx.inventory.update({ where: { ownerId: userId }, data: { eggIncubator: { decrement: 1 } } });
-      await tx.breedingJob.update({ where: { id: job.id }, data: { hatchAt, babyAt: new Date(job.babyAt.getTime() - shift), adultAt: new Date(job.adultAt.getTime() - shift) } });
+      const updated = await tx.breedingJob.update({ where: { id: job.id }, data: times });
+      await tx.transaction.create({ data: { ownerId: userId, type: TransactionType.BREEDING_SPEEDUP, amount: -1, metadata: { jobId, item: "egg-incubator", reductionMs: job.adultAt.getTime() - updated.adultAt.getTime() } } });
+      return jobView(updated, now);
     }, { isolationLevel: "Serializable" });
   }
 

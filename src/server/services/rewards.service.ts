@@ -43,15 +43,11 @@ type RewardsDb = PrismaClient | Prisma.TransactionClient;
 async function unlockAchievement(db: RewardsDb, userId: string, key: string) {
   const achievement = await db.achievement.findUnique({ where: { key } });
   if (!achievement) return;
-
-  const existing = await db.userAchievement.findUnique({
-    where: { ownerId_achievementId: { ownerId: userId, achievementId: achievement.id } }
+  const inserted = await db.userAchievement.createMany({
+    data: [{ ownerId: userId, achievementId: achievement.id }],
+    skipDuplicates: true
   });
-  if (existing) return;
-
-  await db.userAchievement.create({
-    data: { ownerId: userId, achievementId: achievement.id }
-  });
+  if (inserted.count === 0) return;
   await db.user.update({
     where: { id: userId },
     data: { currency: { increment: achievement.reward } }
@@ -66,7 +62,7 @@ async function unlockAchievement(db: RewardsDb, userId: string, key: string) {
   });
 }
 
-export async function evaluateAchievements(db: RewardsDb, userId: string) {
+export async function getAchievementProgress(db: RewardsDb, userId: string) {
   const [user, fish, purchaseCount, feedCount, friendCount, giftCount] = await Promise.all([
     db.user.findUnique({ where: { id: userId }, select: { currency: true } }),
     db.fish.findMany({
@@ -79,24 +75,27 @@ export async function evaluateAchievements(db: RewardsDb, userId: string) {
     db.transaction.count({ where: { ownerId: userId, type: TransactionType.GIFT_SENT } })
   ]);
 
-  if (!user) return;
+  if (!user) return [];
 
   const rarities = new Set(fish.map((item) => item.fishType.rarity));
   const species = new Set(fish.map((item) => item.fishType.species));
-  const checks: Array<[boolean, string]> = [
-    [fish.length >= 5, "first_school"],
-    [user.currency >= 1000, "algae_banker"],
-    [purchaseCount >= 1, "case_opener"],
-    [rarities.has(Rarity.RARE), "rare_friend"],
-    [rarities.has(Rarity.EPIC), "epic_splash"],
-    [rarities.has(Rarity.LEGENDARY), "legendary_luck"],
-    [feedCount >= 25, "caring_owner"],
-    [friendCount >= 1, "social_aquarium"],
-    [giftCount >= 1, "generous_gift"],
-    [species.size >= 8, "collector"]
+  return [
+    { key: "first_school", current: fish.length, target: 5 },
+    { key: "algae_banker", current: user.currency, target: 1000 },
+    { key: "case_opener", current: purchaseCount, target: 1 },
+    { key: "rare_friend", current: Number(rarities.has(Rarity.RARE)), target: 1 },
+    { key: "epic_splash", current: Number(rarities.has(Rarity.EPIC)), target: 1 },
+    { key: "legendary_luck", current: Number(rarities.has(Rarity.LEGENDARY)), target: 1 },
+    { key: "caring_owner", current: feedCount, target: 25 },
+    { key: "social_aquarium", current: friendCount, target: 1 },
+    { key: "generous_gift", current: giftCount, target: 1 },
+    { key: "collector", current: species.size, target: 8 }
   ];
+}
 
-  for (const [passed, key] of checks) {
-    if (passed) await unlockAchievement(db, userId, key);
+export async function evaluateAchievements(db: RewardsDb, userId: string) {
+  const progress = await getAchievementProgress(db, userId);
+  for (const item of progress) {
+    if (item.current >= item.target) await unlockAchievement(db, userId, item.key);
   }
 }
