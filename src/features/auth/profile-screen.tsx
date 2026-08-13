@@ -24,6 +24,8 @@ import { useProfilePreferencesStore } from "@/stores/profile-preferences-store";
 import { useUpdateProfile } from "@/features/auth/use-update-profile";
 import { useSharedAquariums } from "@/features/friends/use-shared-aquariums";
 import { SharedAquariumModal } from "@/features/friends/shared-aquarium-modal";
+import { useBreeding } from "@/features/breeding/use-breeding";
+import Link from "next/link";
 
 const giftOptions = [
   { type: "FISH_CASE", label: "Кейс с рыбкой", cost: 100 },
@@ -84,6 +86,7 @@ export function ProfileScreen() {
   const profilePreferences = useProfilePreferencesStore();
   const updateProfile = useUpdateProfile();
   const sharedAquariums = useSharedAquariums();
+  const breeding = useBreeding();
   const [editingProfile, setEditingProfile] = useState(false);
   const [nicknameDraft, setNicknameDraft] = useState(profilePreferences.nickname);
   const [bioDraft, setBioDraft] = useState("");
@@ -105,6 +108,7 @@ export function ProfileScreen() {
   const avatarOptions = useMemo(() => Array.from(new Set([aquariumAssets.profile.avatarDiver, ...(player.data?.fish ?? []).slice(0, 8).map(fishVisualAsset), aquariumAssets.achievements.firstFish, aquariumAssets.achievements.masterAquarist])), [player.data?.fish]);
   const currentAvatar = profilePreferences.avatar ?? player.data?.user.profileAvatar ?? aquariumAssets.profile.avatarDiver;
   const publicName = player.data?.user.profileName ?? profilePreferences.nickname;
+  const parentInvitations = breeding.data?.invitations.filter((invitation) => invitation.direction === "received") ?? [];
 
   function handleAddFriend(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -118,6 +122,7 @@ export function ProfileScreen() {
       <header className="pt-20">
         <h1 className="text-3xl font-black text-cyan-50 text-glow">Профиль</h1>
       </header>
+      {parentInvitations.map((invitation) => <Link key={invitation.id} href="/breeding" className="block rounded-3xl border border-pink-200/35 bg-[linear-gradient(135deg,rgba(236,72,153,.34),rgba(124,58,237,.28),rgba(8,47,73,.82))] p-4 shadow-[0_0_30px_rgba(236,72,153,.18)]"><div className="flex items-center gap-3"><span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-pink-300 text-2xl">🐣</span><div className="min-w-0 flex-1"><div className="font-black text-pink-50">Приглашение в родительство</div><div className="mt-1 text-sm text-cyan-50"><span className="font-black">{invitation.friendName}</span> приглашает тебя растить рыбку вместе</div><div className="mt-1 text-xs text-cyan-100/60">Первая рыба: {invitation.parent.displayName}</div></div><span className="rounded-xl bg-pink-300 px-3 py-2 text-xs font-black text-slate-950">Ответить</span></div></Link>)}
 
       <Panel className="relative overflow-hidden rounded-[18px] border-cyan-100/18 bg-[linear-gradient(145deg,rgba(9,50,68,.82),rgba(4,20,34,.9))]">
         <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-cyan-300/18 blur-3xl" />

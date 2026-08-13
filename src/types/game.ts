@@ -167,6 +167,9 @@ export type SharedAquariumView = {
   friendName: string;
   name: string;
   pollution: number;
+  backgroundId: string;
+  decor: string[];
+  ownedItemIds: string[];
   fish: FishView[];
 };
 

@@ -316,6 +316,9 @@ model SharedAquarium {
   memberAId       String
   memberBId       String
   name            String   @default("Общий аквариум")
+  backgroundId    String   @default("deep-lagoon")
+  decor           Json     @default("[]")
+  ownedItemIds    Json     @default("[]")
   pollution       Int      @default(0)
   lastPollutionAt DateTime @default(now())
   createdAt       DateTime @default(now())
