@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useLanguageStore } from "@/stores/language-store";
+import { funnyTranslation } from "./funny-language";
 
 const translations: Record<string, string> = {
   "Главная": "Home", "Питомник": "Nursery", "Склад": "Inventory", "Магазин": "Shop", "Подарки": "Rewards", "Профиль": "Profile", "Настройки": "Settings",
@@ -19,27 +20,42 @@ const translations: Record<string, string> = {
   ,"Изменить профиль": "Edit profile", "Ник": "Nickname", "Аватарка": "Avatar", "Сохранить профиль": "Save profile", "Тема оформления": "App theme", "Хэллоуин": "Halloween", "Чёрная": "Midnight", "Снежная": "Snow", "Закат": "Sunset", "Неоновая": "Neon", "Изумруд": "Emerald"
 };
 
-const originals = new WeakMap<Text, string>();
+const originals = new WeakMap<Text, { original: string; rendered: string }>();
+const originalAttributes = new WeakMap<Element, Map<string, string>>();
 
-function funnyTranslation(value: string) {
-  const exact: Record<string, string> = { "Главная": "Рыбовка", "Питомник": "Рыбодетсад", "Склад": "Складик добра", "Магазин": "Лавка жабр", "Подарки": "Халява", "Профиль": "Моя рыбья персона", "Настройки": "Крутилки", "Мой аквариум": "Моя мокрая империя", "Загрузка аквариума...": "Будим рыбок, секундочку...", "Купить": "Хапнуть", "Рыбки": "Плавунцы", "Корм для мальков": "Детское рыбопюре" };
-  return exact[value] ?? value.replaceAll("рыб", "рыбоньк").replaceAll("Рыб", "Рыбоньк");
+function translateAttribute(element: Element, name: string, language: "ru" | "en" | "funny") {
+  const current = element.getAttribute(name);
+  if (!current) return;
+  let stored = originalAttributes.get(element);
+  if (!stored) { stored = new Map(); originalAttributes.set(element, stored); }
+  const original = stored.get(name) ?? current;
+  stored.set(name, original);
+  const translated = language === "ru" ? original : language === "funny" ? funnyTranslation(original) : translations[original] ?? original;
+  if (current !== translated) element.setAttribute(name, translated);
+}
+
+function translateElement(element: Element, language: "ru" | "en" | "funny") {
+  ["placeholder", "title", "aria-label", "alt"].forEach((name) => translateAttribute(element, name, language));
 }
 
 function translateTextNode(node: Text, language: "ru" | "en" | "funny") {
-  const original = originals.get(node) ?? node.data;
-  originals.set(node, original);
-  if (language === "ru") { if (node.data !== original) node.data = original; return; }
+  const previous = originals.get(node);
+  const original = previous && (node.data === previous.original || node.data === previous.rendered) ? previous.original : node.data;
+  if (language === "ru") { originals.set(node, { original, rendered: original }); if (node.data !== original) node.data = original; return; }
   const trimmed = original.trim();
   const translated = language === "funny" ? funnyTranslation(trimmed) : translations[trimmed];
-  if (translated) node.data = original.replace(trimmed, translated);
+  const rendered = translated ? original.replace(trimmed, translated) : original;
+  originals.set(node, { original, rendered });
+  if (node.data !== rendered) node.data = rendered;
 }
 
 function translateTree(root: Node, language: "ru" | "en" | "funny") {
   if (root instanceof Text) return translateTextNode(root, language);
+  if (root instanceof Element) translateElement(root, language);
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   let node: Node | null;
   while ((node = walker.nextNode())) translateTextNode(node as Text, language);
+  if (root instanceof Element) root.querySelectorAll("[placeholder],[title],[aria-label],[alt]").forEach((element) => translateElement(element, language));
 }
 
 export function LanguageTranslator({ enabled = true }: { enabled?: boolean }) {
@@ -50,8 +66,9 @@ export function LanguageTranslator({ enabled = true }: { enabled?: boolean }) {
     translateTree(document.body, language);
     const observer = new MutationObserver((records) => records.forEach((record) => {
       record.addedNodes.forEach((node) => translateTree(node, language));
+      if (record.type === "characterData") translateTree(record.target, language);
     }));
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, { childList: true, characterData: true, subtree: true });
     return () => observer.disconnect();
   }, [enabled, language]);
   return null;
