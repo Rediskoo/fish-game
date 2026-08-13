@@ -12,6 +12,7 @@ import { useLiveIncome } from "@/features/income/use-live-income";
 import { cn } from "@/lib/cn";
 import { useIncomeStore } from "@/stores/income-store";
 import { Onboarding } from "@/components/layout/onboarding";
+import { ApiError } from "@/lib/api/client";
 
 const navItems = [
   { href: "/breeding", label: "Питомник", icon: aquariumAssets.icons.navigation.gifts },
@@ -40,8 +41,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return () => observer.disconnect();
   }, []);
 
-  const content = player.isError ? (
+  const content = player.isError && player.error instanceof ApiError && player.error.status === 401 ? (
     <AuthRequiredPanel />
+  ) : player.isError ? (
+    <div className="grid min-h-[calc(100dvh-96px-var(--safe-top)-var(--safe-bottom))] place-items-center p-4">
+      <div className="glass max-w-sm space-y-3 rounded-3xl p-5 text-center">
+        <h1 className="text-xl font-black text-cyan-50">Не удалось загрузить аквариум</h1>
+        <p className="text-sm text-cyan-100/70">Авторизация сохранена, но сервер временно недоступен.</p>
+        <button className="rounded-xl bg-cyan-300 px-4 py-2 font-bold text-slate-950" type="button" onClick={() => void player.refetch()}>Повторить</button>
+      </div>
+    </div>
   ) : player.isPending ? (
     <div className="grid min-h-[calc(100dvh-96px-var(--safe-top)-var(--safe-bottom))] place-items-center p-4 text-sm text-cyan-100/70">
       Загрузка аквариума...
