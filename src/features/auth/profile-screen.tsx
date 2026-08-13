@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { FormEvent, ReactNode, useMemo, useState } from "react";
-import { Eye, Fish, Gift, MoreHorizontal, Send, Star, Trash2, Trophy, UserCheck, UserPlus, UserX, Users, X } from "lucide-react";
+import { Check, Eye, Fish, Gift, MoreHorizontal, Pencil, Send, Star, Trash2, Trophy, UserCheck, UserPlus, UserX, Users, X } from "lucide-react";
 import { AquariumRenderer } from "@/components/aquarium/aquarium-renderer";
 import { FishRevealModal } from "@/components/fish/fish-reveal-modal";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import {
 import { useSellFish } from "@/features/inventory/use-fish-actions";
 import { fishVisualAsset } from "@/lib/app-assets";
 import type { AcquiredFish, FishView, FriendView, PendingGiftView } from "@/types/game";
+import { useProfilePreferencesStore } from "@/stores/profile-preferences-store";
 
 const giftOptions = [
   { type: "FISH_CASE", label: "Кейс с рыбкой", cost: 100 },
@@ -77,6 +78,9 @@ export function ProfileScreen() {
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
   const [selectedGiftFriendId, setSelectedGiftFriendId] = useState<string | null>(null);
   const [revealedFish, setRevealedFish] = useState<AcquiredFish | null>(null);
+  const profilePreferences = useProfilePreferencesStore();
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [nicknameDraft, setNicknameDraft] = useState(profilePreferences.nickname);
   const selectedFriend = useMemo(
     () => friends.data?.friends.find((friend) => friend.id === selectedFriendId) ?? null,
     [friends.data?.friends, selectedFriendId]
@@ -87,6 +91,8 @@ export function ProfileScreen() {
   );
   const favoriteFish = (player.data?.fish ?? []).filter((fish) => fish.isFavorite).slice(0, 4);
   const friendsCount = friends.data?.friends.length ?? 0;
+  const avatarOptions = useMemo(() => Array.from(new Set([aquariumAssets.profile.avatarDiver, ...(player.data?.fish ?? []).slice(0, 8).map(fishVisualAsset), aquariumAssets.achievements.firstFish, aquariumAssets.achievements.masterAquarist])), [player.data?.fish]);
+  const currentAvatar = profilePreferences.avatar ?? aquariumAssets.profile.avatarDiver;
 
   function handleAddFriend(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -105,11 +111,11 @@ export function ProfileScreen() {
         <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-cyan-300/18 blur-3xl" />
         <div className="relative z-10 flex items-center gap-3">
           <div className="relative grid h-20 w-20 shrink-0 place-items-center rounded-full bg-[radial-gradient(circle,rgba(251,191,36,.18),rgba(8,36,52,.88))] text-cyan-50 shadow-[0_0_30px_rgba(251,191,36,.22)]">
-            <img className="h-16 w-16 rounded-full object-contain" src={aquariumAssets.profile.avatarDiver} alt="" />
+            <img className="h-16 w-16 rounded-full object-contain" src={currentAvatar} alt="" />
             <img className="pointer-events-none absolute inset-0 h-full w-full object-contain" src={aquariumAssets.profile.avatarFrame} alt="" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-xl font-black text-cyan-50">Аквариумист</div>
+            <div className="flex items-center gap-2"><div className="truncate text-xl font-black text-cyan-50">{profilePreferences.nickname}</div><button type="button" className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-300/12 text-cyan-100" onClick={() => { setNicknameDraft(profilePreferences.nickname); setEditingProfile((value) => !value); }} aria-label="Изменить профиль"><Pencil className="h-4 w-4" /></button></div>
             <div className="mt-1 text-sm text-cyan-100/66">В игре с {formatGameSince(player.data?.user.createdAt)}</div>
             <div className="mt-3 flex items-center gap-2">
               <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-amber-200/55 bg-slate-950/45 text-sm font-black text-amber-100">{player.data?.aquarium.level ?? 1}</span>
@@ -123,6 +129,8 @@ export function ProfileScreen() {
           </div>
         </div>
       </Panel>
+
+      {editingProfile ? <Panel className="space-y-3 border-cyan-200/24"><div className="font-black">Изменить профиль</div><label className="block text-xs text-cyan-100/60">Ник<input className="mt-1 h-11 w-full rounded-xl border border-cyan-100/16 bg-slate-950/40 px-3 text-base font-bold text-cyan-50" value={nicknameDraft} maxLength={18} onChange={(event) => setNicknameDraft(event.target.value)} /></label><div><div className="mb-2 text-xs text-cyan-100/60">Аватарка</div><div className="grid grid-cols-5 gap-2">{avatarOptions.map((avatar) => <button key={avatar} type="button" onClick={() => profilePreferences.setAvatar(avatar)} className={`grid aspect-square place-items-center rounded-2xl border p-1 ${currentAvatar === avatar ? "border-amber-200 bg-amber-300/14" : "border-cyan-100/12 bg-slate-950/30"}`}><img className="h-12 w-12 object-contain" src={avatar} alt="" /></button>)}</div></div><Button className="w-full bg-emerald-300" onClick={() => { profilePreferences.setNickname(nicknameDraft); setEditingProfile(false); }}><Check className="h-4 w-4" /> Сохранить профиль</Button></Panel> : null}
 
       <Panel className="relative z-0 grid grid-cols-4 gap-2 rounded-[18px] border-cyan-100/18 bg-[linear-gradient(145deg,rgba(8,43,59,.76),rgba(4,18,31,.86))]">
         <Stat icon={<Fish className="h-5 w-5" />} label="Рыбки" value={(player.data?.fish.length ?? 0).toString()} />

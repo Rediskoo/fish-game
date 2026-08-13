@@ -16,6 +16,7 @@ const translations: Record<string, string> = {
   "Глубокая лагуна": "Deep lagoon", "Коралловый сад": "Coral garden", "Лунный риф": "Moon reef", "Затонувший храм": "Sunken temple", "Тропическая река": "Tropical river", "Ночной грот": "Night cove",
   "Магазин аквариума": "Aquarium shop", "Выберите категорию": "Choose a category", "Разведение и рост": "Breeding and growth", "Еда и очистка": "Food and cleaning", "Водоросли и пузыри": "Seaweed and bubbles", "Вид аквариума": "Aquarium look", "Кейсы и редкость": "Cases and rarity", "В наличии": "Available", "Купить": "Buy",
   "Мой аквариум": "My aquarium", "Режим наблюдения": "Observation mode", "Ежедневные награды, задания и достижения.": "Daily rewards, quests and achievements.", "Океан": "Ocean", "Ночная": "Night", "Включены": "Enabled", "Выключены": "Disabled"
+  ,"Изменить профиль": "Edit profile", "Ник": "Nickname", "Аватарка": "Avatar", "Сохранить профиль": "Save profile", "Тема оформления": "App theme", "Хэллоуин": "Halloween", "Чёрная": "Midnight", "Снежная": "Snow", "Закат": "Sunset", "Неоновая": "Neon", "Изумруд": "Emerald"
 };
 
 const originals = new WeakMap<Text, string>();
