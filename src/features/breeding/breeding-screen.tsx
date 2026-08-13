@@ -6,7 +6,7 @@ import { aquariumAnimations, aquariumAssets } from "@/assets/aquarium-assets";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { breedingSpeciesKey, findHybrid } from "@/features/breeding/breeding-genetics";
-import { developmentProgress } from "@/features/breeding/breeding-time";
+import { stageProgress } from "@/features/breeding/breeding-time";
 import type { BreedingJobView } from "@/features/breeding/types";
 import { useBreeding, useBreedingAction, useStartBreeding } from "@/features/breeding/use-breeding";
 import { usePlayer } from "@/features/auth/use-player";
@@ -40,9 +40,13 @@ export function BreedingScreen() {
   const [favorites, setFavorites] = useState(false);
   const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+    if (!breeding.data?.serverNow) return;
+    const offset = Date.now() - new Date(breeding.data.serverNow).getTime();
+    const update = () => setNow(Date.now() - offset);
+    const initial = window.setTimeout(update, 0);
+    const timer = window.setInterval(update, 1000);
+    return () => { clearTimeout(initial); clearInterval(timer); };
+  }, [breeding.data?.serverNow]);
   const displayNow = now ?? new Date(breeding.data?.serverNow ?? 0).getTime();
   const fish = useMemo(() => player.data?.fish ?? [], [player.data?.fish]);
   const parentA = fish.find((item) => item.id === selected[0]) ?? null;
@@ -57,9 +61,9 @@ export function BreedingScreen() {
       <img src={job.lifeStage === "fry" ? aquariumAssets.backgrounds.moonlitFryLagoon : job.lifeStage === "baby" || job.lifeStage === "adult" ? aquariumAssets.backgrounds.pearlNursery : aquariumAssets.backgrounds.spawningCove} alt="" className="absolute inset-0 h-full w-full object-cover opacity-35" />
       <div className="relative space-y-3 p-4"><div className="flex justify-between gap-2"><div><div className="text-xs uppercase text-cyan-100/60">{stageLabels[job.lifeStage]}</div><div className="font-black text-cyan-50">{job.parentA.displayName} × {job.parentB.displayName}</div></div><span className="h-fit rounded-full bg-slate-950/55 px-2 py-1 text-[10px] uppercase">{job.rarity}</span></div>
       <img loading="lazy" draggable={false} className="mx-auto h-40 w-40 object-contain drop-shadow-[0_18px_24px_rgba(0,0,0,.5)]" src={visual(job)} alt="" />
-      <div className="h-2 overflow-hidden rounded-full bg-slate-950/55"><div className="h-full rounded-full bg-gradient-to-r from-cyan-300 to-emerald-300" style={{ width: `${developmentProgress(job, new Date(displayNow)) * 100}%` }} /></div>
+      <div><div className="mb-1 flex justify-between text-[10px] text-cyan-100/60"><span>Прогресс текущей стадии</span><span>{(stageProgress(job, new Date(displayNow)) * 100).toFixed(2)}%</span></div><div className="relative h-3 overflow-hidden rounded-full bg-slate-950/55"><div className="h-full rounded-full bg-gradient-to-r from-cyan-300 via-sky-300 to-emerald-300 transition-[width] duration-1000 ease-linear" style={{ width: `${stageProgress(job, new Date(displayNow)) * 100}%` }} /><div className="absolute inset-y-0 w-16 animate-[pulse_1.5s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-white/35 to-transparent" /></div></div>
       <div className="flex justify-between text-xs text-cyan-100/75"><span className="flex items-center gap-1"><Clock3 className="h-4 w-4" />{job.lifeStage === "adult" ? "Готово" : remaining(job.adultAt, displayNow)}</span><span>{job.speedupsUsed}/3</span></div>
-      {job.lifeStage !== "adult" ? <div className="space-y-2 rounded-2xl border border-amber-200/20 bg-slate-950/45 p-3"><div className="flex items-center justify-between text-xs"><span className="font-black text-amber-100">Ускорение развития</span><span className="text-cyan-100/60">использовано {job.speedupsUsed}/3</span></div><Button className="w-full bg-cyan-300 text-slate-950" disabled={action.isPending || !breeding.data?.inventory.eggIncubator || !(job.lifeStage === "egg" || job.lifeStage === "embryo")} onClick={() => action.mutate({ jobId: job.id, action: "incubate" })}><Zap className="h-4 w-4" /> Инкубатор −1 час · {breeding.data?.inventory.eggIncubator ?? 0}</Button><Button className="w-full bg-amber-300 text-slate-950" disabled={action.isPending || !breeding.data?.inventory.fryFood || job.speedupsUsed >= 3 || !(job.lifeStage === "fry" || job.lifeStage === "baby")} onClick={() => action.mutate({ jobId: job.id, action: "speed-up" })}><Zap className="h-4 w-4" /> Корм для мальков −2 часа · {breeding.data?.inventory.fryFood ?? 0}</Button><Button className="w-full bg-emerald-300 text-slate-950" disabled={action.isPending || !breeding.data?.inventory.nurseryConditioner} onClick={() => action.mutate({ jobId: job.id, action: "condition" })}><Sparkles className="h-4 w-4" /> Кондиционер −30 минут · {breeding.data?.inventory.nurseryConditioner ?? 0}</Button><p className="text-[11px] text-cyan-100/55">Ускорители покупаются в разделе «Питомник» магазина и видны на складе.</p></div> : null}
+      {job.lifeStage !== "adult" ? <div className="space-y-2 rounded-2xl border border-amber-200/20 bg-slate-950/45 p-3"><div className="flex items-center justify-between text-xs"><span className="font-black text-amber-100">Ускорение развития</span><span className="text-cyan-100/60">корм {job.speedupsUsed}/3</span></div>{job.lifeStage === "egg" || job.lifeStage === "embryo" ? <Button className="w-full bg-cyan-300 text-slate-950" disabled={action.isPending || !breeding.data?.inventory.eggIncubator} onClick={() => action.mutate({ jobId: job.id, action: "incubate" })}><Zap className="h-4 w-4" /> Инкубатор −1 час · {breeding.data?.inventory.eggIncubator ?? 0}</Button> : null}{job.lifeStage === "fry" || job.lifeStage === "baby" ? <Button className="w-full bg-amber-300 text-slate-950" disabled={action.isPending || !breeding.data?.inventory.fryFood || job.speedupsUsed >= 3} onClick={() => action.mutate({ jobId: job.id, action: "speed-up" })}><Zap className="h-4 w-4" /> Корм для мальков −2 часа · {breeding.data?.inventory.fryFood ?? 0}</Button> : null}<Button className="w-full bg-emerald-300 text-slate-950" disabled={action.isPending || !breeding.data?.inventory.nurseryConditioner} onClick={() => action.mutate({ jobId: job.id, action: "condition" })}><Sparkles className="h-4 w-4" /> Кондиционер −30 минут · {breeding.data?.inventory.nurseryConditioner ?? 0}</Button><p className="text-[11px] text-cyan-100/55">Показываются только ускорители, подходящие текущей стадии. На вылуплении доступен кондиционер.</p></div> : null}
       {(breeding.data?.inventory.genealogyMedallion ?? 0) > 0 ? <div className="rounded-2xl border border-violet-200/20 bg-violet-300/10 p-3 text-xs"><div className="font-black text-violet-100">Родословная</div><div className="mt-1 text-cyan-100/70">{job.parentA.displayName} × {job.parentB.displayName}</div><div className="mt-1 text-cyan-100/55">Геном: {job.genome.primaryColor}, {job.genome.pattern}, хвост {job.genome.tailShape}</div></div> : null}
       {job.lifeStage === "adult" ? <Button className="w-full bg-emerald-300" disabled={action.isPending} onClick={() => action.mutate({ jobId: job.id, action: "claim" })}><Check className="h-4 w-4" /> Забрать рыбу</Button> : null}</div>
     </Panel>)}

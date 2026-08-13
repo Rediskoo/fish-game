@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import manifest from "../../assets/pocket-aquarium-manifest.json";
 import { createChildGenome, findHybrid, isHybridSupported } from "./breeding-genetics";
-import { applyFryFoodTimes, applyIncubatorTimes, resolveLifeStage } from "./breeding-time";
+import { applyFryFoodTimes, applyIncubatorTimes, resolveLifeStage, stageProgress } from "./breeding-time";
 import { validateBreedingParents, type ParentEligibility } from "./breeding-rules";
 import type { BreedingParentSnapshot } from "./types";
 
@@ -45,6 +45,11 @@ describe("breeding timeline", () => {
   const job = { startedAt: "2026-01-01T00:00:00Z", hatchAt: "2026-01-01T02:00:00Z", babyAt: "2026-01-01T06:00:00Z", adultAt: "2026-01-01T12:00:00Z", status: "incubating" as const };
   it.each([["2026-01-01T00:30:00Z", "egg"], ["2026-01-01T01:30:00Z", "embryo"], ["2026-01-01T02:02:00Z", "hatching"], ["2026-01-01T03:00:00Z", "fry"], ["2026-01-01T08:00:00Z", "baby"], ["2026-01-02T00:00:00Z", "adult"]])("resolves %s as %s", (now, stage) => expect(resolveLifeStage(job, new Date(now))).toBe(stage));
   it("advances during an offline period", () => expect(resolveLifeStage(job, new Date("2026-01-01T13:00:00Z"))).toBe("adult"));
+  it("reports visible progress within the current stage", () => {
+    expect(stageProgress(job, new Date("2026-01-01T01:00:00Z"))).toBeCloseTo(0.5);
+    expect(stageProgress(job, new Date("2026-01-01T04:00:00Z"))).toBeCloseTo(0.5);
+    expect(stageProgress(job, new Date("2026-01-01T09:00:00Z"))).toBeCloseTo(0.5);
+  });
   it("incubator reduces the whole timeline by one hour", () => {
     const result = applyIncubatorTimes(job, new Date("2026-01-01T00:30:00Z"));
     expect(result.hatchAt.toISOString()).toBe("2026-01-01T01:00:00.000Z");

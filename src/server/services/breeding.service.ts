@@ -126,6 +126,7 @@ export class BreedingService {
       const inventory = await tx.inventory.findUniqueOrThrow({ where: { ownerId } });
       if (inventory.fryFood <= 0) throw new Error("Нет корма для малышей");
       const { babyAt, adultAt } = applyFryFoodTimes(jobView(job, now), view.lifeStage as "fry" | "baby", now, speedupMs);
+      if (job.adultAt.getTime() - adultAt.getTime() < 60_000) throw new Error("До взросления осталось слишком мало времени для ускорения");
       await tx.inventory.update({ where: { ownerId }, data: { fryFood: { decrement: 1 } } });
       const updated = await tx.breedingJob.update({ where: { id: job.id }, data: { babyAt, adultAt, speedupsUsed: { increment: 1 } } });
       await tx.transaction.create({ data: { ownerId, type: TransactionType.BREEDING_SPEEDUP, amount: -1, metadata: { jobId, item: "fry-food" } } });
@@ -142,6 +143,7 @@ export class BreedingService {
       const inventory = await tx.inventory.findUniqueOrThrow({ where: { ownerId: userId } });
       if (inventory.eggIncubator <= 0) throw new Error("Нет инкубатора икры");
       const times = applyIncubatorTimes(jobView(job, now), now);
+      if (job.hatchAt.getTime() - times.hatchAt.getTime() < 60_000) throw new Error("До вылупления осталось слишком мало времени для инкубатора");
       await tx.inventory.update({ where: { ownerId: userId }, data: { eggIncubator: { decrement: 1 } } });
       const updated = await tx.breedingJob.update({ where: { id: job.id }, data: times });
       await tx.transaction.create({ data: { ownerId: userId, type: TransactionType.BREEDING_SPEEDUP, amount: -1, metadata: { jobId, item: "egg-incubator", reductionMs: job.adultAt.getTime() - updated.adultAt.getTime() } } });
@@ -161,6 +163,7 @@ export class BreedingService {
       const times = stage === "egg" || stage === "embryo"
         ? applyIncubatorTimes(jobView(job, now), now, reduction)
         : { babyAt: new Date(Math.max(now.getTime() + 5 * 60 * 1000, job.babyAt.getTime() - reduction)), adultAt: new Date(Math.max(now.getTime() + 10 * 60 * 1000, job.adultAt.getTime() - reduction)) };
+      if (job.adultAt.getTime() - times.adultAt.getTime() < 60_000) throw new Error("До следующей стадии осталось слишком мало времени");
       await tx.inventory.update({ where: { ownerId: userId }, data: { nurseryConditioner: { decrement: 1 } } });
       const updated = await tx.breedingJob.update({ where: { id: job.id }, data: times });
       await tx.transaction.create({ data: { ownerId: userId, type: TransactionType.BREEDING_SPEEDUP, amount: -1, metadata: { jobId, item: "nursery-conditioner", reductionMs: reduction } } });

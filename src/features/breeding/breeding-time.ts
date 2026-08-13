@@ -34,6 +34,18 @@ export function developmentProgress(job: TimedJob, now: Date) {
   return Math.max(0, Math.min(1, (now.getTime() - start) / Math.max(1, end - start)));
 }
 
+export function stageProgress(job: TimedJob, now: Date) {
+  const current = now.getTime();
+  const started = new Date(job.startedAt).getTime();
+  const hatch = new Date(job.hatchAt).getTime();
+  const baby = new Date(job.babyAt).getTime();
+  const adult = new Date(job.adultAt).getTime();
+  const stage = resolveLifeStage(job, now);
+  const range = stage === "egg" || stage === "embryo" ? [started, hatch] : stage === "hatching" || stage === "fry" ? [hatch, baby] : stage === "baby" ? [baby, adult] : [adult, adult];
+  if (range[0] === range[1]) return 1;
+  return Math.max(0, Math.min(1, (current - range[0]) / Math.max(1, range[1] - range[0])));
+}
+
 export function applyIncubatorTimes(job: Pick<TimedJob, "hatchAt" | "babyAt" | "adultAt">, now: Date, reductionMs = 60 * 60 * 1000) {
   const oldHatch = new Date(job.hatchAt).getTime();
   const hatchAt = new Date(Math.max(now.getTime() + 5 * 60 * 1000, oldHatch - reductionMs));
