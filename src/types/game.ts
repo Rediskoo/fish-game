@@ -161,6 +161,15 @@ export type FriendsPayload = {
   requests: FriendRequestView[];
 };
 
+export type SharedAquariumView = {
+  id: string;
+  friendId: string;
+  friendName: string;
+  name: string;
+  pollution: number;
+  fish: FishView[];
+};
+
 export type FriendGiftOption = {
   type: GiftType;
   label: string;

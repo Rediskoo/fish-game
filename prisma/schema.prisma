@@ -122,6 +122,9 @@ model User {
   sentGifts              FriendGift[]    @relation("SentFriendGifts")
   receivedGifts          FriendGift[]    @relation("ReceivedFriendGifts")
   breedingJobs           BreedingJob[]
+  collaborativeBreedingJobs BreedingJob[] @relation("BreedingCollaborator")
+  sharedAquariumsA       SharedAquarium[] @relation("SharedMemberA")
+  sharedAquariumsB       SharedAquarium[] @relation("SharedMemberB")
 
   @@map("users")
 }
@@ -188,6 +191,7 @@ model Fish {
   parentSnapshots    Json?
   bornAt             DateTime?
   breedingLocked     Boolean       @default(false)
+  sharedAquariumId   String?
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
   owner              User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
@@ -196,8 +200,10 @@ model Fish {
   parentAJobs        BreedingJob[] @relation("BreedingParentA")
   parentBJobs        BreedingJob[] @relation("BreedingParentB")
   resultingJob       BreedingJob?  @relation("BreedingResult")
+  sharedAquarium     SharedAquarium? @relation(fields: [sharedAquariumId], references: [id], onDelete: SetNull)
 
   @@index([ownerId])
+  @@index([sharedAquariumId])
   @@map("fish")
 }
 
@@ -247,12 +253,38 @@ model BreedingJob {
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
   owner             User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  collaboratorId    String?
+  collaborator      User?          @relation("BreedingCollaborator", fields: [collaboratorId], references: [id], onDelete: SetNull)
+  collaborationAcceptedAt DateTime?
+  sharedAquariumId  String?
+  sharedAquarium    SharedAquarium? @relation(fields: [sharedAquariumId], references: [id], onDelete: SetNull)
 
   @@unique([ownerId, idempotencyKey])
   @@index([ownerId, status])
   @@index([parentAId])
   @@index([parentBId])
+  @@index([collaboratorId, status])
   @@map("breeding_jobs")
+}
+
+model SharedAquarium {
+  id              String   @id @default(cuid())
+  pairKey         String   @unique
+  memberAId       String
+  memberBId       String
+  name            String   @default("Общий аквариум")
+  pollution       Int      @default(0)
+  lastPollutionAt DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  memberA         User     @relation("SharedMemberA", fields: [memberAId], references: [id], onDelete: Cascade)
+  memberB         User     @relation("SharedMemberB", fields: [memberBId], references: [id], onDelete: Cascade)
+  fish            Fish[]
+  breedingJobs    BreedingJob[]
+
+  @@index([memberAId])
+  @@index([memberBId])
+  @@map("shared_aquariums")
 }
 
 model Transaction {

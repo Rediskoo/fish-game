@@ -21,7 +21,6 @@ const navItems = [
   { href: "/breeding", label: "Питомник", icon: aquariumAssets.icons.navigation.gifts },
   { href: "/inventory", label: "Склад", icon: aquariumAssets.icons.navigation.storage },
   { href: "/marketplace", label: "Магазин", icon: aquariumAssets.icons.navigation.shop },
-  { href: "/match-three", label: "Игры", icon: aquariumAssets.icons.navigation.gifts },
   { href: "/daily-rewards", label: "Подарки", icon: aquariumAssets.icons.navigation.gifts },
   { href: "/profile", label: "Профиль", icon: aquariumAssets.icons.navigation.profile },
   { href: "/settings", label: "Настройки", icon: aquariumAssets.icons.navigation.settings }

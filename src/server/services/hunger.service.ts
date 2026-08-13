@@ -5,7 +5,7 @@ type DbClient = PrismaClient | Prisma.TransactionClient;
 
 export async function applyHungerDecay(db: DbClient, userId: string, now = new Date()) {
   const fish = await db.fish.findMany({
-    where: { ownerId: userId },
+    where: { ownerId: userId, sharedAquariumId: null },
     include: { fishType: true }
   });
 

@@ -189,7 +189,7 @@ export class PlayerService {
         update: {}
       });
 
-      const fishCount = await tx.fish.count({ where: { ownerId: userId, isGiftLocked: false } });
+      const fishCount = await tx.fish.count({ where: { ownerId: userId, isGiftLocked: false, sharedAquariumId: null } });
       if (fishCount === 0) {
         await tx.fish.create({
           data: {

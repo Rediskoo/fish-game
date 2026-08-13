@@ -5,7 +5,7 @@ import { api } from "@/lib/api/client";
 import type { BreedingPayload } from "@/features/breeding/types";
 
 export function useBreeding() {
-  return useQuery({ queryKey: ["breeding"], queryFn: () => api<BreedingPayload>("/api/breeding"), refetchInterval: 60_000 });
+  return useQuery({ queryKey: ["breeding"], queryFn: () => api<BreedingPayload>("/api/breeding"), refetchInterval: 15_000 });
 }
 
 export function useStartBreeding() {
@@ -15,5 +15,5 @@ export function useStartBreeding() {
 
 export function useBreedingAction() {
   const queryClient = useQueryClient();
-  return useMutation({ mutationFn: (input: { jobId: string; action: "incubate" | "speed-up" | "condition" | "claim" }) => api<BreedingPayload>("/api/breeding", { method: "PATCH", body: JSON.stringify(input) }), onSuccess: (data) => { queryClient.setQueryData(["breeding"], data); queryClient.invalidateQueries({ queryKey: ["snapshot"] }); } });
+  return useMutation({ mutationFn: (input: { jobId: string; action: "incubate" | "speed-up" | "condition" | "claim" | "invite" | "accept"; friendId?: string }) => api<BreedingPayload>("/api/breeding", { method: "PATCH", body: JSON.stringify(input) }), onSuccess: (data) => { queryClient.setQueryData(["breeding"], data); queryClient.invalidateQueries({ queryKey: ["snapshot"] }); queryClient.invalidateQueries({ queryKey: ["friends"] }); } });
 }

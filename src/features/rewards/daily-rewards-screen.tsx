@@ -7,6 +7,7 @@ import { aquariumAssets } from "@/assets/aquarium-assets";
 import { cn } from "@/lib/cn";
 import { usePlayer } from "@/features/auth/use-player";
 import { useDailyReward } from "@/features/rewards/use-daily-reward";
+import { MatchThreeScreen } from "@/features/games/match-three-screen";
 
 function formatClaimTime(value?: string) {
   if (!value) return "";
@@ -72,6 +73,7 @@ export function DailyRewardsScreen() {
         {!achievements.length ? <p className="text-sm text-cyan-100/55">Достижения ещё загружаются.</p> : null}
       </Panel>
 
+      <MatchThreeScreen embedded />
       {daily.error ? <p className="rounded-2xl bg-yellow-300/10 p-3 text-sm text-yellow-100">{daily.error.message}</p> : null}
     </div>
   );

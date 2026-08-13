@@ -1,0 +1,11 @@
+"use client";
+import { Droplets, Pencil, Soup, X } from "lucide-react";
+import { AquariumRenderer } from "@/components/aquarium/aquarium-renderer";
+import { Button } from "@/components/ui/button";
+import { useSharedAquariumAction } from "@/features/friends/use-shared-aquariums";
+import type { SharedAquariumView } from "@/types/game";
+
+export function SharedAquariumModal({ aquarium, onClose }: { aquarium: SharedAquariumView; onClose: () => void }) {
+  const action = useSharedAquariumAction();
+  return <div data-app-modal="true" className="fixed inset-0 z-[70] grid place-items-end bg-slate-950/75 p-3 sm:place-items-center"><div className="glass max-h-[94dvh] w-full max-w-md space-y-3 overflow-y-auto rounded-3xl p-4"><div className="flex items-center justify-between"><div><div className="text-xl font-black">{aquarium.name}</div><div className="text-xs text-cyan-100/60">Вместе с {aquarium.friendName} · {aquarium.fish.length}/12 рыб</div></div><button className="grid h-10 w-10 place-items-center rounded-xl bg-slate-950/40" onClick={onClose}><X /></button></div><div className="h-[52dvh] min-h-80 overflow-hidden rounded-2xl"><AquariumRenderer fish={aquarium.fish} className="h-full min-h-0 rounded-none" pollution={aquarium.pollution} /></div><div className="grid grid-cols-2 gap-2"><Button disabled={action.isPending} className="bg-amber-300" onClick={() => action.mutate({ aquariumId: aquarium.id, action: "feed" })}><Soup className="h-4 w-4" /> Покормить всех</Button><Button disabled={action.isPending} className="bg-cyan-300" onClick={() => action.mutate({ aquariumId: aquarium.id, action: "clean" })}><Droplets className="h-4 w-4" /> Почистить</Button></div>{aquarium.fish.map((fish) => <div key={fish.id} className="flex items-center justify-between rounded-xl bg-slate-950/30 p-2"><span className="truncate text-sm font-bold">{fish.name}</span><button className="flex items-center gap-1 rounded-lg bg-cyan-300/10 px-2 py-1 text-xs" onClick={() => { const name = window.prompt("Одно общее имя для рыбки", fish.name); if (name) action.mutate({ aquariumId: aquarium.id, action: "rename", fishId: fish.id, name }); }}><Pencil className="h-3 w-3" /> Имя</button></div>)}{action.error ? <p className="text-sm text-rose-200">{action.error.message}</p> : null}</div></div>;
+}

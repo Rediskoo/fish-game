@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
   try {
     const body = addFriendSchema.parse(await request.json());
-    const payload = await new FriendsService(getPrisma()).createFriendRequest(userId, body.telegramId);
+    const payload = await new FriendsService(getPrisma()).createFriendRequest(userId, body.query);
     return ok(payload);
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Friend add failed");

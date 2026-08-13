@@ -5,6 +5,7 @@ import { breedingGeneticsVersion, createChildGenome, findHybrid } from "@/featur
 import { applyGrowthBoostTimes, applyIncubatorTimes, resolveBreedingStatus, resolveLifeStage } from "@/features/breeding/breeding-time";
 import { validateBreedingParents, type ParentEligibility } from "@/features/breeding/breeding-rules";
 import type { BreedingJobView, BreedingParentSnapshot, FishGenome } from "@/features/breeding/types";
+import { ensureLatestSchema } from "@/server/services/schema-compat.service";
 
 const maxConcurrentJobs = 1;
 const hatchDurationMs = 2 * 60 * 60 * 1000;
@@ -39,7 +40,7 @@ function eligibility(fish: FishWithType): ParentEligibility {
   return { ...parentSnapshot(fish), ownerId: fish.ownerId, lifeStage: fish.lifeStage, breedingLocked: fish.breedingLocked, isGiftLocked: fish.isGiftLocked, hunger: fish.hunger, maxHunger: fish.fishType.maxHunger };
 }
 
-function jobView(job: Prisma.BreedingJobGetPayload<Record<string, never>>, now: Date): BreedingJobView {
+function jobView(job: Prisma.BreedingJobGetPayload<Record<string, never>>, now: Date, viewerId = job.ownerId, collaboratorName = "Друг"): BreedingJobView {
   const base = {
     status: job.status.toLowerCase().replaceAll("_", "-") as BreedingJobView["status"],
     startedAt: job.startedAt.toISOString(), hatchAt: job.hatchAt.toISOString(), babyAt: job.babyAt.toISOString(), adultAt: job.adultAt.toISOString()
@@ -56,7 +57,9 @@ function jobView(job: Prisma.BreedingJobGetPayload<Record<string, never>>, now: 
     startedAt: base.startedAt, hatchAt: base.hatchAt, babyAt: base.babyAt, adultAt: base.adultAt,
     claimedAt: job.claimedAt?.toISOString() ?? null,
     resultingFishId: job.resultingFishId,
-    speedupsUsed: job.speedupsUsed
+    speedupsUsed: job.speedupsUsed,
+    sharedAquariumId: job.sharedAquariumId,
+    collaboration: job.collaboratorId ? { friendId: viewerId === job.ownerId ? job.collaboratorId : job.ownerId, friendName: collaboratorName, accepted: Boolean(job.collaborationAcceptedAt), isOwner: viewerId === job.ownerId } : null
   };
 }
 
@@ -64,30 +67,32 @@ export class BreedingService {
   constructor(private readonly db: PrismaClient) {}
 
   async getState(userId: string, now = new Date()) {
+    await ensureLatestSchema(this.db);
     const [jobs, inventory] = await Promise.all([
-      this.db.breedingJob.findMany({ where: { ownerId: userId }, orderBy: { createdAt: "desc" }, take: 20 }),
+      this.db.breedingJob.findMany({ where: { OR: [{ ownerId: userId }, { collaboratorId: userId }] }, include: { collaborator: { select: { profileName: true, firstName: true, username: true } }, owner: { select: { profileName: true, firstName: true, username: true } } }, orderBy: { createdAt: "desc" }, take: 20 }),
       this.db.inventory.findUniqueOrThrow({ where: { ownerId: userId } })
     ]);
     return {
-      jobs: jobs.map((job) => jobView(job, now)),
+      jobs: jobs.map((job) => jobView(job, now, userId, userId === job.ownerId ? (job.collaborator?.profileName ?? job.collaborator?.firstName ?? job.collaborator?.username ?? "Друг") : (job.owner.profileName ?? job.owner.firstName ?? job.owner.username ?? "Друг"))),
       inventory: { spawningNest: inventory.spawningNest, eggIncubator: inventory.eggIncubator, fryFood: inventory.fryFood, nurseryConditioner: inventory.nurseryConditioner, genealogyMedallion: inventory.genealogyMedallion },
       serverNow: now.toISOString(), maxConcurrentJobs
     };
   }
 
   async start(userId: string, input: { parentAId: string; parentBId: string; idempotencyKey: string }, now = new Date()) {
+    await ensureLatestSchema(this.db);
     const ownerId = userId;
     return this.db.$transaction(async (tx) => {
       const previous = await tx.breedingJob.findUnique({ where: { ownerId_idempotencyKey: { ownerId: userId, idempotencyKey: input.idempotencyKey } } });
       if (previous) return jobView(previous, now);
-      const parents = await tx.fish.findMany({ where: { id: { in: [input.parentAId, input.parentBId] }, ownerId }, include: { fishType: true } });
+      const parents = await tx.fish.findMany({ where: { id: { in: [input.parentAId, input.parentBId] }, ownerId, sharedAquariumId: null }, include: { fishType: true } });
       const parentA = parents.find((fish) => fish.id === input.parentAId);
       const parentB = parents.find((fish) => fish.id === input.parentBId);
       if (!parentA || !parentB) throw new Error("Родитель не найден");
       validateBreedingParents(eligibility(parentA), eligibility(parentB), userId);
       const activeJobs = await tx.breedingJob.count({ where: { ownerId, status: { notIn: [BreedingStatus.COMPLETED, BreedingStatus.CANCELLED] } } });
       if (activeJobs >= maxConcurrentJobs) throw new Error("Все слоты разведения заняты");
-      const fishCount = await tx.fish.count({ where: { ownerId, isGiftLocked: false } });
+      const fishCount = await tx.fish.count({ where: { ownerId, isGiftLocked: false, sharedAquariumId: null } });
       if (fishCount + activeJobs >= aquariumFishCapacity) throw new Error("Освободите место для будущей рыбы");
       const inventory = await tx.inventory.findUniqueOrThrow({ where: { ownerId: userId } });
       if (inventory.spawningNest <= 0) throw new Error("Для запуска нужно нерестовое гнездо");
@@ -115,10 +120,40 @@ export class BreedingService {
     }, { isolationLevel: "Serializable" });
   }
 
+  async inviteFriend(userId: string, jobId: string, friendId: string, now = new Date()) {
+    await ensureLatestSchema(this.db);
+    return this.db.$transaction(async (tx) => {
+      const job = await tx.breedingJob.findFirst({ where: { id: jobId, ownerId: userId, status: { notIn: [BreedingStatus.COMPLETED, BreedingStatus.CANCELLED] } } });
+      if (!job || now >= job.adultAt) throw new Error("Можно пригласить друга только пока рыба растёт");
+      const friendship = await tx.friend.findUnique({ where: { ownerId_friendId: { ownerId: userId, friendId } } });
+      if (!friendship) throw new Error("Пригласить можно только друга");
+      if (job.collaboratorId && job.collaboratorId !== friendId) throw new Error("В выращивании уже участвует другой друг");
+      const activeForFriend = await tx.breedingJob.count({ where: { collaboratorId: friendId, collaborationAcceptedAt: { not: null }, status: { notIn: [BreedingStatus.COMPLETED, BreedingStatus.CANCELLED] }, id: { not: job.id } } });
+      if (activeForFriend >= maxConcurrentJobs) throw new Error("У друга уже занят слот совместного выращивания");
+      return tx.breedingJob.update({ where: { id: job.id }, data: { collaboratorId: friendId, collaborationAcceptedAt: null } });
+    }, { isolationLevel: "Serializable" });
+  }
+
+  async acceptInvitation(userId: string, jobId: string, now = new Date()) {
+    await ensureLatestSchema(this.db);
+    return this.db.$transaction(async (tx) => {
+      const job = await tx.breedingJob.findFirst({ where: { id: jobId, collaboratorId: userId, collaborationAcceptedAt: null, status: { notIn: [BreedingStatus.COMPLETED, BreedingStatus.CANCELLED] } } });
+      if (!job || now >= job.adultAt) throw new Error("Приглашение уже недоступно");
+      const [memberAId, memberBId] = [job.ownerId, userId].sort();
+      const pairKey = `${memberAId}:${memberBId}`;
+      const shared = await tx.sharedAquarium.upsert({ where: { pairKey }, create: { pairKey, memberAId, memberBId }, update: {} });
+      const fishCount = await tx.fish.count({ where: { sharedAquariumId: shared.id } });
+      const reserved = await tx.breedingJob.count({ where: { sharedAquariumId: shared.id, resultingFishId: null, status: { notIn: [BreedingStatus.COMPLETED, BreedingStatus.CANCELLED] } } });
+      if (fishCount + reserved >= 12) throw new Error("В общем аквариуме нет места для новой рыбы");
+      return tx.breedingJob.update({ where: { id: job.id }, data: { collaborationAcceptedAt: now, sharedAquariumId: shared.id } });
+    }, { isolationLevel: "Serializable" });
+  }
+
   async speedUp(userId: string, jobId: string, now = new Date()) {
+    await ensureLatestSchema(this.db);
     const ownerId = userId;
     return this.db.$transaction(async (tx) => {
-      const job = await tx.breedingJob.findFirst({ where: { id: jobId, ownerId } });
+      const job = await tx.breedingJob.findFirst({ where: { id: jobId, OR: [{ ownerId }, { collaboratorId: ownerId, collaborationAcceptedAt: { not: null } }] } });
       if (!job) throw new Error("Процесс разведения не найден");
       const view = jobView(job, now);
       if (view.lifeStage === "adult" || job.status === BreedingStatus.COMPLETED || job.status === BreedingStatus.CANCELLED) throw new Error("Рыба уже выросла");
@@ -133,8 +168,9 @@ export class BreedingService {
   }
 
   async incubate(userId: string, jobId: string, now = new Date()) {
+    await ensureLatestSchema(this.db);
     return this.db.$transaction(async (tx) => {
-      const job = await tx.breedingJob.findFirst({ where: { id: jobId, ownerId: userId } });
+      const job = await tx.breedingJob.findFirst({ where: { id: jobId, OR: [{ ownerId: userId }, { collaboratorId: userId, collaborationAcceptedAt: { not: null } }] } });
       if (!job) throw new Error("Процесс разведения не найден");
       const view = jobView(job, now);
       if (!(view.lifeStage === "egg" || view.lifeStage === "embryo")) throw new Error("Инкубатор работает только с икрой");
@@ -150,8 +186,9 @@ export class BreedingService {
   }
 
   async conditionNursery(userId: string, jobId: string, now = new Date()) {
+    await ensureLatestSchema(this.db);
     return this.db.$transaction(async (tx) => {
-      const job = await tx.breedingJob.findFirst({ where: { id: jobId, ownerId: userId } });
+      const job = await tx.breedingJob.findFirst({ where: { id: jobId, OR: [{ ownerId: userId }, { collaboratorId: userId, collaborationAcceptedAt: { not: null } }] } });
       if (!job) throw new Error("Процесс разведения не найден");
       const stage = jobView(job, now).lifeStage;
       if (stage === "adult") throw new Error("Рыба уже выросла");
@@ -170,12 +207,18 @@ export class BreedingService {
   }
 
   async claim(userId: string, jobId: string, now = new Date()) {
-    const ownerId = userId;
+    await ensureLatestSchema(this.db);
+    const actorId = userId;
     return this.db.$transaction(async (tx) => {
-      const job = await tx.breedingJob.findFirst({ where: { id: jobId, ownerId } });
+      const job = await tx.breedingJob.findFirst({ where: { id: jobId, OR: [{ ownerId: actorId }, { collaboratorId: actorId, collaborationAcceptedAt: { not: null } }] } });
       if (!job) throw new Error("Процесс разведения не найден");
+      const ownerId = job.ownerId;
       if (job.resultingFishId) return job.resultingFishId;
       if (now < job.adultAt) throw new Error("Рыба ещё не выросла");
+      if (job.collaborationAcceptedAt && job.sharedAquariumId) {
+        const sharedFishCount = await tx.fish.count({ where: { sharedAquariumId: job.sharedAquariumId } });
+        if (sharedFishCount >= 12) throw new Error("В общем аквариуме нет свободного места");
+      }
       const claimed = await tx.breedingJob.updateMany({ where: { id: job.id, ownerId, resultingFishId: null, claimedAt: null }, data: { claimedAt: now, status: BreedingStatus.COMPLETED } });
       if (claimed.count !== 1) {
         const existing = await tx.breedingJob.findUniqueOrThrow({ where: { id: job.id } });
@@ -188,7 +231,7 @@ export class BreedingService {
       const fallbackType = parent?.fishType ?? await tx.fishType.findFirstOrThrow({ where: { rarity: job.rarity } });
       const snapshots = [job.parentASnapshot, job.parentBSnapshot] as Prisma.InputJsonValue[];
       const fish = await tx.fish.create({ data: {
-        ownerId, fishTypeId: fallbackType.id, name: `Гибрид ${job.hybridKey}`, swimSpeed: fallbackType.swimSpeed,
+        ownerId, sharedAquariumId: job.collaborationAcceptedAt ? job.sharedAquariumId : null, fishTypeId: fallbackType.id, name: `Дитятко ${job.hybridKey}`, swimSpeed: fallbackType.swimSpeed,
         personality: FishPersonality.CURIOUS, descriptionSeed: (job.genome as unknown as FishGenome).mutationSeed,
         genome: job.genome as Prisma.InputJsonValue, genomeVersion: job.genomeVersion, hybridKey: job.hybridKey,
         parentAId: job.parentAId, parentBId: job.parentBId, parentSnapshots: snapshots,
@@ -197,7 +240,7 @@ export class BreedingService {
       } });
       await tx.breedingJob.update({ where: { id: job.id }, data: { resultingFishId: fish.id } });
       await tx.fish.updateMany({ where: { id: { in: [job.parentAId, job.parentBId].filter((id): id is string => Boolean(id)) } }, data: { breedingLocked: false } });
-      await tx.transaction.create({ data: { ownerId, type: TransactionType.BREEDING_COMPLETE, amount: 0, metadata: { jobId, fishId: fish.id, hybridKey: job.hybridKey } } });
+      await tx.transaction.create({ data: { ownerId: actorId, type: TransactionType.BREEDING_COMPLETE, amount: 0, metadata: { jobId, fishId: fish.id, hybridKey: job.hybridKey, sharedAquariumId: job.sharedAquariumId } } });
       return fish.id;
     }, { isolationLevel: "Serializable" });
   }

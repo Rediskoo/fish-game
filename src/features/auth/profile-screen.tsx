@@ -22,6 +22,8 @@ import { fishVisualAsset } from "@/lib/app-assets";
 import type { AcquiredFish, FishView, FriendView, PendingGiftView } from "@/types/game";
 import { useProfilePreferencesStore } from "@/stores/profile-preferences-store";
 import { useUpdateProfile } from "@/features/auth/use-update-profile";
+import { useSharedAquariums } from "@/features/friends/use-shared-aquariums";
+import { SharedAquariumModal } from "@/features/friends/shared-aquarium-modal";
 
 const giftOptions = [
   { type: "FISH_CASE", label: "Кейс с рыбкой", cost: 100 },
@@ -81,12 +83,18 @@ export function ProfileScreen() {
   const [revealedFish, setRevealedFish] = useState<AcquiredFish | null>(null);
   const profilePreferences = useProfilePreferencesStore();
   const updateProfile = useUpdateProfile();
+  const sharedAquariums = useSharedAquariums();
   const [editingProfile, setEditingProfile] = useState(false);
   const [nicknameDraft, setNicknameDraft] = useState(profilePreferences.nickname);
   const [bioDraft, setBioDraft] = useState("");
+  const [sharedFriendId, setSharedFriendId] = useState<string | null>(null);
   const selectedFriend = useMemo(
     () => friends.data?.friends.find((friend) => friend.id === selectedFriendId) ?? null,
     [friends.data?.friends, selectedFriendId]
+  );
+  const selectedSharedAquarium = useMemo(
+    () => sharedAquariums.data?.find((aquarium) => aquarium.friendId === sharedFriendId) ?? null,
+    [sharedAquariums.data, sharedFriendId]
   );
   const selectedGiftFriend = useMemo(
     () => friends.data?.friends.find((friend) => friend.id === selectedGiftFriendId) ?? null,
@@ -166,13 +174,11 @@ export function ProfileScreen() {
         <form className="flex gap-2" onSubmit={handleAddFriend}>
           <input
             className="min-w-0 flex-1 rounded-xl border border-cyan-100/10 bg-slate-950/45 px-3 text-sm text-cyan-50 outline-none placeholder:text-cyan-100/35 focus:border-cyan-200/45"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            placeholder="Telegram User ID"
+            placeholder="Telegram ID или @username"
             value={telegramId}
             onChange={(event) => setTelegramId(event.target.value)}
           />
-          <Button disabled={addFriend.isPending || telegramId.trim().length < 5} type="submit">
+          <Button disabled={addFriend.isPending || telegramId.trim().length < 3} type="submit">
             <UserPlus className="h-4 w-4" />
           </Button>
         </form>
@@ -218,6 +224,7 @@ export function ProfileScreen() {
                       <Gift className="h-4 w-4" />
                     </Button>
                   ) : null}
+                  {sharedAquariums.data?.some((aquarium) => aquarium.friendId === friend.id) ? <Button className="h-10 w-10 px-0 bg-emerald-300" onClick={() => setSharedFriendId(friend.id)} aria-label="Общий аквариум и имя общей рыбы"><Pencil className="h-4 w-4" /></Button> : null}
                   <Button className="h-10 w-10 px-0" onClick={() => setSelectedFriendId(friend.id)} aria-label="Открыть меню друга">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
@@ -226,7 +233,7 @@ export function ProfileScreen() {
             ))
           ) : (
             <div className="rounded-xl bg-slate-950/25 p-3 text-sm text-cyan-100/55">
-              Добавь друга по Telegram User ID.
+              Добавь друга по Telegram ID или @username.
             </div>
           )}
         </div>
@@ -249,6 +256,8 @@ export function ProfileScreen() {
           onVisit={() => visitAquarium.mutate(selectedFriend.id)}
         />
       ) : null}
+
+      {selectedSharedAquarium ? <SharedAquariumModal aquarium={selectedSharedAquarium} onClose={() => setSharedFriendId(null)} /> : null}
 
       {selectedGiftFriend?.pendingGift ? (
         <GiftModal

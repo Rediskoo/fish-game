@@ -163,7 +163,7 @@ export class FishService {
   constructor(private readonly db: PrismaClient) {}
 
   async updateFish(userId: string, fishId: string, input: { name?: string; isFavorite?: boolean }) {
-    const fish = await this.db.fish.findFirst({ where: { id: fishId, ownerId: userId, isGiftLocked: false } });
+    const fish = await this.db.fish.findFirst({ where: { id: fishId, ownerId: userId, isGiftLocked: false, sharedAquariumId: null } });
     if (!fish) throw new Error("Fish not found");
     await this.db.fish.update({
       where: { id: fishId },
@@ -180,10 +180,10 @@ export class FishService {
 
   async sellFish(userId: string, fishId: string) {
     return this.db.$transaction(async (tx) => {
-      const fishCount = await tx.fish.count({ where: { ownerId: userId, isGiftLocked: false } });
+      const fishCount = await tx.fish.count({ where: { ownerId: userId, isGiftLocked: false, sharedAquariumId: null } });
       if (fishCount <= 1) throw new Error("You need at least one fish in the aquarium");
 
-      const fish = await tx.fish.findFirst({ where: { id: fishId, ownerId: userId, isGiftLocked: false, breedingLocked: false }, include: { fishType: true } });
+      const fish = await tx.fish.findFirst({ where: { id: fishId, ownerId: userId, isGiftLocked: false, breedingLocked: false, sharedAquariumId: null }, include: { fishType: true } });
       if (!fish) throw new Error("Fish not found");
 
       await tx.fish.delete({ where: { id: fishId } });

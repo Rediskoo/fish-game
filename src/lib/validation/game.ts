@@ -19,7 +19,7 @@ export const feedFishSchema = z.object({
 }).refine((value) => value.foodType === "aquarium" || Boolean(value.fishId), { message: "Choose a fish" });
 
 export const addFriendSchema = z.object({
-  telegramId: z.string().trim().regex(/^\d{5,20}$/, "Invalid Telegram User ID")
+  query: z.string().trim().min(3).max(32).refine((value) => /^\d{5,20}$/.test(value) || /^@?[A-Za-z0-9_]{3,32}$/.test(value), "Введите Telegram ID или @username")
 });
 
 export const friendRequestActionSchema = z.object({
@@ -49,5 +49,6 @@ export const startBreedingSchema = z.object({
 
 export const breedingActionSchema = z.object({
   jobId: z.string().cuid(),
-  action: z.enum(["incubate", "speed-up", "condition", "claim"])
-});
+  action: z.enum(["incubate", "speed-up", "condition", "claim", "invite", "accept"]),
+  friendId: z.string().cuid().optional()
+}).refine((value) => value.action !== "invite" || Boolean(value.friendId), { message: "Choose a friend" });

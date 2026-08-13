@@ -15,10 +15,10 @@ export function useFriends(enabled = true) {
 export function useAddFriend() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (telegramId: string) =>
+    mutationFn: (query: string) =>
       api<FriendsPayload>("/api/friends", {
         method: "POST",
-        body: JSON.stringify({ telegramId })
+        body: JSON.stringify({ query })
       }),
     onSuccess: (data) => queryClient.setQueryData(["friends"], data)
   });

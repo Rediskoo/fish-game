@@ -66,7 +66,7 @@ export async function getAchievementProgress(db: RewardsDb, userId: string) {
   const [user, fish, purchaseCount, feedCount, friendCount, giftCount] = await Promise.all([
     db.user.findUnique({ where: { id: userId }, select: { currency: true } }),
     db.fish.findMany({
-      where: { ownerId: userId, isGiftLocked: false },
+      where: { ownerId: userId, isGiftLocked: false, sharedAquariumId: null },
       include: { fishType: true }
     }),
     db.transaction.count({ where: { ownerId: userId, type: TransactionType.PURCHASE_FISH } }),

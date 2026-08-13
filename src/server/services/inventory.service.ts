@@ -16,9 +16,9 @@ export class InventoryService {
       if (input.foodType === "aquarium" && inventory.superFood < 1) throw new Error("Нет суперкорма");
       const now = new Date();
       if (input.foodType === "aquarium") {
-        await tx.fish.updateMany({ where: { ownerId: userId }, data: { hunger: 0, hungerUpdatedAt: now } });
+        await tx.fish.updateMany({ where: { ownerId: userId, sharedAquariumId: null }, data: { hunger: 0, hungerUpdatedAt: now } });
       } else {
-        const fish = await tx.fish.findFirstOrThrow({ where: { id: input.fishId, ownerId: userId } });
+        const fish = await tx.fish.findFirstOrThrow({ where: { id: input.fishId, ownerId: userId, sharedAquariumId: null } });
         const reduction = input.foodType === "large" ? 100 : quantity * 25;
         await tx.fish.update({ where: { id: fish.id }, data: { hunger: Math.max(0, fish.hunger - reduction), hungerUpdatedAt: now } });
       }

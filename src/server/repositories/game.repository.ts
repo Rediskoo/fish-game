@@ -18,7 +18,7 @@ export class GameRepository {
         aquarium: true,
         inventory: true,
         fish: {
-          where: { isGiftLocked: false },
+          where: { isGiftLocked: false, sharedAquariumId: null },
           include: { fishType: true },
           orderBy: [{ isFavorite: "desc" }, { createdAt: "asc" }]
         }

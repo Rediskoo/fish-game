@@ -129,7 +129,7 @@ export class FriendsService {
           friend: {
             include: {
               aquarium: true,
-              fish: { where: { isGiftLocked: false }, include: { fishType: true }, orderBy: { createdAt: "asc" } },
+              fish: { where: { isGiftLocked: false, sharedAquariumId: null }, include: { fishType: true }, orderBy: { createdAt: "asc" } },
               receivedGifts: {
                 where: { senderId: userId },
                 orderBy: { createdAt: "desc" },
@@ -168,13 +168,14 @@ export class FriendsService {
     };
   }
 
-  async createFriendRequest(userId: string, telegramId: string) {
-    const friendTelegramId = BigInt(telegramId);
+  async createFriendRequest(userId: string, query: string) {
     const currentUser = await this.db.user.findUniqueOrThrow({ where: { id: userId } });
-    if (currentUser.telegramId === friendTelegramId) throw new Error("You cannot add yourself");
-
-    const target = await this.db.user.findUnique({ where: { telegramId: friendTelegramId } });
-    if (!target) throw new Error("Account with this Telegram User ID was not found");
+    const numeric = /^\d+$/.test(query);
+    const target = numeric
+      ? await this.db.user.findUnique({ where: { telegramId: BigInt(query) } })
+      : await this.db.user.findFirst({ where: { username: { equals: query.replace(/^@/, ""), mode: "insensitive" } } });
+    if (!target) throw new Error("Пользователь с таким ID или username не найден");
+    if (currentUser.id === target.id) throw new Error("Нельзя добавить самого себя");
 
     const existingFriend = await this.db.friend.findUnique({
       where: { ownerId_friendId: { ownerId: userId, friendId: target.id } }
@@ -253,9 +254,9 @@ export class FriendsService {
 
       if (type === GiftType.OWNED_FISH) {
         if (!fishId) throw new Error("fishId is required for fish gift");
-        const fishCount = await tx.fish.count({ where: { ownerId: userId, isGiftLocked: false } });
+        const fishCount = await tx.fish.count({ where: { ownerId: userId, isGiftLocked: false, sharedAquariumId: null } });
         if (fishCount <= 1) throw new Error("You cannot gift your last fish");
-        const fish = await tx.fish.findFirst({ where: { id: fishId, ownerId: userId, isGiftLocked: false, breedingLocked: false } });
+        const fish = await tx.fish.findFirst({ where: { id: fishId, ownerId: userId, isGiftLocked: false, breedingLocked: false, sharedAquariumId: null } });
         if (!fish) throw new Error("Fish not found");
         await tx.fish.update({ where: { id: fish.id }, data: { isGiftLocked: true } });
         giftFishId = fish.id;

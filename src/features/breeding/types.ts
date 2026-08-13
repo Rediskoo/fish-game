@@ -36,6 +36,8 @@ export type BreedingJobView = {
   claimedAt: string | null;
   resultingFishId: string | null;
   speedupsUsed: number;
+  sharedAquariumId: string | null;
+  collaboration: null | { friendId: string; friendName: string; accepted: boolean; isOwner: boolean };
 };
 
 export type BreedingPayload = {
