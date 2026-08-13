@@ -6,7 +6,7 @@ import { resolveBreedingStatus, resolveLifeStage } from "@/features/breeding/bre
 import { validateBreedingParents, type ParentEligibility } from "@/features/breeding/breeding-rules";
 import type { BreedingJobView, BreedingParentSnapshot, FishGenome } from "@/features/breeding/types";
 
-const maxConcurrentJobs = 2;
+const maxConcurrentJobs = 1;
 const hatchDurationMs = 2 * 60 * 60 * 1000;
 const fryDurationMs = 4 * 60 * 60 * 1000;
 const babyDurationMs = 6 * 60 * 60 * 1000;

@@ -13,6 +13,9 @@ describe("breeding genetics", () => {
     expect(findHybrid("goldfish", "betta")?.key).toBe("goldfish-betta");
     expect(findHybrid("betta", "goldfish")?.key).toBe("goldfish-betta");
   });
+  it("supports breeding two fish of the same species", () => {
+    expect(findHybrid("goldfish", "goldfish")?.key).toBe("goldfish-pure");
+  });
   it("creates the same genome for the same seed", () => expect(createChildGenome(parentA, parentB, 42)).toEqual(createChildGenome(parentA, parentB, 42)));
   it("creates valid variations for different seeds", () => {
     const first = createChildGenome(parentA, parentB, 1);

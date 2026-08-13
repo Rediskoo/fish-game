@@ -15,10 +15,11 @@ import { cn } from "@/lib/cn";
 import { aquariumFishCapacity } from "@/lib/fish-capacity";
 import type { AquariumSnapshot, FishView } from "@/types/game";
 
-type InventoryTab = "food" | "decor" | "backgrounds" | "fish";
+type InventoryTab = "food" | "breeding" | "decor" | "backgrounds" | "fish";
 
 const inventoryTabs: Array<{ id: InventoryTab; label: string; icon: typeof Package }> = [
   { id: "food", label: "Корм и уход", icon: Utensils },
+  { id: "breeding", label: "Питомник", icon: Sparkles },
   { id: "decor", label: "Декор", icon: Sparkles },
   { id: "backgrounds", label: "Фоны", icon: ImageIcon },
   { id: "fish", label: "Рыбки", icon: Fish }
@@ -26,6 +27,7 @@ const inventoryTabs: Array<{ id: InventoryTab; label: string; icon: typeof Packa
 
 const inventoryTabMeta: Record<InventoryTab, { subtitle: string; accent: string; image: string }> = {
   food: { subtitle: "корм, очистители и уход", accent: "#E5B74F", image: AppAssets.storage.careFood },
+  breeding: { subtitle: "инкубаторы, гнёзда и корм для мальков", accent: "#F5B94E", image: AppAssets.care.spawningNest },
   decor: { subtitle: "растения, пузыри и украшения", accent: "#62D4AC", image: AppAssets.storage.decor },
   backgrounds: { subtitle: "фоны и настроение воды", accent: "#9B7BEF", image: AppAssets.storage.backgrounds },
   fish: { subtitle: "все рыбки и перенаселение", accent: "#49C7E8", image: AppAssets.storage.fish }
@@ -38,8 +40,10 @@ function inventoryBadge(tab: InventoryTab, data: {
   backgrounds: number;
   fish: number;
   capacity: number;
+  breeding: number;
 }) {
   if (tab === "food") return `${data.food + data.cleaner} шт.`;
+  if (tab === "breeding") return `${data.breeding} шт.`;
   if (tab === "decor") return `${data.decor} активно`;
   if (tab === "backgrounds") return `${data.backgrounds} фонов`;
   return `${data.fish}/${data.capacity}`;
@@ -97,6 +101,7 @@ export function InventoryScreen() {
     backgrounds: backgroundProducts.length,
     fish: fishList.length,
     capacity
+    ,breeding: (player.data?.inventory.spawningNest ?? 0) + (player.data?.inventory.eggIncubator ?? 0) + (player.data?.inventory.fryFood ?? 0) + (player.data?.inventory.nurseryConditioner ?? 0) + (player.data?.inventory.genealogyMedallion ?? 0)
   };
   const totalItems = food + cleaner + ownedProducts.length + fishList.length;
   const activeFishCount = Math.min(fishList.length, capacity);
@@ -140,6 +145,7 @@ export function InventoryScreen() {
           </div>
 
           {activeTab === "food" ? <FoodSection food={food} cleaner={cleaner} pollution={player.data?.aquarium.pollution ?? 0} isBusy={customize.isPending} onClean={() => customize.mutate({ clean: true })} /> : null}
+          {activeTab === "breeding" ? <BreedingItemsSection inventory={player.data?.inventory} /> : null}
           {activeTab === "decor" ? <DecorSection products={ownedDecorProducts} activeDecor={activeDecor} isBusy={customize.isPending} onToggle={(product, enabled) => customize.mutate({ decorId: product.id, enabled })} /> : null}
           {activeTab === "backgrounds" ? <BackgroundSection products={backgroundProducts} activeBackground={activeBackground} isBusy={customize.isPending} onSelect={(product) => customize.mutate({ backgroundId: product.id })} /> : null}
           {activeTab === "fish" ? (
@@ -261,6 +267,17 @@ function InventoryCategoryCard({
       </span>
     </button>
   );
+}
+
+function BreedingItemsSection({ inventory }: { inventory?: AquariumSnapshot["inventory"] }) {
+  const items = [
+    { title: "Нерестовое гнездо", description: "Запускает одно скрещивание", count: inventory?.spawningNest ?? 0, image: AppAssets.care.spawningNest },
+    { title: "Инкубатор икры", description: "Ускоряет икру на 1 час", count: inventory?.eggIncubator ?? 0, image: AppAssets.care.eggIncubator },
+    { title: "Корм для мальков", description: "Ускоряет взросление на 2 часа", count: inventory?.fryFood ?? 0, image: AppAssets.care.fryFood },
+    { title: "Кондиционер питомника", description: "Запас ухода за молодняком", count: inventory?.nurseryConditioner ?? 0, image: AppAssets.care.nurseryConditioner },
+    { title: "Медальон родословной", description: "Предмет для истории поколений", count: inventory?.genealogyMedallion ?? 0, image: AppAssets.care.genealogyMedallion }
+  ];
+  return <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{items.map((item) => <div key={item.title} className="grid min-h-36 grid-cols-[96px_1fr] items-center gap-3 rounded-[22px] border border-amber-200/16 bg-slate-950/32 p-3"><img className="h-24 w-24 object-contain" src={item.image} alt="" /><div className="min-w-0"><div className="text-3xl font-black text-amber-100">{item.count}</div><div className="font-black text-cyan-50">{item.title}</div><div className="mt-1 text-xs leading-4 text-cyan-100/60">{item.description}</div></div></div>)}</div>;
 }
 
 function FoodSection({ food, cleaner, pollution, isBusy, onClean }: { food: number; cleaner: number; pollution: number; isBusy: boolean; onClean: () => void }) {
