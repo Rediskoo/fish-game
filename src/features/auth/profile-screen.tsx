@@ -165,6 +165,13 @@ export function ProfileScreen() {
           ))}
         </div>
       </Panel>
+      <Panel className="space-y-3 border-emerald-200/20 bg-[linear-gradient(145deg,rgba(5,150,105,.18),rgba(8,47,73,.72))]">
+        <div className="flex items-center justify-between gap-3">
+          <div><div className="font-black text-emerald-100">Общие аквариумы</div><div className="text-xs text-cyan-100/60">Рыбки, которых вы вырастили вместе</div></div>
+          <span className="rounded-full bg-emerald-300/15 px-3 py-1 text-xs font-black text-emerald-100">{sharedAquariums.data?.length ?? 0}</span>
+        </div>
+        {sharedAquariums.data?.length ? <div className="space-y-2">{sharedAquariums.data.map((aquarium) => <button type="button" key={aquarium.id} onClick={() => setSharedFriendId(aquarium.friendId)} className="flex w-full items-center justify-between rounded-2xl border border-emerald-200/15 bg-slate-950/35 p-3 text-left"><div className="min-w-0"><div className="truncate font-black">С {aquarium.friendName}</div><div className="text-xs text-cyan-100/55">{aquarium.fish.length}/12 рыб · загрязнение {aquarium.pollution}%</div></div><span className="rounded-xl bg-emerald-300 px-3 py-2 text-xs font-black text-slate-950">Открыть</span></button>)}</div> : <div className="rounded-2xl bg-slate-950/30 p-3 text-sm text-cyan-100/60">Общий аквариум появится здесь сразу после того, как друг примет приглашение в питомнике.</div>}
+      </Panel>
       <Panel className="space-y-3">
         <div className="flex items-center gap-2">
           <Users className="h-5 w-5 text-cyan-100/70" />
@@ -224,7 +231,7 @@ export function ProfileScreen() {
                       <Gift className="h-4 w-4" />
                     </Button>
                   ) : null}
-                  {sharedAquariums.data?.some((aquarium) => aquarium.friendId === friend.id) ? <Button className="h-10 w-10 px-0 bg-emerald-300" onClick={() => setSharedFriendId(friend.id)} aria-label="Общий аквариум и имя общей рыбы"><Pencil className="h-4 w-4" /></Button> : null}
+                  {sharedAquariums.data?.some((aquarium) => aquarium.friendId === friend.id) ? <Button className="h-10 bg-emerald-300 px-3" onClick={() => setSharedFriendId(friend.id)} aria-label="Открыть общий аквариум"><span className="text-xs font-black">Общий</span></Button> : null}
                   <Button className="h-10 w-10 px-0" onClick={() => setSelectedFriendId(friend.id)} aria-label="Открыть меню друга">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
