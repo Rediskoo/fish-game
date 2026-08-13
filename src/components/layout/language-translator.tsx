@@ -21,16 +21,21 @@ const translations: Record<string, string> = {
 
 const originals = new WeakMap<Text, string>();
 
-function translateTextNode(node: Text, language: "ru" | "en") {
+function funnyTranslation(value: string) {
+  const exact: Record<string, string> = { "Главная": "Рыбовка", "Питомник": "Рыбодетсад", "Склад": "Складик добра", "Магазин": "Лавка жабр", "Подарки": "Халява", "Профиль": "Моя рыбья персона", "Настройки": "Крутилки", "Мой аквариум": "Моя мокрая империя", "Загрузка аквариума...": "Будим рыбок, секундочку...", "Купить": "Хапнуть", "Рыбки": "Плавунцы", "Корм для мальков": "Детское рыбопюре" };
+  return exact[value] ?? value.replaceAll("рыб", "рыбоньк").replaceAll("Рыб", "Рыбоньк");
+}
+
+function translateTextNode(node: Text, language: "ru" | "en" | "funny") {
   const original = originals.get(node) ?? node.data;
   originals.set(node, original);
   if (language === "ru") { if (node.data !== original) node.data = original; return; }
   const trimmed = original.trim();
-  const translated = translations[trimmed];
+  const translated = language === "funny" ? funnyTranslation(trimmed) : translations[trimmed];
   if (translated) node.data = original.replace(trimmed, translated);
 }
 
-function translateTree(root: Node, language: "ru" | "en") {
+function translateTree(root: Node, language: "ru" | "en" | "funny") {
   if (root instanceof Text) return translateTextNode(root, language);
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   let node: Node | null;

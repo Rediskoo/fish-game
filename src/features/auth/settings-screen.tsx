@@ -1,19 +1,23 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { Bell, ChevronRight, GraduationCap, Globe2, Info, MessageCircle, Moon, MousePointerClick, Smartphone, Volume2 } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { Bell, ChevronDown, ChevronRight, GraduationCap, Globe2, Info, Lock, MessageCircle, Moon, MousePointerClick, Smartphone, Volume2 } from "lucide-react";
 import { Panel } from "@/components/ui/panel";
 import { aquariumAssets } from "@/assets/aquarium-assets";
 import { cn } from "@/lib/cn";
 import { useSoundStore } from "@/stores/sound-store";
 import { useLanguageStore } from "@/stores/language-store";
 import { themeOptions, usePreferencesStore } from "@/stores/preferences-store";
+import { usePlayer } from "@/features/auth/use-player";
 
 export function SettingsScreen() {
   const sounds = useSoundStore();
   const language = useLanguageStore((state) => state.language);
   const setLanguage = useLanguageStore((state) => state.setLanguage);
   const preferences = usePreferencesStore();
+  const player = usePlayer();
+  const [themesOpen, setThemesOpen] = useState(false);
+  const owned = new Set(player.data?.inventory.ownedItemIds ?? []);
 
   return (
     <div className="space-y-4 p-4">
@@ -41,8 +45,8 @@ export function SettingsScreen() {
 
       <Panel className="space-y-1 overflow-hidden rounded-[18px] border-cyan-100/16 bg-[linear-gradient(145deg,rgba(8,43,59,.72),rgba(4,18,31,.86))]">
         <SettingsRow icon={<GraduationCap className="h-4 w-4" />} label="Повторить обучение" value="" onClick={() => window.dispatchEvent(new Event("aquarium:restart-onboarding"))} />
-        <div className="flex min-h-14 items-center gap-3 rounded-xl px-2.5"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-slate-950/36 text-cyan-100"><Globe2 className="h-4 w-4" /></span><span className="mr-auto text-sm font-bold text-cyan-50">Язык</span><div className="flex rounded-xl bg-slate-950/38 p-1"><button type="button" className={cn("rounded-lg px-3 py-1.5 text-xs font-black", language === "ru" ? "bg-cyan-300 text-slate-950" : "text-cyan-100/60")} onClick={() => { setLanguage("ru"); window.setTimeout(() => window.location.reload(), 0); }}>RU</button><button type="button" className={cn("rounded-lg px-3 py-1.5 text-xs font-black", language === "en" ? "bg-cyan-300 text-slate-950" : "text-cyan-100/60")} onClick={() => { setLanguage("en"); window.setTimeout(() => window.location.reload(), 0); }}>EN</button></div></div>
-        <div className="space-y-3 rounded-2xl bg-slate-950/22 p-3"><div className="flex items-center gap-3"><span className="grid h-8 w-8 place-items-center rounded-xl bg-slate-950/36 text-cyan-100"><Moon className="h-4 w-4" /></span><span className="text-sm font-bold">Тема оформления</span></div><div className="grid grid-cols-2 gap-2">{themeOptions.map((option) => <button key={option.id} type="button" onClick={() => preferences.setTheme(option.id)} className={cn("flex items-center gap-2 rounded-xl border p-2 text-left text-xs font-black", preferences.theme === option.id ? "border-cyan-200/50 bg-cyan-300/14" : "border-cyan-100/10 bg-slate-950/28")}><span className="flex">{option.colors.map((color) => <i key={color} className="-mr-1 h-5 w-5 rounded-full border border-white/20" style={{ backgroundColor: color }} />)}</span>{option.label}</button>)}</div></div>
+        <div className="flex min-h-14 items-center gap-3 rounded-xl px-2.5"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-slate-950/36 text-cyan-100"><Globe2 className="h-4 w-4" /></span><span className="mr-auto text-sm font-bold text-cyan-50">Язык</span><div className="flex rounded-xl bg-slate-950/38 p-1">{([['ru','RU'],['en','EN'],['funny','🤣']] as const).map(([id,label]) => <button key={id} type="button" className={cn("rounded-lg px-2.5 py-1.5 text-xs font-black", language === id ? "bg-cyan-300 text-slate-950" : "text-cyan-100/60")} onClick={() => { setLanguage(id); window.setTimeout(() => window.location.reload(), 0); }}>{label}</button>)}</div></div>
+        <div className="rounded-2xl bg-slate-950/22 p-3"><button type="button" className="flex w-full items-center gap-3" onClick={() => setThemesOpen((value) => !value)}><span className="grid h-8 w-8 place-items-center rounded-xl bg-slate-950/36 text-cyan-100"><Moon className="h-4 w-4" /></span><span className="text-sm font-bold">Тема оформления</span><span className="ml-auto text-xs text-cyan-100/55">{themeOptions.find((item) => item.id === preferences.theme)?.label}</span><ChevronDown className={cn("h-4 w-4 transition", themesOpen && "rotate-180")} /></button>{themesOpen ? <div className="mt-3 grid grid-cols-2 gap-2">{themeOptions.map((option) => { const unlocked = option.id === "ocean" || owned.has(`theme-${option.id}`); return <button key={option.id} type="button" disabled={!unlocked} onClick={() => preferences.setTheme(option.id)} className={cn("flex items-center gap-2 rounded-xl border p-2 text-left text-xs font-black", preferences.theme === option.id ? "border-cyan-200/50 bg-cyan-300/14" : "border-cyan-100/10 bg-slate-950/28", !unlocked && "opacity-45")}><span className="flex">{option.colors.map((color) => <i key={color} className="-mr-1 h-5 w-5 rounded-full border border-white/20" style={{ backgroundColor: color }} />)}</span><span className="min-w-0 truncate">{option.label}</span>{!unlocked ? <Lock className="ml-auto h-3 w-3" /> : null}</button>; })}</div> : null}</div>
         <SettingsRow icon={<Info className="h-4 w-4" />} label="О приложении" value="Версия 1.0.0" onClick={() => window.alert("Карманный аквариум · версия 1.0.0")} />
         <SettingsRow icon={<MessageCircle className="h-4 w-4" />} label="Поддержка" value="" onClick={() => window.open(process.env.NEXT_PUBLIC_SUPPORT_URL ?? "mailto:support@pocket-aquarium.app", "_blank", "noopener,noreferrer")} />
       </Panel>

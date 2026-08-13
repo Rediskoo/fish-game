@@ -41,6 +41,7 @@ enum TransactionType {
   BREEDING_SPEEDUP
   BREEDING_COMPLETE
   PURCHASE_BREEDING_ITEM
+  MATCH_THREE_REWARD
 }
 
 enum FishLifeStage {
@@ -101,6 +102,9 @@ model User {
   firstName         String?
   lastName          String?
   photoUrl          String?
+  profileName       String?
+  profileBio        String?
+  profileAvatar     String?
   currency          Int           @default(0)
   lastLoginAt       DateTime      @default(now())
   createdAt         DateTime      @default(now())

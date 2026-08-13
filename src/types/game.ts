@@ -37,6 +37,9 @@ export type AquariumSnapshot = {
     telegramId: string;
     username: string | null;
     firstName: string | null;
+    profileName: string | null;
+    profileBio: string | null;
+    profileAvatar: string | null;
     currency: number;
     createdAt: string;
   };
@@ -133,6 +136,9 @@ export type FriendView = {
   telegramId: string;
   username: string | null;
   firstName: string | null;
+  profileName: string | null;
+  profileBio: string | null;
+  profileAvatar: string | null;
   fishCount: number;
   level: number;
   friendsSince: string;

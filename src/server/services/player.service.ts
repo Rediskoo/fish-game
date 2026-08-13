@@ -8,6 +8,7 @@ import { fishToView } from "@/server/services/fish.service";
 import { evaluateAchievements, getAchievementProgress } from "@/server/services/rewards.service";
 import { shopProductsById } from "@/lib/app-assets";
 import { aquariumFishCapacity } from "@/lib/fish-capacity";
+import { ensureLatestSchema } from "@/server/services/schema-compat.service";
 
 const dailyRewardAmount = 100;
 
@@ -54,6 +55,7 @@ export class PlayerService {
   }
 
   async getSnapshot(userId: string): Promise<AquariumSnapshot> {
+    await ensureLatestSchema(this.db);
     await applyHungerDecay(this.db, userId);
     let snapshot = await this.ensurePlayerState(userId);
     if (await this.accruePollution(userId, snapshot.aquarium)) {
@@ -94,6 +96,9 @@ export class PlayerService {
         telegramId: snapshot.telegramId.toString(),
         username: snapshot.username,
         firstName: snapshot.firstName,
+        profileName: snapshot.profileName,
+        profileBio: snapshot.profileBio,
+        profileAvatar: snapshot.profileAvatar,
         currency: snapshot.currency,
         createdAt: snapshot.createdAt.toISOString()
       },
@@ -222,7 +227,7 @@ export class PlayerService {
     }
     return [...owned].filter((id) => {
       const product = shopProductsById[id];
-      return id === "deep-lagoon" || product?.category === "decor" || product?.category === "backgrounds";
+      return id === "deep-lagoon" || product?.category === "decor" || product?.category === "backgrounds" || product?.category === "themes";
     });
   }
 

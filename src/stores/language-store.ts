@@ -3,11 +3,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type AppLanguage = "ru" | "en";
+export type AppLanguage = "ru" | "en" | "funny";
 type LanguageState = { language: AppLanguage; setLanguage: (language: AppLanguage) => void };
 
 function validLanguage(value: unknown): AppLanguage {
-  return value === "en" ? "en" : "ru";
+  return value === "en" || value === "funny" ? value : "ru";
 }
 
 export const useLanguageStore = create<LanguageState>()(

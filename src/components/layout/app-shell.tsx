@@ -21,6 +21,7 @@ const navItems = [
   { href: "/breeding", label: "Питомник", icon: aquariumAssets.icons.navigation.gifts },
   { href: "/inventory", label: "Склад", icon: aquariumAssets.icons.navigation.storage },
   { href: "/marketplace", label: "Магазин", icon: aquariumAssets.icons.navigation.shop },
+  { href: "/match-three", label: "Игры", icon: aquariumAssets.icons.navigation.gifts },
   { href: "/daily-rewards", label: "Подарки", icon: aquariumAssets.icons.navigation.gifts },
   { href: "/profile", label: "Профиль", icon: aquariumAssets.icons.navigation.profile },
   { href: "/settings", label: "Настройки", icon: aquariumAssets.icons.navigation.settings }
@@ -31,8 +32,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const player = usePlayer();
   const friends = useFriends(Boolean(player.data));
   const [hasModal, setHasModal] = useState(false);
-  const theme = usePreferencesStore((state) => state.theme);
+  const selectedTheme = usePreferencesStore((state) => state.theme);
   useLiveIncome(player.data);
+  const theme = selectedTheme === "ocean" || player.data?.inventory.ownedItemIds.includes(`theme-${selectedTheme}`) ? selectedTheme : "ocean";
   const optimisticCurrency = useIncomeStore((state) => state.optimisticCurrency);
   const profileNeedsAttention = Boolean(friends.data?.friends.some((friend) => friend.pendingGift) || friends.data?.requests.some((request) => request.direction === "incoming"));
 

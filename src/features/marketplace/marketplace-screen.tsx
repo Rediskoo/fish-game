@@ -8,10 +8,12 @@ import { useRenameFish, useSellFish } from "@/features/inventory/use-fish-action
 import { useMarketplace, usePurchase } from "@/features/marketplace/use-marketplace";
 import { AppAssets, fishSpeciesAsset, shopCategories, shopProducts, type ShopCategory, type ShopProduct } from "@/lib/app-assets";
 import type { CaseResult, MarketplaceFish } from "@/types/game";
+import { usePlayer } from "@/features/auth/use-player";
 
 export function MarketplaceScreen() {
   const marketplace = useMarketplace();
   const purchase = usePurchase();
+  const player = usePlayer();
   const sellFish = useSellFish();
   const renameFish = useRenameFish();
   const [caseResult, setCaseResult] = useState<CaseResult | null>(null);
@@ -98,7 +100,7 @@ export function MarketplaceScreen() {
 
           <div className="grid grid-cols-2 gap-3">
             {visibleProducts.map((product) => (
-              <ShopProductCard key={product.id} product={product} isBusy={purchase.isPending} onBuy={() => buy(product)} />
+              <ShopProductCard key={product.id} product={product} isBusy={purchase.isPending} isOwned={!product.repeatable && Boolean(player.data?.inventory.ownedItemIds.includes(product.id))} onBuy={() => buy(product)} />
             ))}
           </div>
 
@@ -124,7 +126,7 @@ export function MarketplaceScreen() {
   );
 }
 
-function ShopProductCard({ product, isBusy, onBuy }: { product: ShopProduct; isBusy: boolean; onBuy: () => void }) {
+function ShopProductCard({ product, isBusy, isOwned, onBuy }: { product: ShopProduct; isBusy: boolean; isOwned: boolean; onBuy: () => void }) {
   const isBackground = product.category === "backgrounds";
   const isCase = product.id === "fish-case";
 
@@ -134,13 +136,13 @@ function ShopProductCard({ product, isBusy, onBuy }: { product: ShopProduct; isB
         "group relative grid overflow-hidden rounded-[24px] border border-cyan-100/14 bg-[linear-gradient(150deg,rgba(13,38,51,.92),rgba(5,17,29,.90))] p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.32)] transition active:scale-[.98] disabled:opacity-65",
         isCase ? "col-span-2 min-h-44 grid-cols-[1fr_42%]" : "aspect-square grid-rows-[1fr_auto]"
       ].join(" ")}
-      disabled={isBusy}
+      disabled={isBusy || isOwned}
       onClick={onBuy}
     >
       {isBackground ? <img className="absolute inset-0 h-full w-full object-cover opacity-80" src={product.image} alt="" /> : null}
       <div className="absolute inset-0" style={{ background: isBackground ? "linear-gradient(180deg, rgba(2,12,22,.10), rgba(2,12,22,.82))" : `radial-gradient(circle at 72% 28%, ${product.accent}36, transparent 45%), linear-gradient(180deg, transparent, rgba(0,0,0,.20))` }} />
       {!isBackground ? <div className="absolute -right-8 top-8 h-28 w-28 rounded-full blur-2xl" style={{ backgroundColor: `${product.accent}24` }} /> : null}
-      <span className="absolute left-3 top-3 z-10 rounded-full bg-slate-950/50 px-2 py-1 text-[11px] font-black text-cyan-50/86 backdrop-blur">{product.status ?? "В наличии"}</span>
+      {!isCase ? <span className="absolute left-3 top-3 z-10 rounded-full bg-slate-950/50 px-2 py-1 text-[11px] font-black text-cyan-50/86 backdrop-blur">{isOwned ? "Куплено" : product.status ?? "В наличии"}</span> : null}
 
       {isCase ? (
         <>

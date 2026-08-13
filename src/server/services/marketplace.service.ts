@@ -1,4 +1,4 @@
-import { TransactionType, type FishType, type PrismaClient } from "@prisma/client";
+import { Rarity, TransactionType, type FishType, type PrismaClient } from "@prisma/client";
 import type { CaseTapeItem } from "@/types/game";
 import { createOwnedFish, fishCatalogOrder, fishRarityMeta, fishToAcquiredView } from "@/server/services/fish.service";
 import { evaluateAchievements } from "@/server/services/rewards.service";
@@ -6,10 +6,12 @@ import { evaluateAchievements } from "@/server/services/rewards.service";
 export const fishCost = 100;
 
 function pickWeighted(types: FishType[]) {
-  const total = types.reduce((sum, type) => sum + type.dropChanceBps, 0);
+  const rarityBoost: Record<Rarity, number> = { COMMON: 0.35, RARE: 1.4, EPIC: 2, LEGENDARY: 3.5 };
+  const weight = (type: FishType) => Math.max(1, Math.round(type.dropChanceBps * rarityBoost[type.rarity]));
+  const total = types.reduce((sum, type) => sum + weight(type), 0);
   let roll = Math.floor(Math.random() * total);
   for (const type of types) {
-    roll -= type.dropChanceBps;
+    roll -= weight(type);
     if (roll <= 0) return type;
   }
   return types[0];
@@ -41,9 +43,9 @@ export class MarketplaceService {
   async purchaseFish(userId: string) {
     const types = await this.listFishTypes();
     if (types.length === 0) throw new Error("Fish catalog is empty");
-    // A case now has a 60% fish reward. A winning roll uses three matching
+    // A case now has an 80% fish reward with rarity-biased case weights. A winning roll uses three matching
     // symbols; non-winning rolls still keep the old partial currency refund.
-    const guaranteedFish = Math.random() < 0.6;
+    const guaranteedFish = Math.random() < 0.8;
     const first = pickWeighted(types);
     const selected = guaranteedFish
       ? [first, first, first] as const

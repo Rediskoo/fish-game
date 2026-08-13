@@ -85,7 +85,7 @@ export function fishVisualAsset(fish: { species: FishSpecies; hybridKey?: string
   return fish.hybridKey && !fish.hybridKey.endsWith("-pure") ? aquariumAssets.breeding.hybrid(fish.hybridKey) : fishSpeciesAsset[fish.species];
 }
 
-export type ShopCategory = "fish" | "care" | "breeding" | "decor" | "backgrounds";
+export type ShopCategory = "fish" | "care" | "breeding" | "decor" | "backgrounds" | "themes";
 
 export type ShopProduct = {
   id: string;
@@ -105,10 +105,22 @@ export const shopCategories: Array<{ id: ShopCategory; title: string; subtitle: 
   { id: "care", title: "Корм", subtitle: "Еда и очистка", image: AppAssets.shop.careFood, accent: "#E5B74F" },
   { id: "decor", title: "Декор", subtitle: "Водоросли и пузыри", image: AppAssets.shop.decorRuins, accent: "#62D4AC" },
   { id: "backgrounds", title: "Фоны", subtitle: "Вид аквариума", image: AppAssets.shop.aquariumDisplay, accent: "#9B7BEF" },
+  { id: "themes", title: "Темы", subtitle: "Полное оформление приложения", image: aquariumAssets.profile.avatarFrame, accent: "#F472B6" },
   { id: "fish", title: "Рыбки", subtitle: "Кейсы и редкость", image: AppAssets.shop.caseChest, accent: "#49C7E8" }
 ];
 
 export const shopProducts: ShopProduct[] = [
+  { id: "theme-halloween", title: "Хэллоуин", category: "themes", price: 180, image: aquariumAssets.profile.avatarFrame, description: "Тёмная вода, тыквенные оттенки и паутина.", accent: "#fb923c", repeatable: false },
+  { id: "theme-midnight", title: "Чёрная", category: "themes", price: 140, image: aquariumAssets.profile.avatarFrame, description: "Почти чёрный аквариум и серебряные акценты.", accent: "#94a3b8", repeatable: false },
+  { id: "theme-snow", title: "Снежная", category: "themes", price: 200, image: aquariumAssets.profile.avatarFrame, description: "Снег, ледяная вода и зимнее свечение.", accent: "#bae6fd", repeatable: false },
+  { id: "theme-sunset", title: "Закат", category: "themes", price: 160, image: aquariumAssets.profile.avatarFrame, description: "Тёплая розово-золотая вода.", accent: "#fb7185", repeatable: false },
+  { id: "theme-violet", title: "Неоновая", category: "themes", price: 190, image: aquariumAssets.profile.avatarFrame, description: "Фиолетовый неон и яркие пузыри.", accent: "#e879f9", repeatable: false },
+  { id: "theme-emerald", title: "Изумруд", category: "themes", price: 170, image: aquariumAssets.profile.avatarFrame, description: "Зелёная вода и мятное свечение.", accent: "#6ee7b7", repeatable: false },
+  { id: "theme-funny", title: "Смешная", category: "themes", price: 222, image: aquariumAssets.achievements.firstFish, description: "Безумные цвета, весёлые пузыри и серьёзность −100%.", accent: "#fde047", repeatable: false },
+  { id: "theme-blood-moon", title: "Кровавая луна", category: "themes", price: 260, image: aquariumAssets.achievements.masterAquarist, description: "Багровая вода и мрачное лунное свечение.", accent: "#ef4444", repeatable: false },
+  { id: "theme-wine", title: "Вино", category: "themes", price: 230, image: aquariumAssets.profile.avatarFrame, description: "Бордовая вода, винные пузыри и бархатные карточки.", accent: "#be185d", repeatable: false },
+  { id: "theme-toxic", title: "Токсичная", category: "themes", price: 210, image: aquariumAssets.profile.avatarFrame, description: "Кислотно-зелёная вода и радиоактивные пузыри.", accent: "#a3e635", repeatable: false },
+  { id: "theme-candy", title: "Сахарная вата", category: "themes", price: 195, image: aquariumAssets.profile.avatarFrame, description: "Розово-голубая вода и сладкие градиенты.", accent: "#f9a8d4", repeatable: false },
   { id: "spawning-nest", title: "Нерестовое гнездо", category: "breeding", price: 120, image: AppAssets.care.spawningNest, description: "Обязательный предмет для запуска одного скрещивания.", accent: "#F5B94E", status: "+1 запуск", repeatable: true },
   { id: "fry-food", title: "Корм для малышей", category: "breeding", price: 55, image: AppAssets.care.fryFood, description: "Ускоряет весь процесс взросления на 2 часа. Работает на любой незавершённой стадии.", accent: "#65E7AC", status: "−2 часа", repeatable: true },
   { id: "egg-incubator", title: "Инкубатор икры", category: "breeding", price: 90, image: AppAssets.care.eggIncubator, description: "Ускоряет стадии икры и эмбриона на один час.", accent: "#41D9EA", status: "−1 час", repeatable: true },

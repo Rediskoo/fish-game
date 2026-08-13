@@ -4,6 +4,7 @@ import { createOwnedFish, fishToAcquiredView, fishToView } from "@/server/servic
 import { fishCost } from "@/server/services/marketplace.service";
 import { evaluateAchievements } from "@/server/services/rewards.service";
 import { notifyAquariumVisit, notifyFriendRequest, notifyGift } from "@/lib/telegram/bot";
+import { ensureLatestSchema } from "@/server/services/schema-compat.service";
 
 const algaeGiftAmounts: Partial<Record<GiftType, number>> = {
   ALGAE_25: 25,
@@ -41,6 +42,9 @@ function toFriendView(friend: {
     telegramId: bigint;
     username: string | null;
     firstName: string | null;
+    profileName: string | null;
+    profileBio: string | null;
+    profileAvatar: string | null;
     aquarium: { level: number } | null;
     fish: Array<Parameters<typeof fishToView>[0]>;
     receivedGifts: Array<{ createdAt: Date }>;
@@ -67,6 +71,9 @@ function toFriendView(friend: {
     telegramId: friend.friend.telegramId.toString(),
     username: friend.friend.username,
     firstName: friend.friend.firstName,
+    profileName: friend.friend.profileName,
+    profileBio: friend.friend.profileBio,
+    profileAvatar: friend.friend.profileAvatar,
     fishCount: friend.friend.fish.length,
     level: friend.friend.aquarium?.level ?? 1,
     friendsSince: friend.createdAt.toISOString(),
@@ -114,6 +121,7 @@ export class FriendsService {
   constructor(private readonly db: PrismaClient) {}
 
   async getFriendsPayload(userId: string) {
+    await ensureLatestSchema(this.db);
     const [friends, requests] = await Promise.all([
       this.db.friend.findMany({
         where: { ownerId: userId },

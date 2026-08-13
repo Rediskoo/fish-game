@@ -147,6 +147,11 @@ input {
 .theme-sunset { --border-soft:rgba(251,113,133,.28);--border-active:rgba(251,191,36,.52);--glass:rgba(76,29,149,.62);--cyan:#fda4af;--cyan-bright:#fde68a;--green:#fbbf24;--purple:#c084fc;background:radial-gradient(circle at 15% 10%,rgba(251,191,36,.28),transparent 28%),radial-gradient(circle at 90% 45%,rgba(244,63,94,.24),transparent 34%),linear-gradient(160deg,#43145f,#7c2d5a 48%,#172554) !important;}
 .theme-violet { --border-soft:rgba(232,121,249,.25);--border-active:rgba(192,132,252,.58);--glass:rgba(46,16,101,.7);--cyan:#e879f9;--cyan-bright:#f5d0fe;--green:#67e8f9;--purple:#a78bfa;background:radial-gradient(circle at 18% 8%,rgba(217,70,239,.28),transparent 30%),radial-gradient(circle at 85% 44%,rgba(59,130,246,.24),transparent 34%),linear-gradient(155deg,#18052d,#2e1065 52%,#0c173b) !important;}
 .theme-emerald { --border-soft:rgba(110,231,183,.24);--border-active:rgba(52,211,153,.54);--glass:rgba(3,78,64,.68);--cyan:#6ee7b7;--cyan-bright:#d1fae5;--green:#a7f3d0;--purple:#5eead4;background:radial-gradient(circle at 14% 8%,rgba(52,211,153,.24),transparent 30%),radial-gradient(circle at 88% 48%,rgba(13,148,136,.22),transparent 34%),linear-gradient(155deg,#022c22,#064e3b 52%,#042f2e) !important;}
+.theme-funny { --border-soft:rgba(253,224,71,.4);--border-active:rgba(251,113,133,.72);--glass:rgba(14,116,144,.7);--cyan:#fde047;--cyan-bright:#fff7ae;--green:#86efac;--purple:#f9a8d4;background:radial-gradient(circle at 10% 15%,#f472b655,transparent 28%),radial-gradient(circle at 88% 40%,#22d3ee66,transparent 32%),linear-gradient(145deg,#7c3aed,#db2777 48%,#0891b2)!important;}
+.theme-blood-moon { --border-soft:rgba(248,113,113,.28);--border-active:rgba(239,68,68,.7);--glass:rgba(45,4,4,.82);--cyan:#f87171;--cyan-bright:#fee2e2;--green:#fb7185;--purple:#991b1b;background:radial-gradient(circle at 80% 12%,#ef444477 0 7%,#7f1d1d44 8%,transparent 24%),linear-gradient(160deg,#050000,#270303 55%,#090101)!important;}
+.theme-wine { --border-soft:rgba(244,114,182,.25);--border-active:rgba(240,171,252,.56);--glass:rgba(76,5,35,.78);--cyan:#f0abfc;--cyan-bright:#fce7f3;--green:#f9a8d4;--purple:#be185d;background:radial-gradient(circle at 18% 12%,#be185d55,transparent 30%),linear-gradient(155deg,#2a0717,#701a3d 52%,#3b0828)!important;}
+.theme-toxic { --border-soft:rgba(190,242,100,.3);--border-active:rgba(163,230,53,.68);--glass:rgba(20,50,8,.78);--cyan:#bef264;--cyan-bright:#ecfccb;--green:#4ade80;--purple:#84cc16;background:radial-gradient(circle at 18% 12%,#a3e63555,transparent 30%),linear-gradient(155deg,#071a0a,#365314 52%,#052e16)!important;}
+.theme-candy { --border-soft:rgba(249,168,212,.34);--border-active:rgba(196,181,253,.7);--glass:rgba(88,28,135,.56);--cyan:#f9a8d4;--cyan-bright:#fff1f2;--green:#a7f3d0;--purple:#c4b5fd;background:radial-gradient(circle at 14% 10%,#f9a8d488,transparent 30%),radial-gradient(circle at 88% 42%,#38bdf877,transparent 34%),linear-gradient(155deg,#7c3aed,#db2777 52%,#0284c7)!important;}
 
 .ocean-shell:not(.theme-ocean) .glass,
 .ocean-shell:not(.theme-ocean) [class*="bg-slate-950"],
@@ -173,6 +178,12 @@ input {
 .theme-sunset { --aquarium-deep:#351347;--aquarium-tint:linear-gradient(160deg,rgba(251,191,36,.28),rgba(244,63,94,.3) 45%,rgba(76,29,149,.42));--aquarium-blend:color; }
 .theme-violet { --aquarium-deep:#16052b;--aquarium-tint:linear-gradient(145deg,rgba(217,70,239,.3),rgba(59,130,246,.28),rgba(8,1,24,.38));--aquarium-blend:color; }
 .theme-emerald { --aquarium-deep:#012b25;--aquarium-tint:linear-gradient(155deg,rgba(16,185,129,.3),rgba(6,78,59,.38),rgba(20,184,166,.25));--aquarium-blend:color; }
+.theme-funny { --aquarium-deep:#3b0764;--aquarium-tint:linear-gradient(135deg,rgba(253,224,71,.38),rgba(244,114,182,.45),rgba(34,211,238,.4));--aquarium-blend:color; }
+.theme-blood-moon { --aquarium-deep:#120000;--aquarium-tint:linear-gradient(180deg,rgba(127,29,29,.55),rgba(239,68,68,.3),rgba(10,0,0,.7));--aquarium-blend:color; }
+.theme-wine { --aquarium-deep:#280617;--aquarium-tint:linear-gradient(165deg,rgba(136,19,55,.62),rgba(190,24,93,.28),rgba(42,7,23,.62));--aquarium-blend:color; }
+.theme-toxic { --aquarium-deep:#09210b;--aquarium-tint:linear-gradient(155deg,rgba(163,230,53,.5),rgba(22,101,52,.34),rgba(5,46,22,.58));--aquarium-blend:color; }
+.theme-candy { --aquarium-deep:#5b2182;--aquarium-tint:linear-gradient(145deg,rgba(249,168,212,.48),rgba(196,181,253,.35),rgba(56,189,248,.4));--aquarium-blend:color; }
+.theme-funny .screen-bubble{background:#fde04788;border-color:#fb7185;animation-duration:3.8s}.theme-blood-moon .screen-bubble{background:#7f1d1d88;border-color:#ef4444}.theme-wine .screen-bubble{background:#be185d66;border-color:#f0abfc}.theme-toxic .screen-bubble{background:#a3e63566;border-color:#bef264}.theme-candy .screen-bubble{background:#f9a8d477;border-color:#bae6fd}
 
 @keyframes aquarium-bubble-jet {
   0% { opacity: 0; transform: translate3d(0, 0, 0) scale(.55); }
