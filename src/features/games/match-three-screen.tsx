@@ -15,8 +15,8 @@ export function MatchThreeScreen({ embedded = false }: { embedded?: boolean }) {
   const [game, setGame] = useState<GameState | null>(null);
   const [visible, setVisible] = useState<Record<number, string>>({});
   const [locked, setLocked] = useState(false);
-  const [now, setNow] = useState(Date.now());
-  useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(timer); }, []);
+  const [now, setNow] = useState(0);
+  useEffect(() => { const initial = window.setTimeout(() => setNow(Date.now()), 0); const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => { window.clearTimeout(initial); window.clearInterval(timer); }; }, []);
   const play = useMutation({ mutationFn: (input: { action: "start" } | { action: "flip"; gameId: string; index: number }) => api<GameState>("/api/match-three", { method: "POST", body: JSON.stringify(input) }), onSuccess: (next) => {
     setGame(next);
     setVisible((current) => ({ ...current, ...Object.fromEntries(next.revealed.map((card) => [card.index, card.symbol])) }));

@@ -15,5 +15,5 @@ export function useStartBreeding() {
 
 export function useBreedingAction() {
   const queryClient = useQueryClient();
-  return useMutation({ mutationFn: (input: { jobId: string; action: "incubate" | "speed-up" | "condition" | "claim" | "invite" | "accept"; friendId?: string }) => api<BreedingPayload>("/api/breeding", { method: "PATCH", body: JSON.stringify(input) }), onSuccess: (data) => { queryClient.setQueryData(["breeding"], data); queryClient.invalidateQueries({ queryKey: ["snapshot"] }); queryClient.invalidateQueries({ queryKey: ["friends"] }); } });
+  return useMutation({ mutationFn: (input: { jobId: string; action: "incubate" | "speed-up" | "condition" | "claim" | "invite" | "accept"; friendId?: string }) => api<BreedingPayload>("/api/breeding", { method: "PATCH", body: JSON.stringify(input) }), onSuccess: (data) => { queryClient.setQueryData(["breeding"], data); void queryClient.invalidateQueries({ queryKey: ["snapshot"] }); void queryClient.invalidateQueries({ queryKey: ["friends"] }); void queryClient.invalidateQueries({ queryKey: ["shared-aquariums"] }); } });
 }

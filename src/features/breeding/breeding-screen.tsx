@@ -11,6 +11,8 @@ import type { BreedingJobView } from "@/features/breeding/types";
 import { useBreeding, useBreedingAction, useStartBreeding } from "@/features/breeding/use-breeding";
 import { usePlayer } from "@/features/auth/use-player";
 import { useFriends } from "@/features/friends/use-friends";
+import { useSharedAquariums } from "@/features/friends/use-shared-aquariums";
+import { SharedAquariumModal } from "@/features/friends/shared-aquarium-modal";
 import { fishVisualAsset } from "@/lib/app-assets";
 import type { FishView, FriendView } from "@/types/game";
 
@@ -34,6 +36,7 @@ export function BreedingScreen() {
   const player = usePlayer();
   const breeding = useBreeding();
   const friends = useFriends();
+  const sharedAquariums = useSharedAquariums();
   const start = useStartBreeding();
   const action = useBreedingAction();
   const [selected, setSelected] = useState<string[]>([]);
@@ -42,6 +45,7 @@ export function BreedingScreen() {
   const [favorites, setFavorites] = useState(false);
   const [now, setNow] = useState<number | null>(null);
   const [inviteFriendId, setInviteFriendId] = useState("");
+  const [openSharedId, setOpenSharedId] = useState<string | null>(null);
   useEffect(() => {
     if (!breeding.data?.serverNow) return;
     const offset = Date.now() - new Date(breeding.data.serverNow).getTime();
@@ -56,11 +60,12 @@ export function BreedingScreen() {
   const parentB = fish.find((item) => item.id === selected[1]) ?? null;
   const hybrid = parentA && parentB ? findHybrid(breedingSpeciesKey(parentA), breedingSpeciesKey(parentB)) : null;
   const filtered = useMemo(() => fish.filter((item) => `${item.name} ${item.displayName}`.toLowerCase().includes(query.toLowerCase()) && (rarity === "ALL" || item.rarity === rarity) && (!favorites || item.isFavorite)), [fish, query, rarity, favorites]);
+  const openSharedAquarium = useMemo(() => sharedAquariums.data?.find((aquarium) => aquarium.id === openSharedId) ?? null, [sharedAquariums.data, openSharedId]);
   const choose = (id: string) => setSelected((current) => current.includes(id) ? current.filter((item) => item !== id) : current.length < 2 ? [...current, id] : [current[1], id]);
 
   return <div className="space-y-4 overflow-x-hidden p-3 pb-8 sm:p-4">
     <header className="pt-20"><div className="flex items-center gap-3"><span className="grid h-12 w-12 place-items-center rounded-2xl bg-amber-300/15 text-amber-100"><Egg /></span><div><h1 className="text-2xl font-black text-cyan-50 sm:text-3xl">Скрещивание</h1><p className="text-xs text-cyan-100/60">Питомник гибридных рыб</p></div></div></header>
-    <Panel className="border-pink-200/20 bg-[linear-gradient(135deg,rgba(236,72,153,.18),rgba(8,47,73,.78))] p-4"><div className="font-black text-pink-100">Совместное выращивание</div><p className="mt-1 text-xs text-cyan-100/65">Запусти разведение, затем в карточке растущего малыша нажми «Пригласить друга». После принятия вы оба увидите один прогресс, сможете ускорять его и получите общий аквариум.</p></Panel>
+    <Panel className="space-y-3 border-pink-200/20 bg-[linear-gradient(135deg,rgba(236,72,153,.18),rgba(8,47,73,.78))] p-4"><div><div className="font-black text-pink-100">Совместное выращивание</div><p className="mt-1 text-xs text-cyan-100/65">Запусти разведение, затем в карточке растущего малыша нажми «Пригласить друга». После принятия вы оба увидите один прогресс, сможете ускорять его и получите общий аквариум.</p></div>{sharedAquariums.data?.length ? <div className="flex gap-2 overflow-x-auto">{sharedAquariums.data.map((aquarium) => <button type="button" key={aquarium.id} onClick={() => setOpenSharedId(aquarium.id)} className="shrink-0 rounded-xl bg-emerald-300 px-3 py-2 text-xs font-black text-slate-950">Общий аквариум · {aquarium.friendName}</button>)}</div> : null}</Panel>
     {(breeding.data?.jobs ?? []).filter((job) => !["completed", "cancelled"].includes(job.status)).map((job) => <Panel key={job.id} className="relative overflow-hidden p-0">
       <img src={job.lifeStage === "fry" ? aquariumAssets.backgrounds.moonlitFryLagoon : job.lifeStage === "baby" || job.lifeStage === "adult" ? aquariumAssets.backgrounds.pearlNursery : aquariumAssets.backgrounds.spawningCove} alt="" className="absolute inset-0 h-full w-full object-cover opacity-35" />
       <div className="relative space-y-3 p-4"><div className="flex justify-between gap-2"><div><div className="text-xs uppercase text-cyan-100/60">{stageLabels[job.lifeStage]}</div><div className="font-black text-cyan-50">{job.parentA.displayName} × {job.parentB.displayName}</div></div><span className="h-fit rounded-full bg-slate-950/55 px-2 py-1 text-[10px] uppercase">{job.rarity}</span></div>
@@ -79,6 +84,7 @@ export function BreedingScreen() {
     <div className="space-y-3"><div className="flex gap-2"><label className="relative flex-1"><Search className="absolute left-3 top-3 h-4 w-4 text-cyan-100/45" /><input className="h-10 w-full rounded-xl border border-cyan-100/15 bg-slate-950/35 pl-9 pr-3 text-sm" placeholder="Имя или вид" value={query} onChange={(event) => setQuery(event.target.value)} /></label><button type="button" onClick={() => setFavorites(!favorites)} className={`h-10 w-10 rounded-xl border ${favorites ? "bg-pink-300/15 text-pink-200" : "text-cyan-100/60"}`}><Heart className="mx-auto h-4 w-4" /></button></div>
     <div className="flex gap-2 overflow-x-auto">{["ALL", "COMMON", "RARE", "EPIC", "LEGENDARY"].map((item) => <button type="button" key={item} onClick={() => setRarity(item)} className={`shrink-0 rounded-full px-3 py-1.5 text-[10px] font-bold ${rarity === item ? "bg-cyan-300 text-slate-950" : "bg-slate-950/35"}`}>{item}</button>)}</div>
     <div className="grid grid-cols-2 gap-2">{filtered.map((candidate) => <Card key={candidate.id} fish={candidate} selected={selected.includes(candidate.id)} first={parentA} onClick={() => choose(candidate.id)} />)}</div></div>
+    {openSharedAquarium ? <SharedAquariumModal aquarium={openSharedAquarium} onClose={() => setOpenSharedId(null)} /> : null}
   </div>;
 }
 
