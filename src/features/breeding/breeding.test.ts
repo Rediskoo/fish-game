@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import manifest from "../../assets/pocket-aquarium-manifest.json";
 import { createChildGenome, findHybrid, isHybridSupported } from "./breeding-genetics";
-import { applyFryFoodTimes, applyIncubatorTimes, resolveLifeStage, stageProgress } from "./breeding-time";
+import { applyFryFoodTimes, applyGrowthBoostTimes, applyIncubatorTimes, resolveLifeStage, stageProgress } from "./breeding-time";
 import { validateBreedingParents, type ParentEligibility } from "./breeding-rules";
 import type { BreedingParentSnapshot } from "./types";
 
@@ -59,6 +59,22 @@ describe("breeding timeline", () => {
     const result = applyFryFoodTimes(job, "fry", new Date("2026-01-01T03:00:00Z"));
     expect(result.babyAt.toISOString()).toBe("2026-01-01T04:00:00.000Z");
     expect(result.adultAt.toISOString()).toBe("2026-01-01T10:00:00.000Z");
+  });
+  it.each([
+    ["egg", "2026-01-01T00:30:00Z", "2026-01-01T00:30:00.000Z", "2026-01-01T10:00:00.000Z"],
+    ["hatching", "2026-01-01T02:02:00Z", "2026-01-01T02:00:00.000Z", "2026-01-01T10:00:00.000Z"],
+    ["fry", "2026-01-01T03:00:00Z", "2026-01-01T02:00:00.000Z", "2026-01-01T10:00:00.000Z"],
+    ["baby", "2026-01-01T08:00:00Z", "2026-01-01T02:00:00.000Z", "2026-01-01T10:00:00.000Z"]
+  ])("universal growth food works during %s", (_stage, current, expectedHatch, expectedAdult) => {
+    const result = applyGrowthBoostTimes(job, new Date(current));
+    expect(result.hatchAt.toISOString()).toBe(expectedHatch);
+    expect(result.adultAt.toISOString()).toBe(expectedAdult);
+  });
+  it("growth food completes a nearly finished timeline without invalid timestamp order", () => {
+    const result = applyGrowthBoostTimes(job, new Date("2026-01-01T11:59:00Z"));
+    expect(result.adultAt.toISOString()).toBe("2026-01-01T11:59:00.000Z");
+    expect(result.hatchAt.getTime()).toBeLessThanOrEqual(result.babyAt.getTime());
+    expect(result.babyAt.getTime()).toBeLessThanOrEqual(result.adultAt.getTime());
   });
   it("nursery conditioner can reduce the timeline by thirty minutes", () => {
     const result = applyIncubatorTimes(job, new Date("2026-01-01T00:30:00Z"), 30 * 60 * 1000);

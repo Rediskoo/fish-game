@@ -110,7 +110,7 @@ export const shopCategories: Array<{ id: ShopCategory; title: string; subtitle: 
 
 export const shopProducts: ShopProduct[] = [
   { id: "spawning-nest", title: "Нерестовое гнездо", category: "breeding", price: 120, image: AppAssets.care.spawningNest, description: "Обязательный предмет для запуска одного скрещивания.", accent: "#F5B94E", status: "+1 запуск", repeatable: true },
-  { id: "fry-food", title: "Корм для малышей", category: "breeding", price: 55, image: AppAssets.care.fryFood, description: "Ускоряет взросление малька или малыша на 2 часа. До 3 раз на процесс.", accent: "#65E7AC", status: "−2 часа", repeatable: true },
+  { id: "fry-food", title: "Корм для малышей", category: "breeding", price: 55, image: AppAssets.care.fryFood, description: "Ускоряет весь процесс взросления на 2 часа. Работает на любой незавершённой стадии.", accent: "#65E7AC", status: "−2 часа", repeatable: true },
   { id: "egg-incubator", title: "Инкубатор икры", category: "breeding", price: 90, image: AppAssets.care.eggIncubator, description: "Ускоряет стадии икры и эмбриона на один час.", accent: "#41D9EA", status: "−1 час", repeatable: true },
   { id: "nursery-conditioner", title: "Кондиционер питомника", category: "breeding", price: 65, image: AppAssets.care.nurseryConditioner, description: "Сокращает развитие икры или малыша на 30 минут.", accent: "#62D4AC", status: "−30 минут", repeatable: true },
   { id: "genealogy-medallion", title: "Медальон родословной", category: "breeding", price: 150, image: AppAssets.care.genealogyMedallion, description: "Открывает родителей и основные гены потомства.", accent: "#A78BFA", status: "навсегда", repeatable: false },

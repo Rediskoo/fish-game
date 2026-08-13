@@ -63,3 +63,21 @@ export function applyFryFoodTimes(job: Pick<TimedJob, "babyAt" | "adultAt">, sta
   const adultAt = new Date(Math.max(babyAt.getTime() + 5 * 60 * 1000, floor, new Date(job.adultAt).getTime() - reductionMs));
   return { babyAt, adultAt };
 }
+
+/** Fry food is a universal growth boost. It advances every future milestone,
+ * while timestamps that have already passed remain untouched. */
+export function applyGrowthBoostTimes(job: Pick<TimedJob, "hatchAt" | "babyAt" | "adultAt">, now: Date, reductionMs = 2 * 60 * 60 * 1000) {
+  const current = now.getTime();
+  const shiftFuture = (value: string) => {
+    const timestamp = new Date(value).getTime();
+    return new Date(timestamp <= current ? timestamp : Math.max(current, timestamp - reductionMs));
+  };
+  const hatchAt = shiftFuture(job.hatchAt);
+  const babyAt = shiftFuture(job.babyAt);
+  const adultAt = shiftFuture(job.adultAt);
+  return {
+    hatchAt,
+    babyAt: new Date(Math.max(hatchAt.getTime(), babyAt.getTime())),
+    adultAt: new Date(Math.max(babyAt.getTime(), adultAt.getTime()))
+  };
+}

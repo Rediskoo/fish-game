@@ -2,7 +2,7 @@ import { randomInt } from "node:crypto";
 import { BreedingStatus, FishLifeStage, FishOrigin, FishPersonality, Rarity, TransactionType, type Prisma, type PrismaClient } from "@prisma/client";
 import { aquariumFishCapacity } from "@/lib/fish-capacity";
 import { breedingGeneticsVersion, createChildGenome, findHybrid } from "@/features/breeding/breeding-genetics";
-import { applyFryFoodTimes, applyIncubatorTimes, resolveBreedingStatus, resolveLifeStage } from "@/features/breeding/breeding-time";
+import { applyGrowthBoostTimes, applyIncubatorTimes, resolveBreedingStatus, resolveLifeStage } from "@/features/breeding/breeding-time";
 import { validateBreedingParents, type ParentEligibility } from "@/features/breeding/breeding-rules";
 import type { BreedingJobView, BreedingParentSnapshot, FishGenome } from "@/features/breeding/types";
 
@@ -121,15 +121,13 @@ export class BreedingService {
       const job = await tx.breedingJob.findFirst({ where: { id: jobId, ownerId } });
       if (!job) throw new Error("Процесс разведения не найден");
       const view = jobView(job, now);
-      if (!(["fry", "baby"] as const).includes(view.lifeStage as "fry" | "baby")) throw new Error("Корм для малышей работает только на стадиях малька и малыша");
-      if (job.speedupsUsed >= 3) throw new Error("Лимит ускорений для этого малыша исчерпан");
+      if (view.lifeStage === "adult" || job.status === BreedingStatus.COMPLETED || job.status === BreedingStatus.CANCELLED) throw new Error("Рыба уже выросла");
       const inventory = await tx.inventory.findUniqueOrThrow({ where: { ownerId } });
       if (inventory.fryFood <= 0) throw new Error("Нет корма для малышей");
-      const { babyAt, adultAt } = applyFryFoodTimes(jobView(job, now), view.lifeStage as "fry" | "baby", now, speedupMs);
-      if (job.adultAt.getTime() - adultAt.getTime() < 60_000) throw new Error("До взросления осталось слишком мало времени для ускорения");
+      const times = applyGrowthBoostTimes(jobView(job, now), now, speedupMs);
       await tx.inventory.update({ where: { ownerId }, data: { fryFood: { decrement: 1 } } });
-      const updated = await tx.breedingJob.update({ where: { id: job.id }, data: { babyAt, adultAt, speedupsUsed: { increment: 1 } } });
-      await tx.transaction.create({ data: { ownerId, type: TransactionType.BREEDING_SPEEDUP, amount: -1, metadata: { jobId, item: "fry-food" } } });
+      const updated = await tx.breedingJob.update({ where: { id: job.id }, data: { ...times, speedupsUsed: { increment: 1 } } });
+      await tx.transaction.create({ data: { ownerId, type: TransactionType.BREEDING_SPEEDUP, amount: -1, metadata: { jobId, item: "fry-food", reductionMs: job.adultAt.getTime() - updated.adultAt.getTime() } } });
       return jobView(updated, now);
     }, { isolationLevel: "Serializable" });
   }
