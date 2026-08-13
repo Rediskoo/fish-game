@@ -125,8 +125,27 @@ model User {
   collaborativeBreedingJobs BreedingJob[] @relation("BreedingCollaborator")
   sharedAquariumsA       SharedAquarium[] @relation("SharedMemberA")
   sharedAquariumsB       SharedAquarium[] @relation("SharedMemberB")
+  memoryGames            MemoryGame[]
 
   @@map("users")
+}
+
+model MemoryGame {
+  id             String    @id @default(cuid())
+  ownerId        String
+  owner          User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  cards          Json
+  matchedIndices Json
+  firstCard      Int?
+  moves          Int       @default(0)
+  status         String    @default("ACTIVE")
+  startedAt      DateTime  @default(now())
+  expiresAt      DateTime
+  completedAt    DateTime?
+  reward         Int       @default(0)
+
+  @@index([ownerId, status])
+  @@map("memory_games")
 }
 
 model Aquarium {
