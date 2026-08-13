@@ -1,4 +1,5 @@
-import type { FishPersonality, FishSpecies, GiftType, Rarity } from "@prisma/client";
+import type { FishLifeStage, FishOrigin, FishPersonality, FishSpecies, GiftType, Rarity } from "@prisma/client";
+import type { FishGenome } from "@/features/breeding/types";
 
 export type FishView = {
   id: string;
@@ -22,6 +23,12 @@ export type FishView = {
   color: string;
   glowColor: string;
   animationState: unknown;
+  lifeStage: FishLifeStage;
+  origin: FishOrigin;
+  genome: FishGenome | null;
+  hybridKey: string | null;
+  parentIds: [string | null, string | null];
+  breedingLocked: boolean;
 };
 
 export type AquariumSnapshot = {
@@ -46,6 +53,11 @@ export type AquariumSnapshot = {
   inventory: {
     food: number;
     cleaner: number;
+    spawningNest: number;
+    eggIncubator: number;
+    fryFood: number;
+    nurseryConditioner: number;
+    genealogyMedallion: number;
     ownedItemIds: string[];
   };
   dailyReward: {

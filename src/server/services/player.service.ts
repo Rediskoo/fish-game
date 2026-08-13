@@ -1,4 +1,4 @@
-import { FishPersonality, FishSpecies, Rarity, TransactionType, type PrismaClient } from "@prisma/client";
+import { FishOrigin, FishPersonality, FishSpecies, Rarity, TransactionType, type PrismaClient } from "@prisma/client";
 import { GameRepository } from "@/server/repositories/game.repository";
 import type { TelegramInitUser } from "@/lib/telegram/validate-init-data";
 import type { AquariumSnapshot } from "@/types/game";
@@ -93,7 +93,16 @@ export class PlayerService {
         decor,
         pollution: snapshot.aquarium.pollution
       },
-      inventory: { food: snapshot.inventory.food, cleaner: snapshot.inventory.cleaner, ownedItemIds },
+      inventory: {
+        food: snapshot.inventory.food,
+        cleaner: snapshot.inventory.cleaner,
+        spawningNest: snapshot.inventory.spawningNest,
+        eggIncubator: snapshot.inventory.eggIncubator,
+        fryFood: snapshot.inventory.fryFood,
+        nurseryConditioner: snapshot.inventory.nurseryConditioner,
+        genealogyMedallion: snapshot.inventory.genealogyMedallion,
+        ownedItemIds
+      },
       dailyReward: {
         amount: dailyRewardAmount,
         claimedToday,
@@ -164,6 +173,7 @@ export class PlayerService {
             name: "Bubbles",
             swimSpeed: starterType.swimSpeed,
             personality: FishPersonality.CURIOUS,
+            origin: FishOrigin.STARTER,
             animationState: { x: 0.3, y: 0.5, direction: 1 }
           }
         });
@@ -204,6 +214,13 @@ export class PlayerService {
     const foodAmount = product.id === "food-basic" ? 10 : product.id === "food-premium" ? 25 : 0;
     const cleanerAmount = product.id === "water-conditioner" ? 1 : 0;
     const fullClean = product.id === "big-water-cleaner";
+    const breedingItem = {
+      "spawning-nest": "spawningNest",
+      "egg-incubator": "eggIncubator",
+      "fry-food": "fryFood",
+      "nursery-conditioner": "nurseryConditioner",
+      "genealogy-medallion": "genealogyMedallion"
+    }[product.id] as "spawningNest" | "eggIncubator" | "fryFood" | "nurseryConditioner" | "genealogyMedallion" | undefined;
 
     return this.db.$transaction(async (tx) => {
       const user = await tx.user.findUniqueOrThrow({ where: { id: userId } });
@@ -230,6 +247,8 @@ export class PlayerService {
         if (fullClean) {
           await tx.aquarium.update({ where: { ownerId: userId }, data: { pollution: 0, lastPollutionAt: new Date() } });
         }
+      } else if (product.category === "breeding" && breedingItem) {
+        await tx.inventory.update({ where: { ownerId: userId }, data: { [breedingItem]: { increment: 1 } } });
       } else if (product.category === "decor") {
         await tx.aquarium.update({ where: { ownerId: userId }, data: { decor: [...currentDecor, product.id] } });
       } else if (product.category === "backgrounds") {
@@ -239,7 +258,7 @@ export class PlayerService {
       await tx.transaction.create({
         data: {
           ownerId: userId,
-          type: TransactionType.PURCHASE_ITEM,
+          type: product.category === "breeding" ? TransactionType.PURCHASE_BREEDING_ITEM : TransactionType.PURCHASE_ITEM,
           amount: -product.price,
           metadata: { productId: product.id, category: product.category }
         }

@@ -4,6 +4,17 @@ import manifest from "./pocket-aquarium-manifest.json";
 type AssetKey = keyof typeof manifest.assets;
 type AnimationKey = keyof typeof manifest.animations;
 
+export type AnimationAsset = {
+  type: "sprite-sheet";
+  file: string;
+  animatedFile?: string;
+  frameSize: [number, number];
+  frames: number;
+  layout: "horizontal";
+  fps: number;
+  loop: boolean;
+};
+
 const publicRoot = "/pocket-aquarium-assets/";
 
 function assetFile(key: AssetKey, preferred: "webp2x" | "webp1x" | "png2x" = "webp2x") {
@@ -19,6 +30,11 @@ function assetFile(key: AssetKey, preferred: "webp2x" | "webp1x" | "png2x" = "we
 function animationFile(key: AnimationKey, animated = false) {
   const entry = manifest.animations[key] as { file: string; animatedFile?: string };
   return publicRoot + (animated && entry.animatedFile ? entry.animatedFile : entry.file).replace(/\\/g, "/");
+}
+
+export function getAnimationAsset(key: AnimationKey): AnimationAsset {
+  const entry = manifest.animations[key] as AnimationAsset;
+  return { ...entry, file: publicRoot + entry.file, animatedFile: entry.animatedFile ? publicRoot + entry.animatedFile : undefined };
 }
 
 export const aquariumAssets = {
@@ -88,7 +104,25 @@ export const aquariumAssets = {
     moonlitReef: assetFile("backgrounds.moonlit-reef"),
     sunkenTemple: assetFile("backgrounds.sunken-temple"),
     tropicalRiver: assetFile("backgrounds.tropical-river"),
-    nightGrotto: assetFile("backgrounds.night-grotto")
+    nightGrotto: assetFile("backgrounds.night-grotto"),
+    spawningCove: assetFile("backgrounds.spawning-cove"),
+    pearlNursery: assetFile("backgrounds.pearl-nursery"),
+    moonlitFryLagoon: assetFile("backgrounds.moonlit-fry-lagoon")
+  },
+  breeding: {
+    eggsFresh: assetFile("breeding.eggs-fresh"),
+    eggsEmbryo: assetFile("breeding.eggs-embryo"),
+    eggsHatching: assetFile("breeding.eggs-hatching"),
+    frySchool: assetFile("breeding.fry-school"),
+    spawningNest: assetFile("breeding.spawning-nest"),
+    eggIncubator: assetFile("breeding.egg-incubator"),
+    fryFood: assetFile("breeding.fry-food"),
+    nurseryConditioner: assetFile("breeding.nursery-conditioner"),
+    spawningMoss: assetFile("breeding.spawning-moss"),
+    nurseryPlantShelter: assetFile("breeding.nursery-plant-shelter"),
+    nurseryCave: assetFile("breeding.nursery-cave"),
+    genealogyMedallion: assetFile("breeding.genealogy-medallion"),
+    hybrid(key: string) { return assetFile(`breeding.hybrids.${key}` as AssetKey); }
   },
   icons: {
     navigation: {
@@ -128,6 +162,11 @@ export const aquariumAnimations = {
   waterCleaning: animationFile("water-cleaning"),
   rewardReveal: animationFile("reward-reveal"),
   caseOpening: animationFile("case-opening"),
+  eggsIncubating: getAnimationAsset("eggs-incubating"),
+  eggsHatching: getAnimationAsset("eggs-hatching"),
+  frySchoolIdle: getAnimationAsset("fry-school-idle"),
+  fryToBabyGrowth: getAnimationAsset("fry-to-baby-growth"),
+  babySwim(key: string) { return getAnimationAsset(`baby-swim-${key}` as AnimationKey); },
   fishSwim: {
     goldfish: animationFile("fish-swim-goldfish", true),
     betta: animationFile("fish-swim-betta", true),

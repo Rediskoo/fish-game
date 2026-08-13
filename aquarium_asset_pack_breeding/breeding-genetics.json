@@ -1,0 +1,239 @@
+{
+  "version": "1.0.0",
+  "stages": [
+    "egg",
+    "embryo",
+    "hatching",
+    "fry",
+    "baby",
+    "adult"
+  ],
+  "inheritance": {
+    "bodyShape": "one parent, weighted 50/50",
+    "primaryColor": "blended or dominant parent",
+    "secondaryColor": "other parent",
+    "pattern": "one parent with 35% mutation chance",
+    "tailShape": "one parent",
+    "finShape": "one parent",
+    "glow": "rare parent or mutation",
+    "specialTrait": "rare parent, maximum one"
+  },
+  "hybrids": {
+    "goldfish-betta": {
+      "parents": [
+        "goldfish",
+        "betta"
+      ],
+      "assetKey": "breeding.hybrids.goldfish-betta",
+      "animationKey": "baby-swim-goldfish-betta",
+      "traits": {
+        "bodyShape": "goldfish",
+        "primaryColor": "goldfish",
+        "secondaryColor": "betta",
+        "pattern": "betta",
+        "tailShape": "betta",
+        "finShape": "goldfish",
+        "specialTrait": null
+      },
+      "rarity": "uncommon"
+    },
+    "goldfish-angelfish": {
+      "parents": [
+        "goldfish",
+        "angelfish"
+      ],
+      "assetKey": "breeding.hybrids.goldfish-angelfish",
+      "animationKey": "baby-swim-goldfish-angelfish",
+      "traits": {
+        "bodyShape": "goldfish",
+        "primaryColor": "goldfish",
+        "secondaryColor": "angelfish",
+        "pattern": "angelfish",
+        "tailShape": "angelfish",
+        "finShape": "goldfish",
+        "specialTrait": null
+      },
+      "rarity": "uncommon"
+    },
+    "goldfish-clownfish": {
+      "parents": [
+        "goldfish",
+        "clownfish"
+      ],
+      "assetKey": "breeding.hybrids.goldfish-clownfish",
+      "animationKey": "baby-swim-goldfish-clownfish",
+      "traits": {
+        "bodyShape": "goldfish",
+        "primaryColor": "goldfish",
+        "secondaryColor": "clownfish",
+        "pattern": "clownfish",
+        "tailShape": "clownfish",
+        "finShape": "goldfish",
+        "specialTrait": null
+      },
+      "rarity": "uncommon"
+    },
+    "betta-angelfish": {
+      "parents": [
+        "betta",
+        "angelfish"
+      ],
+      "assetKey": "breeding.hybrids.betta-angelfish",
+      "animationKey": "baby-swim-betta-angelfish",
+      "traits": {
+        "bodyShape": "betta",
+        "primaryColor": "betta",
+        "secondaryColor": "angelfish",
+        "pattern": "angelfish",
+        "tailShape": "angelfish",
+        "finShape": "betta",
+        "specialTrait": null
+      },
+      "rarity": "rare"
+    },
+    "betta-guppy": {
+      "parents": [
+        "betta",
+        "guppy"
+      ],
+      "assetKey": "breeding.hybrids.betta-guppy",
+      "animationKey": "baby-swim-betta-guppy",
+      "traits": {
+        "bodyShape": "betta",
+        "primaryColor": "betta",
+        "secondaryColor": "guppy",
+        "pattern": "guppy",
+        "tailShape": "guppy",
+        "finShape": "betta",
+        "specialTrait": null
+      },
+      "rarity": "rare"
+    },
+    "angelfish-discus": {
+      "parents": [
+        "angelfish",
+        "discus"
+      ],
+      "assetKey": "breeding.hybrids.angelfish-discus",
+      "animationKey": "baby-swim-angelfish-discus",
+      "traits": {
+        "bodyShape": "angelfish",
+        "primaryColor": "angelfish",
+        "secondaryColor": "discus",
+        "pattern": "discus",
+        "tailShape": "discus",
+        "finShape": "angelfish",
+        "specialTrait": null
+      },
+      "rarity": "rare"
+    },
+    "clownfish-guppy": {
+      "parents": [
+        "clownfish",
+        "guppy"
+      ],
+      "assetKey": "breeding.hybrids.clownfish-guppy",
+      "animationKey": "baby-swim-clownfish-guppy",
+      "traits": {
+        "bodyShape": "clownfish",
+        "primaryColor": "clownfish",
+        "secondaryColor": "guppy",
+        "pattern": "guppy",
+        "tailShape": "guppy",
+        "finShape": "clownfish",
+        "specialTrait": null
+      },
+      "rarity": "rare"
+    },
+    "neon-tetra-discus": {
+      "parents": [
+        "neon-tetra",
+        "discus"
+      ],
+      "assetKey": "breeding.hybrids.neon-tetra-discus",
+      "animationKey": "baby-swim-neon-tetra-discus",
+      "traits": {
+        "bodyShape": "neon-tetra",
+        "primaryColor": "neon-tetra",
+        "secondaryColor": "discus",
+        "pattern": "discus",
+        "tailShape": "discus",
+        "finShape": "neon-tetra",
+        "specialTrait": null
+      },
+      "rarity": "rare"
+    },
+    "dwarf-gourami-emerald-dragonfish": {
+      "parents": [
+        "dwarf-gourami",
+        "emerald-dragonfish"
+      ],
+      "assetKey": "breeding.hybrids.dwarf-gourami-emerald-dragonfish",
+      "animationKey": "baby-swim-dwarf-gourami-emerald-dragonfish",
+      "traits": {
+        "bodyShape": "dwarf-gourami",
+        "primaryColor": "dwarf-gourami",
+        "secondaryColor": "emerald-dragonfish",
+        "pattern": "emerald-dragonfish",
+        "tailShape": "emerald-dragonfish",
+        "finShape": "dwarf-gourami",
+        "specialTrait": "emerald-dragonfish"
+      },
+      "rarity": "epic"
+    },
+    "celestial-koi-betta": {
+      "parents": [
+        "celestial-koi",
+        "betta"
+      ],
+      "assetKey": "breeding.hybrids.celestial-koi-betta",
+      "animationKey": "baby-swim-celestial-koi-betta",
+      "traits": {
+        "bodyShape": "celestial-koi",
+        "primaryColor": "celestial-koi",
+        "secondaryColor": "betta",
+        "pattern": "betta",
+        "tailShape": "betta",
+        "finShape": "celestial-koi",
+        "specialTrait": "betta"
+      },
+      "rarity": "epic"
+    },
+    "crystal-tang-angelfish": {
+      "parents": [
+        "crystal-tang",
+        "angelfish"
+      ],
+      "assetKey": "breeding.hybrids.crystal-tang-angelfish",
+      "animationKey": "baby-swim-crystal-tang-angelfish",
+      "traits": {
+        "bodyShape": "crystal-tang",
+        "primaryColor": "crystal-tang",
+        "secondaryColor": "angelfish",
+        "pattern": "angelfish",
+        "tailShape": "angelfish",
+        "finShape": "crystal-tang",
+        "specialTrait": "angelfish"
+      },
+      "rarity": "legendary"
+    },
+    "midnight-manta-celestial-koi": {
+      "parents": [
+        "midnight-manta",
+        "celestial-koi"
+      ],
+      "assetKey": "breeding.hybrids.midnight-manta-celestial-koi",
+      "animationKey": "baby-swim-midnight-manta-celestial-koi",
+      "traits": {
+        "bodyShape": "midnight-manta",
+        "primaryColor": "midnight-manta",
+        "secondaryColor": "celestial-koi",
+        "pattern": "celestial-koi",
+        "tailShape": "celestial-koi",
+        "finShape": "midnight-manta",
+        "specialTrait": "celestial-koi"
+      },
+      "rarity": "legendary"
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import type { PrismaClient } from "@prisma/client";
-import { FishPersonality, FishSpecies, Rarity, TransactionType } from "@prisma/client";
+import { FishOrigin, FishPersonality, FishSpecies, Rarity, TransactionType } from "@prisma/client";
 
 export class GameRepository {
   constructor(private readonly db: PrismaClient) {}
@@ -75,6 +75,7 @@ export class GameRepository {
             name: "Bubbles",
             swimSpeed: starterType.swimSpeed,
             personality: FishPersonality.CURIOUS,
+            origin: FishOrigin.STARTER,
             animationState: { x: 0.3, y: 0.5, direction: 1 }
           }
         }

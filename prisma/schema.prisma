@@ -37,6 +37,36 @@ enum TransactionType {
   SELL_FISH
   GIFT_SENT
   GIFT_RECEIVED
+  BREEDING_START
+  BREEDING_SPEEDUP
+  BREEDING_COMPLETE
+  PURCHASE_BREEDING_ITEM
+}
+
+enum FishLifeStage {
+  EGG
+  EMBRYO
+  HATCHING
+  FRY
+  BABY
+  ADULT
+}
+
+enum FishOrigin {
+  STARTER
+  SHOP
+  CASE
+  BRED
+}
+
+enum BreedingStatus {
+  INCUBATING
+  READY_TO_HATCH
+  HATCHED
+  GROWING
+  READY_TO_GROW
+  COMPLETED
+  CANCELLED
 }
 
 enum FriendRequestStatus {
@@ -87,6 +117,7 @@ model User {
   receivedFriendRequests FriendRequest[] @relation("ReceivedFriendRequests")
   sentGifts              FriendGift[]    @relation("SentFriendGifts")
   receivedGifts          FriendGift[]    @relation("ReceivedFriendGifts")
+  breedingJobs           BreedingJob[]
 
   @@map("users")
 }
@@ -143,11 +174,24 @@ model Fish {
   hunger             Int         @default(0)
   hungerUpdatedAt    DateTime    @default(now())
   animationState     Json        @default("{}")
+  lifeStage          FishLifeStage @default(ADULT)
+  origin             FishOrigin    @default(CASE)
+  genome             Json?
+  genomeVersion      String?
+  hybridKey          String?
+  parentAId          String?
+  parentBId          String?
+  parentSnapshots    Json?
+  bornAt             DateTime?
+  breedingLocked     Boolean       @default(false)
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
   owner              User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   fishType           FishType    @relation(fields: [fishTypeId], references: [id])
   giftedIn           FriendGift[]
+  parentAJobs        BreedingJob[] @relation("BreedingParentA")
+  parentBJobs        BreedingJob[] @relation("BreedingParentB")
+  resultingJob       BreedingJob?  @relation("BreedingResult")
 
   @@index([ownerId])
   @@map("fish")
@@ -158,11 +202,50 @@ model Inventory {
   ownerId     String   @unique
   food        Int      @default(0)
   cleaner     Int      @default(0)
+  spawningNest Int     @default(0)
+  eggIncubator Int     @default(0)
+  fryFood      Int     @default(0)
+  nurseryConditioner Int @default(0)
+  genealogyMedallion Int @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
   @@map("inventory")
+}
+
+model BreedingJob {
+  id               String         @id @default(cuid())
+  ownerId          String
+  parentAId        String?
+  parentBId        String?
+  parentA          Fish?          @relation("BreedingParentA", fields: [parentAId], references: [id], onDelete: SetNull)
+  parentB          Fish?          @relation("BreedingParentB", fields: [parentBId], references: [id], onDelete: SetNull)
+  parentASnapshot  Json
+  parentBSnapshot  Json
+  hybridKey        String
+  genome           Json
+  genomeVersion    String         @default("1.0.0")
+  rarity           Rarity
+  status           BreedingStatus @default(INCUBATING)
+  startedAt        DateTime       @default(now())
+  hatchAt          DateTime
+  babyAt           DateTime
+  adultAt          DateTime
+  claimedAt        DateTime?
+  resultingFishId  String?        @unique
+  resultingFish    Fish?          @relation("BreedingResult", fields: [resultingFishId], references: [id], onDelete: SetNull)
+  idempotencyKey   String
+  speedupsUsed     Int            @default(0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  owner             User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@unique([ownerId, idempotencyKey])
+  @@index([ownerId, status])
+  @@index([parentAId])
+  @@index([parentBId])
+  @@map("breeding_jobs")
 }
 
 model Transaction {

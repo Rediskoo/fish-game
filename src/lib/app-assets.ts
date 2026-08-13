@@ -21,7 +21,12 @@ export const AppAssets = {
   care: {
     foodBasic: aquariumAssets.items.foodPelletJar,
     foodPremium: aquariumAssets.items.foodFlakesPouch,
-    waterConditioner: aquariumAssets.items.waterCleaner
+    waterConditioner: aquariumAssets.items.waterCleaner,
+    fryFood: aquariumAssets.breeding.fryFood,
+    spawningNest: aquariumAssets.breeding.spawningNest,
+    eggIncubator: aquariumAssets.breeding.eggIncubator,
+    nurseryConditioner: aquariumAssets.breeding.nurseryConditioner,
+    genealogyMedallion: aquariumAssets.breeding.genealogyMedallion
   },
   decor: {
     plantSmall: aquariumAssets.items.plantSmall,
@@ -76,7 +81,11 @@ export const fishSpeciesAsset: Record<FishSpecies, string> = {
   DRAGON_KOI: fishImageBySpecies.DRAGON_KOI
 };
 
-export type ShopCategory = "fish" | "care" | "decor" | "backgrounds";
+export function fishVisualAsset(fish: { species: FishSpecies; hybridKey?: string | null }) {
+  return fish.hybridKey ? aquariumAssets.breeding.hybrid(fish.hybridKey) : fishSpeciesAsset[fish.species];
+}
+
+export type ShopCategory = "fish" | "care" | "breeding" | "decor" | "backgrounds";
 
 export type ShopProduct = {
   id: string;
@@ -92,6 +101,7 @@ export type ShopProduct = {
 };
 
 export const shopCategories: Array<{ id: ShopCategory; title: string; subtitle: string; image: string; accent: string }> = [
+  { id: "breeding", title: "Питомник", subtitle: "Разведение и рост", image: aquariumAssets.breeding.spawningNest, accent: "#F5B94E" },
   { id: "care", title: "Корм", subtitle: "Еда и очистка", image: AppAssets.shop.careFood, accent: "#E5B74F" },
   { id: "decor", title: "Декор", subtitle: "Водоросли и пузыри", image: AppAssets.shop.decorRuins, accent: "#62D4AC" },
   { id: "backgrounds", title: "Фоны", subtitle: "Вид аквариума", image: AppAssets.shop.aquariumDisplay, accent: "#9B7BEF" },
@@ -99,6 +109,11 @@ export const shopCategories: Array<{ id: ShopCategory; title: string; subtitle: 
 ];
 
 export const shopProducts: ShopProduct[] = [
+  { id: "spawning-nest", title: "Нерестовое гнездо", category: "breeding", price: 120, image: AppAssets.care.spawningNest, description: "Обязательный предмет для запуска одного скрещивания.", accent: "#F5B94E", status: "+1 запуск", repeatable: true },
+  { id: "fry-food", title: "Корм для малышей", category: "breeding", price: 55, image: AppAssets.care.fryFood, description: "Ускоряет взросление малька или малыша на 2 часа. До 3 раз на процесс.", accent: "#65E7AC", status: "−2 часа", repeatable: true },
+  { id: "egg-incubator", title: "Инкубатор икры", category: "breeding", price: 90, image: AppAssets.care.eggIncubator, description: "Предмет питомника для будущих улучшений инкубации.", accent: "#41D9EA", repeatable: true },
+  { id: "nursery-conditioner", title: "Кондиционер питомника", category: "breeding", price: 65, image: AppAssets.care.nurseryConditioner, description: "Запас средства для безопасного ухода за молодняком.", accent: "#62D4AC", repeatable: true },
+  { id: "genealogy-medallion", title: "Медальон родословной", category: "breeding", price: 150, image: AppAssets.care.genealogyMedallion, description: "Сохраняет доступ к расширенной родословной гибридов.", accent: "#A78BFA", repeatable: true },
   { id: "big-water-cleaner", title: "Большой очиститель", category: "care", price: 150, image: AppAssets.care.waterConditioner, description: "Моментально очищает весь аквариум после покупки.", accent: "#41D9EA", status: "полная очистка", repeatable: true },
   { id: "fish-case", title: "Рыбки", category: "fish", price: 100, image: AppAssets.shop.caseChest, description: "Открывает казино 777 с рыбками и призами.", accent: "#49C7E8", status: "777", repeatable: true },
   { id: "food-basic", title: "Обычный корм", category: "care", price: 10, image: AppAssets.care.foodBasic, description: "+10 корма для ежедневного ухода.", accent: "#E5B74F", status: "+10", repeatable: true },

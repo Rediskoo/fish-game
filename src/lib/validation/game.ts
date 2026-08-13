@@ -38,3 +38,14 @@ export const claimFriendGiftSchema = z.object({
 export const visitFriendSchema = z.object({
   friendId: z.string().cuid()
 });
+
+export const startBreedingSchema = z.object({
+  parentAId: z.string().cuid(),
+  parentBId: z.string().cuid(),
+  idempotencyKey: z.string().uuid()
+}).refine((value) => value.parentAId !== value.parentBId, { message: "Choose two different fish" });
+
+export const breedingActionSchema = z.object({
+  jobId: z.string().cuid(),
+  action: z.enum(["speed-up", "claim"])
+});

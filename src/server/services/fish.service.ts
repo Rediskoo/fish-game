@@ -9,6 +9,7 @@ import {
   type PrismaClient
 } from "@prisma/client";
 import type { AcquiredFish, FishView } from "@/types/game";
+import type { FishGenome } from "@/features/breeding/types";
 
 export const fishSalePrice = 50;
 
@@ -122,7 +123,13 @@ export function fishToView(fish: Fish & { fishType: FishType }): FishView {
     maxHunger: fish.fishType.maxHunger,
     color: fish.fishType.color,
     glowColor: fish.fishType.glowColor,
-    animationState: fish.animationState
+    animationState: fish.animationState,
+    lifeStage: fish.lifeStage,
+    origin: fish.origin,
+    genome: fish.genome as FishGenome | null,
+    hybridKey: fish.hybridKey,
+    parentIds: [fish.parentAId, fish.parentBId],
+    breedingLocked: fish.breedingLocked
   };
 }
 
@@ -176,7 +183,7 @@ export class FishService {
       const fishCount = await tx.fish.count({ where: { ownerId: userId, isGiftLocked: false } });
       if (fishCount <= 1) throw new Error("You need at least one fish in the aquarium");
 
-      const fish = await tx.fish.findFirst({ where: { id: fishId, ownerId: userId, isGiftLocked: false }, include: { fishType: true } });
+      const fish = await tx.fish.findFirst({ where: { id: fishId, ownerId: userId, isGiftLocked: false, breedingLocked: false }, include: { fishType: true } });
       if (!fish) throw new Error("Fish not found");
 
       await tx.fish.delete({ where: { id: fishId } });

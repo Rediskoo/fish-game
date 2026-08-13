@@ -19,7 +19,7 @@ import {
 } from "@/features/friends/use-friends";
 import { useSellFish } from "@/features/inventory/use-fish-actions";
 import { cn } from "@/lib/cn";
-import { fishSpeciesAsset } from "@/lib/app-assets";
+import { fishVisualAsset } from "@/lib/app-assets";
 import type { AchievementView, AcquiredFish, FishView, FriendView, PendingGiftView } from "@/types/game";
 
 const giftOptions = [
@@ -161,7 +161,7 @@ export function ProfileScreen() {
         <div className="grid grid-cols-4 gap-2">
           {(favoriteFish.length ? favoriteFish : (player.data?.fish ?? []).slice(0, 4)).map((fish) => (
             <div key={fish.id} className="grid aspect-square place-items-center overflow-hidden rounded-2xl border border-cyan-100/14 bg-slate-950/32">
-              <img className="h-16 w-16 object-contain drop-shadow-[0_12px_18px_rgba(0,0,0,.42)]" src={fishSpeciesAsset[fish.species]} alt="" />
+              <img className="h-16 w-16 object-contain drop-shadow-[0_12px_18px_rgba(0,0,0,.42)]" src={fishVisualAsset(fish)} alt="" />
             </div>
           ))}
         </div>

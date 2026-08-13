@@ -994,6 +994,421 @@
         24
       ],
       "file": "assets/icons/ui/sound.svg"
+    },
+    "breeding.eggs-fresh": {
+      "type": "breeding-stage",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/breeding/lifecycle/eggs-fresh.webp",
+        "webp2x": "assets/breeding/lifecycle/eggs-fresh@2x.webp",
+        "png2x": "assets/breeding/lifecycle/eggs-fresh@2x.png"
+      },
+      "stage": 1
+    },
+    "breeding.eggs-embryo": {
+      "type": "breeding-stage",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/breeding/lifecycle/eggs-embryo.webp",
+        "webp2x": "assets/breeding/lifecycle/eggs-embryo@2x.webp",
+        "png2x": "assets/breeding/lifecycle/eggs-embryo@2x.png"
+      },
+      "stage": 2
+    },
+    "breeding.eggs-hatching": {
+      "type": "breeding-stage",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/breeding/lifecycle/eggs-hatching.webp",
+        "webp2x": "assets/breeding/lifecycle/eggs-hatching@2x.webp",
+        "png2x": "assets/breeding/lifecycle/eggs-hatching@2x.png"
+      },
+      "stage": 3
+    },
+    "breeding.fry-school": {
+      "type": "breeding-stage",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/breeding/lifecycle/fry-school.webp",
+        "webp2x": "assets/breeding/lifecycle/fry-school@2x.webp",
+        "png2x": "assets/breeding/lifecycle/fry-school@2x.png"
+      },
+      "stage": 4
+    },
+    "breeding.spawning-nest": {
+      "type": "breeding-item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/breeding/items/spawning-nest.webp",
+        "webp2x": "assets/breeding/items/spawning-nest@2x.webp",
+        "png2x": "assets/breeding/items/spawning-nest@2x.png"
+      }
+    },
+    "breeding.egg-incubator": {
+      "type": "breeding-item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/breeding/items/egg-incubator.webp",
+        "webp2x": "assets/breeding/items/egg-incubator@2x.webp",
+        "png2x": "assets/breeding/items/egg-incubator@2x.png"
+      }
+    },
+    "breeding.fry-food": {
+      "type": "breeding-item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/breeding/items/fry-food.webp",
+        "webp2x": "assets/breeding/items/fry-food@2x.webp",
+        "png2x": "assets/breeding/items/fry-food@2x.png"
+      }
+    },
+    "breeding.nursery-conditioner": {
+      "type": "breeding-item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/breeding/items/nursery-conditioner.webp",
+        "webp2x": "assets/breeding/items/nursery-conditioner@2x.webp",
+        "png2x": "assets/breeding/items/nursery-conditioner@2x.png"
+      }
+    },
+    "breeding.spawning-moss": {
+      "type": "breeding-item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/breeding/decor/spawning-moss.webp",
+        "webp2x": "assets/breeding/decor/spawning-moss@2x.webp",
+        "png2x": "assets/breeding/decor/spawning-moss@2x.png"
+      }
+    },
+    "breeding.nursery-plant-shelter": {
+      "type": "breeding-item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/breeding/decor/nursery-plant-shelter.webp",
+        "webp2x": "assets/breeding/decor/nursery-plant-shelter@2x.webp",
+        "png2x": "assets/breeding/decor/nursery-plant-shelter@2x.png"
+      }
+    },
+    "breeding.nursery-cave": {
+      "type": "breeding-item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/breeding/decor/nursery-cave.webp",
+        "webp2x": "assets/breeding/decor/nursery-cave@2x.webp",
+        "png2x": "assets/breeding/decor/nursery-cave@2x.png"
+      }
+    },
+    "breeding.genealogy-medallion": {
+      "type": "breeding-item",
+      "size1x": [
+        192,
+        192
+      ],
+      "files": {
+        "webp1x": "assets/breeding/decor/genealogy-medallion.webp",
+        "webp2x": "assets/breeding/decor/genealogy-medallion@2x.webp",
+        "png2x": "assets/breeding/decor/genealogy-medallion@2x.png"
+      }
+    },
+    "breeding.hybrids.goldfish-betta": {
+      "type": "hybrid-baby",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/breeding/hybrids/goldfish-betta.webp",
+        "webp2x": "assets/breeding/hybrids/goldfish-betta@2x.webp",
+        "png2x": "assets/breeding/hybrids/goldfish-betta@2x.png"
+      },
+      "parents": [
+        "goldfish",
+        "betta"
+      ],
+      "lifeStage": "baby",
+      "direction": "right",
+      "rarity": "uncommon"
+    },
+    "breeding.hybrids.goldfish-angelfish": {
+      "type": "hybrid-baby",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/breeding/hybrids/goldfish-angelfish.webp",
+        "webp2x": "assets/breeding/hybrids/goldfish-angelfish@2x.webp",
+        "png2x": "assets/breeding/hybrids/goldfish-angelfish@2x.png"
+      },
+      "parents": [
+        "goldfish",
+        "angelfish"
+      ],
+      "lifeStage": "baby",
+      "direction": "right",
+      "rarity": "uncommon"
+    },
+    "breeding.hybrids.goldfish-clownfish": {
+      "type": "hybrid-baby",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/breeding/hybrids/goldfish-clownfish.webp",
+        "webp2x": "assets/breeding/hybrids/goldfish-clownfish@2x.webp",
+        "png2x": "assets/breeding/hybrids/goldfish-clownfish@2x.png"
+      },
+      "parents": [
+        "goldfish",
+        "clownfish"
+      ],
+      "lifeStage": "baby",
+      "direction": "right",
+      "rarity": "uncommon"
+    },
+    "breeding.hybrids.betta-angelfish": {
+      "type": "hybrid-baby",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/breeding/hybrids/betta-angelfish.webp",
+        "webp2x": "assets/breeding/hybrids/betta-angelfish@2x.webp",
+        "png2x": "assets/breeding/hybrids/betta-angelfish@2x.png"
+      },
+      "parents": [
+        "betta",
+        "angelfish"
+      ],
+      "lifeStage": "baby",
+      "direction": "right",
+      "rarity": "rare"
+    },
+    "breeding.hybrids.betta-guppy": {
+      "type": "hybrid-baby",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/breeding/hybrids/betta-guppy.webp",
+        "webp2x": "assets/breeding/hybrids/betta-guppy@2x.webp",
+        "png2x": "assets/breeding/hybrids/betta-guppy@2x.png"
+      },
+      "parents": [
+        "betta",
+        "guppy"
+      ],
+      "lifeStage": "baby",
+      "direction": "right",
+      "rarity": "rare"
+    },
+    "breeding.hybrids.angelfish-discus": {
+      "type": "hybrid-baby",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/breeding/hybrids/angelfish-discus.webp",
+        "webp2x": "assets/breeding/hybrids/angelfish-discus@2x.webp",
+        "png2x": "assets/breeding/hybrids/angelfish-discus@2x.png"
+      },
+      "parents": [
+        "angelfish",
+        "discus"
+      ],
+      "lifeStage": "baby",
+      "direction": "right",
+      "rarity": "rare"
+    },
+    "breeding.hybrids.clownfish-guppy": {
+      "type": "hybrid-baby",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/breeding/hybrids/clownfish-guppy.webp",
+        "webp2x": "assets/breeding/hybrids/clownfish-guppy@2x.webp",
+        "png2x": "assets/breeding/hybrids/clownfish-guppy@2x.png"
+      },
+      "parents": [
+        "clownfish",
+        "guppy"
+      ],
+      "lifeStage": "baby",
+      "direction": "right",
+      "rarity": "rare"
+    },
+    "breeding.hybrids.neon-tetra-discus": {
+      "type": "hybrid-baby",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/breeding/hybrids/neon-tetra-discus.webp",
+        "webp2x": "assets/breeding/hybrids/neon-tetra-discus@2x.webp",
+        "png2x": "assets/breeding/hybrids/neon-tetra-discus@2x.png"
+      },
+      "parents": [
+        "neon-tetra",
+        "discus"
+      ],
+      "lifeStage": "baby",
+      "direction": "right",
+      "rarity": "rare"
+    },
+    "breeding.hybrids.dwarf-gourami-emerald-dragonfish": {
+      "type": "hybrid-baby",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/breeding/hybrids/dwarf-gourami-emerald-dragonfish.webp",
+        "webp2x": "assets/breeding/hybrids/dwarf-gourami-emerald-dragonfish@2x.webp",
+        "png2x": "assets/breeding/hybrids/dwarf-gourami-emerald-dragonfish@2x.png"
+      },
+      "parents": [
+        "dwarf-gourami",
+        "emerald-dragonfish"
+      ],
+      "lifeStage": "baby",
+      "direction": "right",
+      "rarity": "epic"
+    },
+    "breeding.hybrids.celestial-koi-betta": {
+      "type": "hybrid-baby",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/breeding/hybrids/celestial-koi-betta.webp",
+        "webp2x": "assets/breeding/hybrids/celestial-koi-betta@2x.webp",
+        "png2x": "assets/breeding/hybrids/celestial-koi-betta@2x.png"
+      },
+      "parents": [
+        "celestial-koi",
+        "betta"
+      ],
+      "lifeStage": "baby",
+      "direction": "right",
+      "rarity": "epic"
+    },
+    "breeding.hybrids.crystal-tang-angelfish": {
+      "type": "hybrid-baby",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/breeding/hybrids/crystal-tang-angelfish.webp",
+        "webp2x": "assets/breeding/hybrids/crystal-tang-angelfish@2x.webp",
+        "png2x": "assets/breeding/hybrids/crystal-tang-angelfish@2x.png"
+      },
+      "parents": [
+        "crystal-tang",
+        "angelfish"
+      ],
+      "lifeStage": "baby",
+      "direction": "right",
+      "rarity": "legendary"
+    },
+    "breeding.hybrids.midnight-manta-celestial-koi": {
+      "type": "hybrid-baby",
+      "size1x": [
+        256,
+        256
+      ],
+      "files": {
+        "webp1x": "assets/breeding/hybrids/midnight-manta-celestial-koi.webp",
+        "webp2x": "assets/breeding/hybrids/midnight-manta-celestial-koi@2x.webp",
+        "png2x": "assets/breeding/hybrids/midnight-manta-celestial-koi@2x.png"
+      },
+      "parents": [
+        "midnight-manta",
+        "celestial-koi"
+      ],
+      "lifeStage": "baby",
+      "direction": "right",
+      "rarity": "legendary"
+    },
+    "backgrounds.spawning-cove": {
+      "type": "background",
+      "size1x": [
+        360,
+        640
+      ],
+      "files": {
+        "webp1x": "assets/backgrounds/spawning-cove.webp",
+        "webp2x": "assets/backgrounds/spawning-cove@2x.webp"
+      },
+      "safeCenter": "central 60%",
+      "purpose": "breeding-nursery"
+    },
+    "backgrounds.pearl-nursery": {
+      "type": "background",
+      "size1x": [
+        360,
+        640
+      ],
+      "files": {
+        "webp1x": "assets/backgrounds/pearl-nursery.webp",
+        "webp2x": "assets/backgrounds/pearl-nursery@2x.webp"
+      },
+      "safeCenter": "central 60%",
+      "purpose": "breeding-nursery"
+    },
+    "backgrounds.moonlit-fry-lagoon": {
+      "type": "background",
+      "size1x": [
+        360,
+        640
+      ],
+      "files": {
+        "webp1x": "assets/backgrounds/moonlit-fry-lagoon.webp",
+        "webp2x": "assets/backgrounds/moonlit-fry-lagoon@2x.webp"
+      },
+      "safeCenter": "central 60%",
+      "purpose": "breeding-nursery"
     }
   },
   "animations": {
@@ -1260,6 +1675,214 @@
       "loop": true,
       "direction": "right",
       "motion": "tail-sweep + body-rock + vertical-drift"
+    },
+    "baby-swim-goldfish-betta": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/baby-swim-goldfish-betta.webp",
+      "animatedFile": "assets/animations/baby-swim-goldfish-betta-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 11,
+      "loop": true
+    },
+    "baby-swim-goldfish-angelfish": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/baby-swim-goldfish-angelfish.webp",
+      "animatedFile": "assets/animations/baby-swim-goldfish-angelfish-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 11,
+      "loop": true
+    },
+    "baby-swim-goldfish-clownfish": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/baby-swim-goldfish-clownfish.webp",
+      "animatedFile": "assets/animations/baby-swim-goldfish-clownfish-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 11,
+      "loop": true
+    },
+    "baby-swim-betta-angelfish": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/baby-swim-betta-angelfish.webp",
+      "animatedFile": "assets/animations/baby-swim-betta-angelfish-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 11,
+      "loop": true
+    },
+    "baby-swim-betta-guppy": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/baby-swim-betta-guppy.webp",
+      "animatedFile": "assets/animations/baby-swim-betta-guppy-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 11,
+      "loop": true
+    },
+    "baby-swim-angelfish-discus": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/baby-swim-angelfish-discus.webp",
+      "animatedFile": "assets/animations/baby-swim-angelfish-discus-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 11,
+      "loop": true
+    },
+    "baby-swim-clownfish-guppy": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/baby-swim-clownfish-guppy.webp",
+      "animatedFile": "assets/animations/baby-swim-clownfish-guppy-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 11,
+      "loop": true
+    },
+    "baby-swim-neon-tetra-discus": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/baby-swim-neon-tetra-discus.webp",
+      "animatedFile": "assets/animations/baby-swim-neon-tetra-discus-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 11,
+      "loop": true
+    },
+    "baby-swim-dwarf-gourami-emerald-dragonfish": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/baby-swim-dwarf-gourami-emerald-dragonfish.webp",
+      "animatedFile": "assets/animations/baby-swim-dwarf-gourami-emerald-dragonfish-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 11,
+      "loop": true
+    },
+    "baby-swim-celestial-koi-betta": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/baby-swim-celestial-koi-betta.webp",
+      "animatedFile": "assets/animations/baby-swim-celestial-koi-betta-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 11,
+      "loop": true
+    },
+    "baby-swim-crystal-tang-angelfish": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/baby-swim-crystal-tang-angelfish.webp",
+      "animatedFile": "assets/animations/baby-swim-crystal-tang-angelfish-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 11,
+      "loop": true
+    },
+    "baby-swim-midnight-manta-celestial-koi": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/baby-swim-midnight-manta-celestial-koi.webp",
+      "animatedFile": "assets/animations/baby-swim-midnight-manta-celestial-koi-animated.webp",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 11,
+      "loop": true
+    },
+    "eggs-incubating": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/eggs-incubating.webp",
+      "animatedFile": "assets/animations/eggs-incubating-animated.webp",
+      "frameSize": [
+        192,
+        192
+      ],
+      "frames": 16,
+      "layout": "horizontal",
+      "fps": 8,
+      "loop": true
+    },
+    "eggs-hatching": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/eggs-hatching.webp",
+      "animatedFile": "assets/animations/eggs-hatching-animated.webp",
+      "frameSize": [
+        192,
+        192
+      ],
+      "frames": 18,
+      "layout": "horizontal",
+      "fps": 10,
+      "loop": false
+    },
+    "fry-school-idle": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/fry-school-idle.webp",
+      "animatedFile": "assets/animations/fry-school-idle-animated.webp",
+      "frameSize": [
+        192,
+        192
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 10,
+      "loop": true
+    },
+    "fry-to-baby-growth": {
+      "type": "sprite-sheet",
+      "file": "assets/animations/fry-to-baby-growth.webp",
+      "animatedFile": "assets/animations/fry-to-baby-growth-animated.webp",
+      "frameSize": [
+        192,
+        192
+      ],
+      "frames": 20,
+      "layout": "horizontal",
+      "fps": 12,
+      "loop": false
     }
   }
 }

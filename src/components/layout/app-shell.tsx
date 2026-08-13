@@ -14,6 +14,7 @@ import { useIncomeStore } from "@/stores/income-store";
 import { Onboarding } from "@/components/layout/onboarding";
 
 const navItems = [
+  { href: "/breeding", label: "Питомник", icon: aquariumAssets.icons.navigation.gifts },
   { href: "/aquarium", label: "Главная", icon: aquariumAssets.icons.navigation.home },
   { href: "/inventory", label: "Склад", icon: aquariumAssets.icons.navigation.storage },
   { href: "/marketplace", label: "Магазин", icon: aquariumAssets.icons.navigation.shop },
@@ -79,7 +80,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
       <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col">{content}</div>
       <nav className={cn("fixed inset-x-0 bottom-[calc(14px+var(--safe-bottom))] z-50 mx-auto max-w-md px-3 transition duration-200", hasModal && "pointer-events-none translate-y-6 opacity-0")}>
-        <div className="glass relative flex h-20 items-center justify-around overflow-hidden rounded-3xl px-1">
+        <div className="glass relative flex h-20 items-center justify-start overflow-x-auto rounded-3xl px-1">
           {navItems.map((item) => {
             const active = pathname === item.href;
             return (

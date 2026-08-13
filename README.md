@@ -16,6 +16,8 @@ Telegram Mini App про живой аквариум: игрок собирае�
 - адаптация под safe-area Telegram и reduced motion;
 - встроенное обучение при первом входе, повторяемое в настройках;
 - unit-тесты критичных игровых расчётов.
+- полный серверный цикл скрещивания: икра → эмбрионы → мальки → малыш → взрослая гибридная рыба;
+- детерминированный genome, родословная, идемпотентный запуск/claim и быстрое взросление кормом для малышей.
 
 ## Быстрый старт
 
@@ -79,6 +81,7 @@ src/app/                     страницы App Router и API route handlers
 src/components/aquarium/     PixiJS-рендерер и поведение рыб
 src/components/layout/       оболочка, провайдеры и onboarding
 src/features/                UI и query/mutation hooks по доменам
+src/features/breeding/       genetics, timeline, экран и клиентские hooks питомника
 src/lib/                     auth, env, Telegram, API и чистые расчёты
 src/server/repositories/     запросы к Prisma
 src/server/services/         бизнес-логика игры
@@ -86,6 +89,7 @@ src/stores/                  локальное состояние Zustand
 src/types/                   контракты snapshot/API
 prisma/schema.prisma         модель PostgreSQL
 prisma/seed.ts               стартовые данные
+prisma/migrations/           совместимые миграции, включая breeding_jobs
 public/                      игровые ассеты
 ```
 
@@ -114,6 +118,7 @@ public/                      игровые ассеты
 - `GET|POST|PATCH /api/friends` — друзья и заявки;
 - `POST /api/friends/gift`, `POST /api/friends/visit` — подарки и посещение;
 - `GET /api/cron/daily-reward` — защищённый cron уведомлений.
+- `GET|POST|PATCH /api/breeding` — состояние, запуск, ускорение и получение гибрида.
 
 Ошибки имеют единый JSON-формат `{ ok: false, error }`, успешные ответы — `{ ok: true, data }`.
 

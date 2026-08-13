@@ -10,7 +10,7 @@ import { usePlayer } from "@/features/auth/use-player";
 import { useRenameFish, useSellFish, useToggleFavoriteFish } from "@/features/inventory/use-fish-actions";
 import { useFeedFish } from "@/features/inventory/use-feed-fish";
 import { api } from "@/lib/api/client";
-import { AppAssets, decorProducts, fishSpeciesAsset, shopProducts, type ShopProduct } from "@/lib/app-assets";
+import { AppAssets, decorProducts, fishVisualAsset, shopProducts, type ShopProduct } from "@/lib/app-assets";
 import { cn } from "@/lib/cn";
 import { aquariumFishCapacity } from "@/lib/fish-capacity";
 import type { AquariumSnapshot, FishView } from "@/types/game";
@@ -359,7 +359,7 @@ function FishSection({ fishList, capacity, onFavorite, onSelect }: { fishList: F
                 <Heart className={cn("h-4 w-4", fish.isFavorite && "fill-current")} />
               </button>
               <div className="absolute inset-x-3 top-12 z-10 grid h-24 place-items-center">
-                <img className="h-24 w-24 object-contain drop-shadow-[0_18px_24px_rgba(0,0,0,.34)]" src={fishSpeciesAsset[fish.species]} alt="" />
+                <img className="h-24 w-24 object-contain drop-shadow-[0_18px_24px_rgba(0,0,0,.34)]" src={fishVisualAsset(fish)} alt="" />
               </div>
               <div className="absolute inset-x-3 bottom-14 z-10 min-w-0">
                 <div className="truncate text-sm font-black leading-tight text-cyan-50">{fish.name}</div>

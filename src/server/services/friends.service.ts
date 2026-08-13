@@ -247,7 +247,7 @@ export class FriendsService {
         if (!fishId) throw new Error("fishId is required for fish gift");
         const fishCount = await tx.fish.count({ where: { ownerId: userId, isGiftLocked: false } });
         if (fishCount <= 1) throw new Error("You cannot gift your last fish");
-        const fish = await tx.fish.findFirst({ where: { id: fishId, ownerId: userId, isGiftLocked: false } });
+        const fish = await tx.fish.findFirst({ where: { id: fishId, ownerId: userId, isGiftLocked: false, breedingLocked: false } });
         if (!fish) throw new Error("Fish not found");
         await tx.fish.update({ where: { id: fish.id }, data: { isGiftLocked: true } });
         giftFishId = fish.id;
