@@ -50,12 +50,13 @@ export function AquariumRenderer({ fish, className, interactive = false, backgro
   }, [interactive]);
 
   return (
-    <div ref={hostRef} className={cn("relative h-full min-h-[540px] w-full overflow-hidden rounded-b-[28px] bg-[#031018]", className)}>
+    <div ref={hostRef} className={cn("aquarium-theme-surface relative h-full min-h-[540px] w-full overflow-hidden rounded-b-[28px] bg-[#031018]", className)}>
       <div
         ref={sceneBackRef}
         className="pointer-events-none absolute inset-0 z-0 origin-top-left bg-cover bg-center will-change-transform"
         style={{ backgroundImage: `url(${backgroundImage})` }}
       >
+        <div className="aquarium-theme-tint pointer-events-none absolute inset-0 z-[2]" aria-hidden />
         <div ref={fishDomLayerRef} className="pointer-events-none absolute inset-0 z-[3] overflow-hidden" />
         {seaweedDecor.length ? (
           <div className="pointer-events-none absolute inset-x-0 bottom-[-2%] z-[1] h-[28%] overflow-hidden">

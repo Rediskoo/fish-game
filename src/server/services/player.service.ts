@@ -63,6 +63,12 @@ export class PlayerService {
       throw new Error("Player state is incomplete");
     }
     await evaluateAchievements(this.db, userId);
+    // Achievement rewards mutate the balance. Read the player again so every
+    // API response (including daily reward claims) carries the committed sum.
+    snapshot = await this.ensurePlayerState(userId);
+    if (!snapshot.aquarium || !snapshot.inventory) {
+      throw new Error("Player state is incomplete");
+    }
 
     const recentDailyRewards = await this.db.dailyReward.findMany({
       where: { ownerId: userId },

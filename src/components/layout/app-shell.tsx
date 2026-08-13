@@ -65,7 +65,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <main data-theme={theme} className={cn("ocean-shell relative min-h-dvh overflow-hidden pb-[calc(128px+var(--safe-bottom))] pt-[var(--safe-top)]", `theme-${theme}`)}>
       <TelegramBootstrap />
-      <LanguageTranslator />
+      <LanguageTranslator enabled={!player.isPending} />
       <ThemeAtmosphere theme={theme} />
       <Onboarding />
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">

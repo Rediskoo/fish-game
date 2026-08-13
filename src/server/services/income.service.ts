@@ -1,13 +1,8 @@
 import { TransactionType, type PrismaClient } from "@prisma/client";
 import { applyHungerDecay } from "@/server/services/hunger.service";
 import { aquariumFishCapacity } from "@/lib/fish-capacity";
-import { calculateOfflineSeconds, hungerIncomeMultiplier } from "@/lib/game-mechanics";
-
-export function calculateFishIncome(fish: Array<{ fishType: { incomePerSecond: number; maxHunger: number }; hunger: number; incomeMultiplier: number }>) {
-  return fish.reduce((sum, item) => {
-    return sum + item.fishType.incomePerSecond * item.incomeMultiplier * hungerIncomeMultiplier(item.hunger, item.fishType.maxHunger);
-  }, 0);
-}
+import { calculateFishIncome, calculateOfflineSeconds } from "@/lib/game-mechanics";
+export { calculateFishIncome } from "@/lib/game-mechanics";
 
 export async function claimOfflineIncome(db: PrismaClient, userId: string) {
   await applyHungerDecay(db, userId);

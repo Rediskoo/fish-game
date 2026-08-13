@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   MAX_OFFLINE_SECONDS,
+  calculateFishIncome,
   calculateHunger,
   calculateOfflineSeconds,
   feedHunger,
@@ -24,5 +25,11 @@ describe("game mechanics", () => {
     expect(calculateHunger(20, 100, 2, -10)).toBe(20);
     expect(feedHunger(5)).toBe(0);
     expect(feedHunger(25)).toBe(15);
+  });
+
+  it("keeps starter and fully hungry fish profitable", () => {
+    const starter = { fishType: { incomePerSecond: 1.2, maxHunger: 100 }, hunger: 100, incomeMultiplier: 1 };
+    expect(calculateFishIncome([starter])).toBeCloseTo(0.3);
+    expect(calculateFishIncome([{ ...starter, hunger: 0 }])).toBeCloseTo(1.2);
   });
 });

@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useIncomeStore } from "@/stores/income-store";
+import { api } from "@/lib/api/client";
 import type { AquariumSnapshot } from "@/types/game";
 
 export function useLiveIncome(snapshot?: AquariumSnapshot) {
+  const queryClient = useQueryClient();
   const setIncome = useIncomeStore((state) => state.setIncome);
   const tick = useIncomeStore((state) => state.tick);
 
@@ -25,4 +28,30 @@ export function useLiveIncome(snapshot?: AquariumSnapshot) {
     frame = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(frame);
   }, [tick]);
+
+  const hasSnapshot = Boolean(snapshot);
+  useEffect(() => {
+    if (!hasSnapshot) return;
+    let syncing = false;
+    const sync = async () => {
+      if (syncing || document.visibilityState === "hidden") return;
+      syncing = true;
+      try {
+        const result = await api<{ snapshot: AquariumSnapshot }>("/api/income/claim", { method: "POST" });
+        queryClient.setQueryData(["snapshot"], result.snapshot);
+      } catch {
+        // The optimistic counter keeps running; the next successful sync claims
+        // all elapsed server-side time without trusting the client's clock.
+      } finally {
+        syncing = false;
+      }
+    };
+    const interval = window.setInterval(() => void sync(), 30_000);
+    const onVisibility = () => document.visibilityState === "visible" && void sync();
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [hasSnapshot, queryClient]);
 }

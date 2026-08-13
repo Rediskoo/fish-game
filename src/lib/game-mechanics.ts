@@ -13,6 +13,12 @@ export function hungerIncomeMultiplier(hunger: number, maxHunger: number) {
   return 1;
 }
 
+export function calculateFishIncome(fish: Array<{ fishType: { incomePerSecond: number; maxHunger: number }; hunger: number; incomeMultiplier: number }>) {
+  return fish.reduce((sum, item) => (
+    sum + item.fishType.incomePerSecond * item.incomeMultiplier * hungerIncomeMultiplier(item.hunger, item.fishType.maxHunger)
+  ), 0);
+}
+
 export function calculateOfflineSeconds(lastIncomeAt: Date, now = new Date()) {
   const elapsed = Math.floor((now.getTime() - lastIncomeAt.getTime()) / 1000);
   return clamp(elapsed, 0, MAX_OFFLINE_SECONDS);

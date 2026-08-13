@@ -37,17 +37,17 @@ function translateTree(root: Node, language: "ru" | "en") {
   while ((node = walker.nextNode())) translateTextNode(node as Text, language);
 }
 
-export function LanguageTranslator() {
+export function LanguageTranslator({ enabled = true }: { enabled?: boolean }) {
   const language = useLanguageStore((state) => state.language);
   useEffect(() => {
     document.documentElement.lang = language;
+    if (!enabled) return;
     translateTree(document.body, language);
     const observer = new MutationObserver((records) => records.forEach((record) => {
-      if (record.type === "characterData") translateTextNode(record.target as Text, language);
       record.addedNodes.forEach((node) => translateTree(node, language));
     }));
-    observer.observe(document.body, { childList: true, characterData: true, subtree: true });
+    observer.observe(document.body, { childList: true, subtree: true });
     return () => observer.disconnect();
-  }, [language]);
+  }, [enabled, language]);
   return null;
 }

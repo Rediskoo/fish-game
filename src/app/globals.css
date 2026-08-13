@@ -163,6 +163,17 @@ input {
 .theme-snowflake { top:-2rem; animation:snowfall linear infinite; }
 @keyframes snowfall { to { transform:translate3d(24px,110dvh,0) rotate(360deg); } }
 
+/* Theme the water itself as well as the surrounding UI. The tint stays below
+   fish (z=3) so their rarity colors remain readable. */
+.aquarium-theme-surface { background: var(--aquarium-deep, #031018) !important; }
+.aquarium-theme-tint { background: var(--aquarium-tint, transparent); mix-blend-mode: var(--aquarium-blend, normal); }
+.theme-halloween { --aquarium-deep:#09030d;--aquarium-tint:linear-gradient(155deg,rgba(10,0,16,.48),rgba(126,34,206,.24) 48%,rgba(249,115,22,.34));--aquarium-blend:multiply; }
+.theme-midnight { --aquarium-deep:#000;--aquarium-tint:linear-gradient(180deg,rgba(0,0,0,.42),rgba(15,23,42,.74));--aquarium-blend:saturation; }
+.theme-snow { --aquarium-deep:#123b55;--aquarium-tint:linear-gradient(180deg,rgba(224,242,254,.38),rgba(56,189,248,.12) 48%,rgba(255,255,255,.26));--aquarium-blend:screen; }
+.theme-sunset { --aquarium-deep:#351347;--aquarium-tint:linear-gradient(160deg,rgba(251,191,36,.28),rgba(244,63,94,.3) 45%,rgba(76,29,149,.42));--aquarium-blend:color; }
+.theme-violet { --aquarium-deep:#16052b;--aquarium-tint:linear-gradient(145deg,rgba(217,70,239,.3),rgba(59,130,246,.28),rgba(8,1,24,.38));--aquarium-blend:color; }
+.theme-emerald { --aquarium-deep:#012b25;--aquarium-tint:linear-gradient(155deg,rgba(16,185,129,.3),rgba(6,78,59,.38),rgba(20,184,166,.25));--aquarium-blend:color; }
+
 @keyframes aquarium-bubble-jet {
   0% { opacity: 0; transform: translate3d(0, 0, 0) scale(.55); }
   15% { opacity: .85; }
