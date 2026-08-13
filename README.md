@@ -149,7 +149,7 @@ Authorization: Bearer <CRON_SECRET>
 
 ## Docker и deployment
 
-`docker compose up -d` поднимает PostgreSQL для разработки. `next.config.ts` использует `output: "standalone"`, поэтому приложение подходит для контейнерного запуска.
+`docker compose up -d` поднимает PostgreSQL для разработки. На Vercel используется нативный Next.js build output; Dockerfile запускает стандартный production-сервер через `npm run start`.
 
 Для Vercel добавьте env-переменные, примените миграции через `npm run db:deploy`, выполните seed один раз и затем деплойте. Не запускайте `db push`/`seed` на каждом build.
 
