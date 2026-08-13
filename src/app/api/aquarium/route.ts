@@ -10,10 +10,10 @@ export async function PATCH(request: Request) {
   if (!userId) return fail("Unauthorized", 401);
 
   try {
-    const body = (await request.json().catch(() => ({}))) as { decorId?: string; enabled?: boolean; backgroundId?: string; clean?: boolean };
+    const body = (await request.json().catch(() => ({}))) as { decorId?: string; enabled?: boolean; backgroundId?: string; clean?: boolean; superClean?: boolean };
     const service = new PlayerService(getPrisma());
-    if (body.clean) {
-      await service.cleanAquarium(userId);
+    if (body.clean || body.superClean) {
+      await service.cleanAquarium(userId, Boolean(body.superClean));
     } else {
       await service.customizeAquarium(userId, body);
     }

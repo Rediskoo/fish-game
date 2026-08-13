@@ -15,8 +15,8 @@ import { Onboarding } from "@/components/layout/onboarding";
 import { ApiError } from "@/lib/api/client";
 
 const navItems = [
-  { href: "/breeding", label: "Питомник", icon: aquariumAssets.icons.navigation.gifts },
   { href: "/aquarium", label: "Главная", icon: aquariumAssets.icons.navigation.home },
+  { href: "/breeding", label: "Питомник", icon: aquariumAssets.icons.navigation.gifts },
   { href: "/inventory", label: "Склад", icon: aquariumAssets.icons.navigation.storage },
   { href: "/marketplace", label: "Магазин", icon: aquariumAssets.icons.navigation.shop },
   { href: "/daily-rewards", label: "Подарки", icon: aquariumAssets.icons.navigation.gifts },

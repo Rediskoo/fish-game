@@ -7,10 +7,10 @@ import type { AquariumSnapshot } from "@/types/game";
 export function useFeedFish() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (fishId: string) =>
+    mutationFn: (input: { fishId?: string; foodType: "basic" | "large" | "aquarium"; quantity: number }) =>
       api<AquariumSnapshot>("/api/inventory/feed", {
         method: "POST",
-        body: JSON.stringify({ fishId })
+        body: JSON.stringify(input)
       }),
     onSuccess: (snapshot) => queryClient.setQueryData(["snapshot"], snapshot)
   });

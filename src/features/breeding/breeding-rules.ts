@@ -16,8 +16,5 @@ export function validateBreedingParents(parentA: ParentEligibility, parentB: Par
   if (parentA.lifeStage !== "ADULT" || parentB.lifeStage !== "ADULT") throw new Error("Родителями могут быть только взрослые рыбы");
   if (parentA.breedingLocked || parentB.breedingLocked) throw new Error("Одна из рыб уже участвует в скрещивании");
   if (parentA.isGiftLocked || parentB.isGiftLocked) throw new Error("Рыба в продаже или передаче недоступна");
-  if (parentA.hunger / Math.max(1, parentA.maxHunger) > 0.7 || parentB.hunger / Math.max(1, parentB.maxHunger) > 0.7) {
-    throw new Error("Сначала покормите родителей: голод должен быть ниже 70%");
-  }
   if (!isHybridSupported(parentA.species, parentB.species)) throw new Error("Для этой пары пока нет готового визуального варианта");
 }

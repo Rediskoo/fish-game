@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
   try {
     const body = feedFishSchema.parse(await request.json());
-    await new InventoryService(getPrisma()).feedFish(userId, body.fishId);
+    await new InventoryService(getPrisma()).feedFish(userId, body);
     const snapshot = await new PlayerService(getPrisma()).getSnapshot(userId);
     return ok(snapshot);
   } catch (error) {

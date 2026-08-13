@@ -201,7 +201,10 @@ model Inventory {
   id          String   @id @default(cuid())
   ownerId     String   @unique
   food        Int      @default(0)
+  bigFood     Int      @default(0)
+  superFood   Int      @default(0)
   cleaner     Int      @default(0)
+  superCleaner Int    @default(0)
   spawningNest Int     @default(0)
   eggIncubator Int     @default(0)
   fryFood      Int     @default(0)

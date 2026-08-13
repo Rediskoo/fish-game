@@ -135,6 +135,21 @@ export class BreedingService {
     }, { isolationLevel: "Serializable" });
   }
 
+  async incubate(userId: string, jobId: string, now = new Date()) {
+    return this.db.$transaction(async (tx) => {
+      const job = await tx.breedingJob.findFirst({ where: { id: jobId, ownerId: userId } });
+      if (!job) throw new Error("Процесс разведения не найден");
+      const view = jobView(job, now);
+      if (!(view.lifeStage === "egg" || view.lifeStage === "embryo")) throw new Error("Инкубатор работает только с икрой");
+      const inventory = await tx.inventory.findUniqueOrThrow({ where: { ownerId: userId } });
+      if (inventory.eggIncubator <= 0) throw new Error("Нет инкубатора икры");
+      const hatchAt = new Date(Math.max(now.getTime() + 300_000, job.hatchAt.getTime() - 3_600_000));
+      const shift = job.hatchAt.getTime() - hatchAt.getTime();
+      await tx.inventory.update({ where: { ownerId: userId }, data: { eggIncubator: { decrement: 1 } } });
+      await tx.breedingJob.update({ where: { id: job.id }, data: { hatchAt, babyAt: new Date(job.babyAt.getTime() - shift), adultAt: new Date(job.adultAt.getTime() - shift) } });
+    }, { isolationLevel: "Serializable" });
+  }
+
   async claim(userId: string, jobId: string, now = new Date()) {
     const ownerId = userId;
     return this.db.$transaction(async (tx) => {

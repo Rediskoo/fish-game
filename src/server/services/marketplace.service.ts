@@ -41,7 +41,13 @@ export class MarketplaceService {
   async purchaseFish(userId: string) {
     const types = await this.listFishTypes();
     if (types.length === 0) throw new Error("Fish catalog is empty");
-    const selected = [pickWeighted(types), pickWeighted(types), pickWeighted(types)] as const;
+    // A case now has a 60% fish reward. A winning roll uses three matching
+    // symbols; non-winning rolls still keep the old partial currency refund.
+    const guaranteedFish = Math.random() < 0.6;
+    const first = pickWeighted(types);
+    const selected = guaranteedFish
+      ? [first, first, first] as const
+      : [first, pickWeighted(types), pickWeighted(types)] as const;
     const matchingSymbols = new Set(selected.map((type) => type.id)).size;
 
     return this.db.$transaction(async (tx) => {

@@ -146,7 +146,7 @@ function ShopProductCard({ product, isBusy, onBuy }: { product: ShopProduct; isB
         <>
           <div className="relative z-10 flex min-w-0 flex-col justify-end pr-2">
             <div className="mb-2 inline-flex w-fit items-center gap-1 rounded-full border border-cyan-200/20 bg-cyan-300/10 px-2 py-1 text-[11px] font-black text-cyan-100">
-              <Sparkles className="h-3 w-3" /> 777 казино
+              <Sparkles className="h-3 w-3" /> Рыбный кейс
             </div>
             <div className="text-2xl font-black text-cyan-50 text-glow">{product.title}</div>
             <div className="mt-1 text-xs leading-4 text-cyan-100/70">Открой слот и поймай редкую рыбку для аквариума.</div>
@@ -205,4 +205,3 @@ function FishDropPreview({ fishTypes }: { fishTypes: MarketplaceFish[] }) {
     </div>
   );
 }
-

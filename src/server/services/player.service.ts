@@ -95,7 +95,10 @@ export class PlayerService {
       },
       inventory: {
         food: snapshot.inventory.food,
+        bigFood: snapshot.inventory.bigFood,
+        superFood: snapshot.inventory.superFood,
         cleaner: snapshot.inventory.cleaner,
+        superCleaner: snapshot.inventory.superCleaner,
         spawningNest: snapshot.inventory.spawningNest,
         eggIncubator: snapshot.inventory.eggIncubator,
         fryFood: snapshot.inventory.fryFood,
@@ -212,8 +215,10 @@ export class PlayerService {
     if (!product || product.id === "fish-case") throw new Error("Invalid marketplace product");
 
     const foodAmount = product.id === "food-basic" ? 10 : product.id === "food-premium" ? 25 : 0;
+    const bigFoodAmount = product.id === "food-large" ? 1 : 0;
+    const superFoodAmount = product.id === "food-aquarium" ? 1 : 0;
     const cleanerAmount = product.id === "water-conditioner" ? 1 : 0;
-    const fullClean = product.id === "big-water-cleaner";
+    const superCleanerAmount = product.id === "big-water-cleaner" ? 1 : 0;
     const breedingItem = {
       "spawning-nest": "spawningNest",
       "egg-incubator": "eggIncubator",
@@ -243,10 +248,7 @@ export class PlayerService {
       await tx.user.update({ where: { id: userId }, data: { currency: { decrement: product.price } } });
 
       if (product.category === "care") {
-        await tx.inventory.update({ where: { ownerId: userId }, data: { food: { increment: foodAmount }, cleaner: { increment: cleanerAmount } } });
-        if (fullClean) {
-          await tx.aquarium.update({ where: { ownerId: userId }, data: { pollution: 0, lastPollutionAt: new Date() } });
-        }
+        await tx.inventory.update({ where: { ownerId: userId }, data: { food: { increment: foodAmount }, bigFood: { increment: bigFoodAmount }, superFood: { increment: superFoodAmount }, cleaner: { increment: cleanerAmount }, superCleaner: { increment: superCleanerAmount } } });
       } else if (product.category === "breeding" && breedingItem) {
         await tx.inventory.update({ where: { ownerId: userId }, data: { [breedingItem]: { increment: 1 } } });
       } else if (product.category === "decor") {
@@ -280,15 +282,15 @@ export class PlayerService {
     return true;
   }
 
-  async cleanAquarium(userId: string) {
+  async cleanAquarium(userId: string, superClean = false) {
     await this.db.$transaction(async (tx) => {
       const inventory = await tx.inventory.findUniqueOrThrow({ where: { ownerId: userId } });
-      if (inventory.cleaner <= 0) throw new Error("No cleaner in inventory");
+      if (superClean ? inventory.superCleaner <= 0 : inventory.cleaner <= 0) throw new Error("Нет нужного очистителя");
       const aquarium = await tx.aquarium.findUniqueOrThrow({ where: { ownerId: userId } });
-      await tx.inventory.update({ where: { ownerId: userId }, data: { cleaner: { decrement: 1 } } });
+      await tx.inventory.update({ where: { ownerId: userId }, data: superClean ? { superCleaner: { decrement: 1 } } : { cleaner: { decrement: 1 } } });
       await tx.aquarium.update({
         where: { ownerId: userId },
-        data: { pollution: Math.max(0, aquarium.pollution - 15), lastPollutionAt: new Date() }
+        data: { pollution: superClean ? 0 : Math.max(0, aquarium.pollution - 15), lastPollutionAt: new Date() }
       });
     });
   }

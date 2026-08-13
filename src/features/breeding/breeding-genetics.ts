@@ -9,6 +9,19 @@ function normalize(value: string) {
 
 export function findHybrid(parentA: string, parentB: string): { key: string; config: HybridConfig } | null {
   const parents = [normalize(parentA), normalize(parentB)].sort();
+  if (parents[0] === parents[1]) {
+    const species = parents[0];
+    return {
+      key: `${species}-pure`,
+      config: {
+        parents: [species, species],
+        assetKey: `fish.${species}`,
+        animationKey: `fish-swim-${species}`,
+        traits: { bodyShape: species, primaryColor: species, secondaryColor: species, pattern: species, tailShape: species, finShape: species, specialTrait: null },
+        rarity: "common"
+      } as HybridConfig
+    };
+  }
   const entry = Object.entries(genetics.hybrids).find(([, config]) => [...config.parents].map(normalize).sort().join("|") === parents.join("|"));
   return entry ? { key: entry[0], config: entry[1] } : null;
 }

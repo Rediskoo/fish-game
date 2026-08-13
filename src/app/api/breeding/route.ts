@@ -29,7 +29,8 @@ export async function PATCH(request: Request) {
   try {
     const input = breedingActionSchema.parse(await request.json());
     const service = new BreedingService(getPrisma());
-    if (input.action === "speed-up") await service.speedUp(userId, input.jobId);
+    if (input.action === "incubate") await service.incubate(userId, input.jobId);
+    else if (input.action === "speed-up") await service.speedUp(userId, input.jobId);
     else await service.claim(userId, input.jobId);
     return ok(await service.getState(userId));
   } catch (error) { return fail(error instanceof Error ? error.message : "Breeding action failed"); }

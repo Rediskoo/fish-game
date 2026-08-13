@@ -122,7 +122,12 @@ export const aquariumAssets = {
     nurseryPlantShelter: assetFile("breeding.nursery-plant-shelter"),
     nurseryCave: assetFile("breeding.nursery-cave"),
     genealogyMedallion: assetFile("breeding.genealogy-medallion"),
-    hybrid(key: string) { return assetFile(`breeding.hybrids.${key}` as AssetKey); }
+    hybrid(key: string) { return assetFile(`breeding.hybrids.${key}` as AssetKey); },
+    offspring(key: string) {
+      return key.endsWith("-pure")
+        ? assetFile(`fish.${key.slice(0, -5)}` as AssetKey)
+        : assetFile(`breeding.hybrids.${key}` as AssetKey);
+    }
   },
   icons: {
     navigation: {

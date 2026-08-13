@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type { ReactNode } from "react";
 import { Bell, ChevronRight, GraduationCap, Globe2, Info, MessageCircle, Moon, MousePointerClick, Smartphone, Volume2 } from "lucide-react";
@@ -13,33 +13,33 @@ export function SettingsScreen() {
   return (
     <div className="space-y-4 p-4">
       <header className="pt-20">
-        <h1 className="text-3xl font-black text-cyan-50 text-glow">Настройки</h1>
+        <h1 className="text-3xl font-black text-cyan-50 text-glow">РќР°СЃС‚СЂРѕР№РєРё</h1>
       </header>
 
       <div className="grid grid-cols-2 gap-3">
-        <StatusTile icon={<Smartphone className="h-5 w-5" />} title="Telegram fullscreen" value="Включен" />
-        <StatusTile icon={<Bell className="h-5 w-5" />} title="Отклики и вибрация" value="Включены" />
+        <StatusTile icon={<Smartphone className="h-5 w-5" />} title="Telegram fullscreen" value="Р’РєР»СЋС‡РµРЅ" />
+        <StatusTile icon={<Bell className="h-5 w-5" />} title="РћС‚РєР»РёРєРё Рё РІРёР±СЂР°С†РёСЏ" value="Р’РєР»СЋС‡РµРЅС‹" />
       </div>
 
       <Panel className="space-y-3 overflow-hidden rounded-[18px] border-cyan-100/18 bg-[linear-gradient(145deg,rgba(8,45,62,.78),rgba(5,20,34,.88))]">
         <div>
-          <div className="text-lg font-black text-cyan-50">Звуки</div>
-          <div className="text-xs text-cyan-100/58">Локально сохраняются на устройстве</div>
+          <div className="text-lg font-black text-cyan-50">Р—РІСѓРєРё</div>
+          <div className="text-xs text-cyan-100/58">Р›РѕРєР°Р»СЊРЅРѕ СЃРѕС…СЂР°РЅСЏСЋС‚СЃСЏ РЅР° СѓСЃС‚СЂРѕР№СЃС‚РІРµ</div>
         </div>
         <div className="grid gap-2">
-          <Toggle icon={<Volume2 className="h-4 w-4" />} label="Все звуки" detail="Главный выключатель" checked={sounds.all} onChange={(value) => sounds.setSound("all", value)} />
-          <Toggle icon={<MousePointerClick className="h-4 w-4" />} label="Кнопки" detail="Клики и подтверждения" checked={sounds.buttons} onChange={(value) => sounds.setSound("buttons", value)} />
-          <Toggle image={aquariumAssets.icons.ui.currencyCoin} label="Казино" detail="777, выигрыш и ожидание" checked={sounds.roulette} onChange={(value) => sounds.setSound("roulette", value)} />
-          <Toggle image={aquariumAssets.icons.ui.fishCases} label="Рыбки" detail="Тапы и реакции рыб" checked={sounds.fish} onChange={(value) => sounds.setSound("fish", value)} />
+          <Toggle icon={<Volume2 className="h-4 w-4" />} label="Р’СЃРµ Р·РІСѓРєРё" detail="Р“Р»Р°РІРЅС‹Р№ РІС‹РєР»СЋС‡Р°С‚РµР»СЊ" checked={sounds.all} onChange={(value) => sounds.setSound("all", value)} />
+          <Toggle icon={<MousePointerClick className="h-4 w-4" />} label="РљРЅРѕРїРєРё" detail="РљР»РёРєРё Рё РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ" checked={sounds.buttons} onChange={(value) => sounds.setSound("buttons", value)} />
+          <Toggle image={aquariumAssets.icons.ui.currencyCoin} label="РљР°Р·РёРЅРѕ" detail=", РІС‹РёРіСЂС‹С€ Рё РѕР¶РёРґР°РЅРёРµ" checked={sounds.roulette} onChange={(value) => sounds.setSound("roulette", value)} />
+          <Toggle image={aquariumAssets.icons.ui.fishCases} label="Р С‹Р±РєРё" detail="РўР°РїС‹ Рё СЂРµР°РєС†РёРё СЂС‹Р±" checked={sounds.fish} onChange={(value) => sounds.setSound("fish", value)} />
         </div>
       </Panel>
 
       <Panel className="space-y-1 overflow-hidden rounded-[18px] border-cyan-100/16 bg-[linear-gradient(145deg,rgba(8,43,59,.72),rgba(4,18,31,.86))]">
-        <SettingsRow icon={<GraduationCap className="h-4 w-4" />} label="Повторить обучение" value="" onClick={() => window.dispatchEvent(new Event("aquarium:restart-onboarding"))} />
-        <SettingsRow icon={<Globe2 className="h-4 w-4" />} label="Язык" value="Русский" />
-        <SettingsRow icon={<Moon className="h-4 w-4" />} label="Тема" value="По умолчанию" />
-        <SettingsRow icon={<Info className="h-4 w-4" />} label="О приложении" value="Версия 1.0.0" />
-        <SettingsRow icon={<MessageCircle className="h-4 w-4" />} label="Поддержка" value="" />
+        <SettingsRow icon={<GraduationCap className="h-4 w-4" />} label="РџРѕРІС‚РѕСЂРёС‚СЊ РѕР±СѓС‡РµРЅРёРµ" value="" onClick={() => window.dispatchEvent(new Event("aquarium:restart-onboarding"))} />
+        <SettingsRow icon={<Globe2 className="h-4 w-4" />} label="РЇР·С‹Рє" value="Р СѓСЃСЃРєРёР№" />
+        <SettingsRow icon={<Moon className="h-4 w-4" />} label="РўРµРјР°" value="РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ" />
+        <SettingsRow icon={<Info className="h-4 w-4" />} label="Рћ РїСЂРёР»РѕР¶РµРЅРёРё" value="Р’РµСЂСЃРёСЏ 1.0.0" />
+        <SettingsRow icon={<MessageCircle className="h-4 w-4" />} label="РџРѕРґРґРµСЂР¶РєР°" value="" />
       </Panel>
     </div>
   );

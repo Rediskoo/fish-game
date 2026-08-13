@@ -159,10 +159,12 @@ export function InventoryScreen() {
         <FishModal
           fish={selectedFish}
           food={food}
+          bigFood={player.data?.inventory.bigFood ?? 0}
+          superFood={player.data?.inventory.superFood ?? 0}
           isBusy={feed.isPending || renameFish.isPending || sellFish.isPending || favorite.isPending}
           error={feed.error?.message ?? renameFish.error?.message ?? sellFish.error?.message ?? favorite.error?.message}
           onClose={() => setSelectedFishId(null)}
-          onFeed={() => feed.mutate(selectedFish.id)}
+          onFeed={(foodType, quantity) => feed.mutate({ fishId: selectedFish.id, foodType, quantity })}
           onRename={(name) => renameFish.mutate({ fishId: selectedFish.id, name })}
           onFavorite={() => favorite.mutate({ fishId: selectedFish.id, isFavorite: !selectedFish.isFavorite })}
           onSell={() =>
@@ -352,7 +354,7 @@ function FishSection({ fishList, capacity, onFavorite, onSelect }: { fishList: F
         {fishList.map((fish, index) => {
           const overCapacity = index >= capacity;
           return (
-            <div key={fish.id} className={cn("relative min-h-[220px] overflow-hidden rounded-[22px] border p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)]", overCapacity ? "border-rose-300/35 bg-rose-500/10" : "border-cyan-100/12 bg-slate-950/32")}>
+            <div key={fish.id} className={cn("relative min-h-[250px] overflow-hidden rounded-[22px] border p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)]", overCapacity ? "border-rose-300/35 bg-rose-500/10" : "border-cyan-100/12 bg-slate-950/32")}>
               <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full blur-2xl" style={{ backgroundColor: fish.glowColor + "24" }} />
               <span className={cn("absolute left-3 top-3 z-10 rounded-full px-2 py-1 text-[10px] font-black", overCapacity ? "bg-rose-300/18 text-rose-100" : "bg-slate-950/50 text-cyan-100/76")}>{overCapacity ? "Перенаселение" : fish.rarityLabel}</span>
               <button className={cn("absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-xl bg-slate-950/42 text-cyan-100", fish.isFavorite && "bg-rose-300 text-slate-950")} onClick={() => onFavorite(fish)} aria-label="Избранное">
@@ -361,7 +363,7 @@ function FishSection({ fishList, capacity, onFavorite, onSelect }: { fishList: F
               <div className="absolute inset-x-3 top-12 z-10 grid h-24 place-items-center">
                 <img className="h-24 w-24 object-contain drop-shadow-[0_18px_24px_rgba(0,0,0,.34)]" src={fishVisualAsset(fish)} alt="" />
               </div>
-              <div className="absolute inset-x-3 bottom-14 z-10 min-w-0">
+              <div className="absolute inset-x-3 bottom-14 z-10 min-w-0 rounded-xl bg-slate-950/50 p-2 backdrop-blur">
                 <div className="truncate text-sm font-black leading-tight text-cyan-50">{fish.name}</div>
                 <div className={cn("mt-1 truncate text-xs", overCapacity ? "text-rose-100/80" : "text-cyan-100/62")}>{overCapacity ? "Можно заселить после расширения" : "сытость " + fullness(fish) + "/" + fish.maxHunger}</div>
               </div>
@@ -378,6 +380,8 @@ function FishSection({ fishList, capacity, onFavorite, onSelect }: { fishList: F
 function FishModal({
   fish,
   food,
+  bigFood,
+  superFood,
   isBusy,
   error,
   onClose,
@@ -388,15 +392,19 @@ function FishModal({
 }: {
   fish: FishView;
   food: number;
+  bigFood: number;
+  superFood: number;
   isBusy: boolean;
   error?: string;
   onClose: () => void;
-  onFeed: () => void;
+  onFeed: (foodType: "basic" | "large" | "aquarium", quantity: number) => void;
   onRename: (name: string) => void;
   onFavorite: () => void;
   onSell: () => void;
 }) {
   const [name, setName] = useState(fish.name);
+  const [showFeedPicker, setShowFeedPicker] = useState(false);
+  const [feedQuantity, setFeedQuantity] = useState(1);
   const [feedingDrop, setFeedingDrop] = useState<{ key: number; x: number } | null>(null);
   const fishFullness = fullness(fish);
   const fullnessPercent = Math.max(0, Math.min(100, (fishFullness / fish.maxHunger) * 100));
@@ -424,11 +432,12 @@ function FishModal({
     onRename(name);
   }
 
-  function handleFeed() {
+  function handleFeed(foodType: "basic" | "large" | "aquarium", quantity: number) {
     const x = 22 + Math.random() * 56;
     const key = Date.now();
     setFeedingDrop({ key, x });
-    window.setTimeout(onFeed, 900);
+    window.setTimeout(() => onFeed(foodType, quantity), 900);
+    setShowFeedPicker(false);
     window.setTimeout(() => setFeedingDrop((current) => current?.key === key ? null : current), 1250);
   }
 
@@ -486,13 +495,14 @@ function FishModal({
         {error ? <p className="text-sm text-yellow-100">{error}</p> : null}
 
         <div className="grid grid-cols-2 gap-2">
-          <Button className="bg-emerald-300" disabled={isBusy || food <= 0 || fish.hunger <= 0} onClick={handleFeed}>
+          <Button className="bg-emerald-300" disabled={isBusy || fish.hunger <= 0 || food + bigFood + superFood <= 0} onClick={() => setShowFeedPicker(true)}>
             <Utensils className="h-4 w-4" /> Покормить
           </Button>
           <Button className={cn(fish.isFavorite && "bg-rose-300")} disabled={isBusy} onClick={onFavorite}>
             <Heart className={cn("h-4 w-4", fish.isFavorite && "fill-current")} /> Избранное
           </Button>
         </div>
+        {showFeedPicker ? <div className="rounded-2xl border border-emerald-200/20 bg-slate-950/55 p-3"><div className="mb-3 font-black text-cyan-50">Выберите корм</div><div className="grid gap-2"><div className="flex items-center gap-2"><Button disabled={feedQuantity <= 1} onClick={() => setFeedQuantity((value) => value - 1)}>−</Button><span className="min-w-8 text-center font-black">{feedQuantity}</span><Button disabled={feedQuantity >= Math.min(10, food)} onClick={() => setFeedQuantity((value) => value + 1)}>+</Button><Button className="flex-1" disabled={food < feedQuantity} onClick={() => handleFeed("basic", feedQuantity)}>Обычный ×{feedQuantity} · −{feedQuantity * 25}</Button></div><Button disabled={!bigFood} onClick={() => handleFeed("large", 1)}>Большой корм · −100 голода ({bigFood})</Button><Button disabled={!superFood} onClick={() => handleFeed("aquarium", 1)}>Суперкорм · накормить всех ({superFood})</Button></div></div> : null}
       </div>
     </div>
   );

@@ -13,8 +13,10 @@ export const renameFishSchema = z.object({
 });
 
 export const feedFishSchema = z.object({
-  fishId: z.string().cuid()
-});
+  fishId: z.string().cuid().optional(),
+  foodType: z.enum(["basic", "large", "aquarium"]).default("basic"),
+  quantity: z.number().int().min(1).max(10).default(1)
+}).refine((value) => value.foodType === "aquarium" || Boolean(value.fishId), { message: "Choose a fish" });
 
 export const addFriendSchema = z.object({
   telegramId: z.string().trim().regex(/^\d{5,20}$/, "Invalid Telegram User ID")
@@ -47,5 +49,5 @@ export const startBreedingSchema = z.object({
 
 export const breedingActionSchema = z.object({
   jobId: z.string().cuid(),
-  action: z.enum(["speed-up", "claim"])
+  action: z.enum(["incubate", "speed-up", "claim"])
 });

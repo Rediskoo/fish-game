@@ -52,7 +52,10 @@ export type AquariumSnapshot = {
   };
   inventory: {
     food: number;
+    bigFood: number;
+    superFood: number;
     cleaner: number;
+    superCleaner: number;
     spawningNest: number;
     eggIncubator: number;
     fryFood: number;
