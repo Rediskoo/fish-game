@@ -55,4 +55,8 @@ describe("breeding timeline", () => {
     expect(result.babyAt.toISOString()).toBe("2026-01-01T04:00:00.000Z");
     expect(result.adultAt.toISOString()).toBe("2026-01-01T10:00:00.000Z");
   });
+  it("nursery conditioner can reduce the timeline by thirty minutes", () => {
+    const result = applyIncubatorTimes(job, new Date("2026-01-01T00:30:00Z"), 30 * 60 * 1000);
+    expect(result.adultAt.toISOString()).toBe("2026-01-01T11:30:00.000Z");
+  });
 });

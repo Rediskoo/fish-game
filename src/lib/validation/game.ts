@@ -49,5 +49,5 @@ export const startBreedingSchema = z.object({
 
 export const breedingActionSchema = z.object({
   jobId: z.string().cuid(),
-  action: z.enum(["incubate", "speed-up", "claim"])
+  action: z.enum(["incubate", "speed-up", "condition", "claim"])
 });

@@ -70,7 +70,7 @@ export function InventoryScreen() {
   const sellFish = useSellFish();
   const favorite = useToggleFavoriteFish();
   const customize = useMutation({
-    mutationFn: (input: { decorId?: string; enabled?: boolean; backgroundId?: string; clean?: boolean }) =>
+    mutationFn: (input: { decorId?: string; enabled?: boolean; backgroundId?: string; clean?: boolean; superClean?: boolean }) =>
       api<AquariumSnapshot>("/api/aquarium", { method: "PATCH", body: JSON.stringify(input) }),
     onSuccess: (snapshot) => queryClient.setQueryData(["snapshot"], snapshot)
   });
@@ -144,7 +144,7 @@ export function InventoryScreen() {
             </div>
           </div>
 
-          {activeTab === "food" ? <FoodSection food={food} cleaner={cleaner} pollution={player.data?.aquarium.pollution ?? 0} isBusy={customize.isPending} onClean={() => customize.mutate({ clean: true })} /> : null}
+          {activeTab === "food" ? <FoodSection inventory={player.data?.inventory} pollution={player.data?.aquarium.pollution ?? 0} isBusy={customize.isPending} onClean={(superClean) => customize.mutate(superClean ? { superClean: true } : { clean: true })} /> : null}
           {activeTab === "breeding" ? <BreedingItemsSection inventory={player.data?.inventory} /> : null}
           {activeTab === "decor" ? <DecorSection products={ownedDecorProducts} activeDecor={activeDecor} isBusy={customize.isPending} onToggle={(product, enabled) => customize.mutate({ decorId: product.id, enabled })} /> : null}
           {activeTab === "backgrounds" ? <BackgroundSection products={backgroundProducts} activeBackground={activeBackground} isBusy={customize.isPending} onSelect={(product) => customize.mutate({ backgroundId: product.id })} /> : null}
@@ -152,6 +152,9 @@ export function InventoryScreen() {
             <FishSection
               fishList={fishList}
               capacity={capacity}
+              superFood={player.data?.inventory.superFood ?? 0}
+              isFeeding={feed.isPending}
+              onFeedAll={() => feed.mutate({ foodType: "aquarium", quantity: 1 })}
               onFavorite={(fish) => favorite.mutate({ fishId: fish.id, isFavorite: !fish.isFavorite })}
               onSelect={(fish) => setSelectedFishId(fish.id)}
             />
@@ -278,27 +281,20 @@ function BreedingItemsSection({ inventory }: { inventory?: AquariumSnapshot["inv
   return <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{items.map((item) => <div key={item.title} className="grid min-h-36 grid-cols-[96px_1fr] items-center gap-3 rounded-[22px] border border-amber-200/16 bg-slate-950/32 p-3"><img className="h-24 w-24 object-contain" src={item.image} alt="" /><div className="min-w-0"><div className="text-3xl font-black text-amber-100">{item.count}</div><div className="font-black text-cyan-50">{item.title}</div><div className="mt-1 text-xs leading-4 text-cyan-100/60">{item.description}</div></div></div>)}</div>;
 }
 
-function FoodSection({ food, cleaner, pollution, isBusy, onClean }: { food: number; cleaner: number; pollution: number; isBusy: boolean; onClean: () => void }) {
+function FoodSection({ inventory, pollution, isBusy, onClean }: { inventory?: AquariumSnapshot["inventory"]; pollution: number; isBusy: boolean; onClean: (superClean: boolean) => void }) {
+  const items = [
+    { title: "Обычный корм", detail: "Для выбранной рыбы", count: inventory?.food ?? 0, image: AppAssets.care.foodBasic, tone: "from-amber-300/14" },
+    { title: "Большой корм", detail: "−100 голода", count: inventory?.bigFood ?? 0, image: AppAssets.care.foodPremium, tone: "from-orange-300/14" },
+    { title: "Суперкорм", detail: "Кормит весь аквариум", count: inventory?.superFood ?? 0, image: AppAssets.care.foodPremium, tone: "from-emerald-300/14" }
+  ];
   return (
     <div className="grid grid-cols-1 gap-3">
-      <div className="relative grid min-h-32 grid-cols-[104px_1fr] items-center gap-3 overflow-hidden rounded-[22px] border border-cyan-100/12 bg-gradient-to-r from-emerald-300/12 to-slate-950/48 p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)]">
-        <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-emerald-300/20 blur-2xl" />
-        <span className="absolute left-3 top-3 rounded-full bg-slate-950/50 px-2 py-1 text-[10px] font-black text-cyan-100/76">Запас</span>
-        <img className="relative z-10 h-24 w-24 object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,.38)]" src={AppAssets.care.foodBasic} alt="" />
-        <div className="relative z-10 min-w-0">
-          <div className="text-3xl font-black text-cyan-50">{food}</div>
-          <div className="mt-1 text-xs text-cyan-100/62">корма в инвентаре</div>
-        </div>
+      {items.map((item) => <div key={item.title} className={`relative grid min-h-28 grid-cols-[92px_1fr] items-center gap-3 overflow-hidden rounded-[22px] border border-cyan-100/12 bg-gradient-to-r ${item.tone} to-slate-950/48 p-3`}><img className="h-20 w-20 object-contain" src={item.image} alt="" /><div><div className="text-2xl font-black text-cyan-50">{item.count}</div><div className="font-black text-cyan-50">{item.title}</div><div className="text-xs text-cyan-100/60">{item.detail}</div></div></div>)}
+      <div className="grid grid-cols-2 gap-3">
+        <button className="rounded-[22px] border border-cyan-100/12 bg-cyan-300/10 p-3 text-left disabled:opacity-45" disabled={isBusy || (inventory?.cleaner ?? 0) <= 0 || pollution <= 0} onClick={() => onClean(false)}><img className="mx-auto h-16 w-16 object-contain" src={AppAssets.care.waterConditioner} alt="" /><div className="font-black">Очистить −15</div><div className="text-xs text-cyan-100/60">Осталось: {inventory?.cleaner ?? 0}</div></button>
+        <button className="rounded-[22px] border border-emerald-100/16 bg-emerald-300/10 p-3 text-left disabled:opacity-45" disabled={isBusy || (inventory?.superCleaner ?? 0) <= 0 || pollution <= 0} onClick={() => onClean(true)}><img className="mx-auto h-16 w-16 object-contain" src={AppAssets.care.waterConditioner} alt="" /><div className="font-black">Суперочистка</div><div className="text-xs text-cyan-100/60">До 0 · {inventory?.superCleaner ?? 0}</div></button>
       </div>
-      <button className="relative grid min-h-32 grid-cols-[104px_1fr] items-center gap-3 overflow-hidden rounded-[22px] border border-cyan-100/12 bg-gradient-to-r from-cyan-300/12 to-slate-950/48 p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)] disabled:opacity-60" disabled={isBusy || cleaner <= 0 || pollution <= 0} onClick={onClean}>
-        <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-cyan-300/20 blur-2xl" />
-        <span className="absolute left-3 top-3 rounded-full bg-slate-950/50 px-2 py-1 text-[10px] font-black text-cyan-100/76">Очистка</span>
-        <img className="relative z-10 h-24 w-24 object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,.38)]" src={AppAssets.care.waterConditioner} alt="" />
-        <div className="relative z-10 min-w-0">
-          <div className="text-3xl font-black text-cyan-50">{cleaner}</div>
-          <div className="mt-1 text-xs text-cyan-100/62">грязь: {pollution}</div>
-        </div>
-      </button>
+      <div className="text-center text-xs text-cyan-100/55">Загрязнение аквариума: {pollution}</div>
     </div>
   );
 }
@@ -356,7 +352,7 @@ function EmptyInventory({ title, text }: { title: string; text: string }) {
   );
 }
 
-function FishSection({ fishList, capacity, onFavorite, onSelect }: { fishList: FishView[]; capacity: number; onFavorite: (fish: FishView) => void; onSelect: (fish: FishView) => void }) {
+function FishSection({ fishList, capacity, superFood, isFeeding, onFeedAll, onFavorite, onSelect }: { fishList: FishView[]; capacity: number; superFood: number; isFeeding: boolean; onFeedAll: () => void; onFavorite: (fish: FishView) => void; onSelect: (fish: FishView) => void }) {
   return (
     <div className="space-y-3">
       <Panel className="flex items-center justify-between gap-3 py-3">
@@ -365,13 +361,15 @@ function FishSection({ fishList, capacity, onFavorite, onSelect }: { fishList: F
         </div>
         <div className={cn("text-sm font-black", fishList.length > capacity ? "text-rose-200" : "text-cyan-50")}>{fishList.length}/{capacity}</div>
       </Panel>
+      <Button className="h-12 w-full bg-gradient-to-r from-amber-300 to-emerald-300 text-slate-950 shadow-[0_0_28px_rgba(110,231,183,.2)]" disabled={isFeeding || superFood <= 0 || !fishList.length} onClick={onFeedAll}>
+        <Utensils className="h-4 w-4" /> Покормить всех рыб · суперкорм {superFood}
+      </Button>
       <div className="grid grid-cols-1 gap-3">
         {fishList.map((fish, index) => {
           const overCapacity = index >= capacity;
           return (
             <div key={fish.id} className={cn("relative grid min-h-40 grid-cols-[120px_minmax(0,1fr)] items-center gap-3 overflow-hidden rounded-[24px] border p-3 text-left shadow-[0_20px_56px_rgba(0,0,0,.28)]", overCapacity ? "border-rose-300/35 bg-gradient-to-r from-rose-500/16 to-slate-950/54" : "border-cyan-100/16 bg-[linear-gradient(125deg,rgba(20,100,112,.2),rgba(5,27,44,.84)_58%,rgba(2,16,29,.94))]")}>
               <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full blur-2xl" style={{ backgroundColor: fish.glowColor + "24" }} />
-              <span className={cn("absolute left-3 top-3 z-10 rounded-full px-2 py-1 text-[10px] font-black", overCapacity ? "bg-rose-300/18 text-rose-100" : "bg-slate-950/50 text-cyan-100/76")}>{overCapacity ? "Перенаселение" : fish.rarityLabel}</span>
               <button className={cn("absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-xl bg-slate-950/42 text-cyan-100", fish.isFavorite && "bg-rose-300 text-slate-950")} onClick={() => onFavorite(fish)} aria-label="Избранное">
                 <Heart className={cn("h-4 w-4", fish.isFavorite && "fill-current")} />
               </button>
@@ -380,6 +378,7 @@ function FishSection({ fishList, capacity, onFavorite, onSelect }: { fishList: F
               </div>
               <div className="relative z-10 min-w-0 self-stretch pb-11 pt-10">
                 <div className="break-words text-lg font-black leading-tight text-cyan-50">{fish.name}</div>
+                <span className="mt-2 inline-flex rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-wide" style={{ color: fish.rarityColor, borderColor: `${fish.rarityColor}66`, backgroundColor: `${fish.rarityColor}22`, boxShadow: `0 0 18px ${fish.rarityColor}22` }}>{overCapacity ? "Перенаселение" : fish.rarityLabel}</span>
                 <div className="mt-1 line-clamp-2 text-xs leading-4 text-cyan-100/58">{fish.displayName}</div>
                 <div className={cn("mt-3 text-xs", overCapacity ? "text-rose-100/80" : "text-cyan-100/72")}>{overCapacity ? "Можно заселить после расширения" : "Сытость " + fullness(fish) + "/" + fish.maxHunger}</div>
               </div>

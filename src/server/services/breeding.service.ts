@@ -149,6 +149,25 @@ export class BreedingService {
     }, { isolationLevel: "Serializable" });
   }
 
+  async conditionNursery(userId: string, jobId: string, now = new Date()) {
+    return this.db.$transaction(async (tx) => {
+      const job = await tx.breedingJob.findFirst({ where: { id: jobId, ownerId: userId } });
+      if (!job) throw new Error("Процесс разведения не найден");
+      const stage = jobView(job, now).lifeStage;
+      if (stage === "adult") throw new Error("Рыба уже выросла");
+      const inventory = await tx.inventory.findUniqueOrThrow({ where: { ownerId: userId } });
+      if (inventory.nurseryConditioner <= 0) throw new Error("Нет кондиционера питомника");
+      const reduction = 30 * 60 * 1000;
+      const times = stage === "egg" || stage === "embryo"
+        ? applyIncubatorTimes(jobView(job, now), now, reduction)
+        : { babyAt: new Date(Math.max(now.getTime() + 5 * 60 * 1000, job.babyAt.getTime() - reduction)), adultAt: new Date(Math.max(now.getTime() + 10 * 60 * 1000, job.adultAt.getTime() - reduction)) };
+      await tx.inventory.update({ where: { ownerId: userId }, data: { nurseryConditioner: { decrement: 1 } } });
+      const updated = await tx.breedingJob.update({ where: { id: job.id }, data: times });
+      await tx.transaction.create({ data: { ownerId: userId, type: TransactionType.BREEDING_SPEEDUP, amount: -1, metadata: { jobId, item: "nursery-conditioner", reductionMs: reduction } } });
+      return jobView(updated, now);
+    }, { isolationLevel: "Serializable" });
+  }
+
   async claim(userId: string, jobId: string, now = new Date()) {
     const ownerId = userId;
     return this.db.$transaction(async (tx) => {

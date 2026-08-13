@@ -13,6 +13,8 @@ import { cn } from "@/lib/cn";
 import { useIncomeStore } from "@/stores/income-store";
 import { Onboarding } from "@/components/layout/onboarding";
 import { ApiError } from "@/lib/api/client";
+import { LanguageTranslator } from "@/components/layout/language-translator";
+import { usePreferencesStore } from "@/stores/preferences-store";
 
 const navItems = [
   { href: "/aquarium", label: "Главная", icon: aquariumAssets.icons.navigation.home },
@@ -29,6 +31,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const player = usePlayer();
   const friends = useFriends(Boolean(player.data));
   const [hasModal, setHasModal] = useState(false);
+  const theme = usePreferencesStore((state) => state.theme);
   useLiveIncome(player.data);
   const optimisticCurrency = useIncomeStore((state) => state.optimisticCurrency);
   const profileNeedsAttention = Boolean(friends.data?.friends.some((friend) => friend.pendingGift) || friends.data?.requests.some((request) => request.direction === "incoming"));
@@ -60,8 +63,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <main className="ocean-shell relative min-h-dvh overflow-hidden pb-[calc(128px+var(--safe-bottom))] pt-[var(--safe-top)]">
+    <main className={cn("ocean-shell relative min-h-dvh overflow-hidden pb-[calc(128px+var(--safe-bottom))] pt-[var(--safe-top)]", theme === "night" && "brightness-[.82] saturate-[.8]")}>
       <TelegramBootstrap />
+      <LanguageTranslator />
       <Onboarding />
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <span className="screen-glow absolute left-[8%] top-[14%] h-32 w-32 rounded-full bg-cyan-300/10 blur-3xl" />

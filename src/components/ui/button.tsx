@@ -3,6 +3,7 @@
 import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 import { playTone } from "@/stores/sound-store";
+import { vibrate } from "@/stores/preferences-store";
 
 export function Button({ className, onClick, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
@@ -13,6 +14,7 @@ export function Button({ className, onClick, ...props }: ButtonHTMLAttributes<HT
       )}
       onClick={(event) => {
         playTone("button");
+        vibrate(10);
         onClick?.(event);
       }}
       {...props}

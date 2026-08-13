@@ -245,7 +245,7 @@ export class PlayerService {
       const aquarium = await tx.aquarium.findUniqueOrThrow({ where: { ownerId: userId } });
       const currentDecor = Array.isArray(aquarium.decor) ? aquarium.decor.filter((item): item is string => typeof item === "string") : [];
       const purchases = await tx.transaction.findMany({
-        where: { ownerId: userId, type: TransactionType.PURCHASE_ITEM },
+        where: { ownerId: userId, type: { in: [TransactionType.PURCHASE_ITEM, TransactionType.PURCHASE_BREEDING_ITEM] } },
         select: { metadata: true }
       });
       const alreadyOwned = purchases.some((purchase) => {

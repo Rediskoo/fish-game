@@ -5,10 +5,7 @@ import { Coins, Fish, Pencil, Sparkles, Waves, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { playTone } from "@/stores/sound-store";
 import type { AcquiredFish, CaseResult } from "@/types/game";
-
-function vibrate(pattern: number | number[]) {
-  navigator.vibrate?.(pattern);
-}
+import { vibrate } from "@/stores/preferences-store";
 
 function rewardCopy(result: CaseResult) {
   if (result.reward.kind === "fish") return "Три одинаковые рыбки — новая рыбка уже в аквариуме!";
