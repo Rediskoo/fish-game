@@ -27,6 +27,7 @@ declare global {
         ready?: () => void;
         expand?: () => void;
         requestFullscreen?: () => void;
+        isVersionAtLeast?: (version: string) => boolean;
         enableClosingConfirmation?: () => void;
       };
     };
@@ -60,24 +61,25 @@ export function TelegramBootstrap() {
 
   useEffect(() => {
     let attempts = 0;
+    const webApp = window.Telegram?.WebApp;
+
+    // Lifecycle methods must run once. Repeating version-gated methods while
+    // waiting for initData floods the console in ordinary web browsers.
+    for (const action of [
+      () => webApp?.ready?.(),
+      () => webApp?.expand?.(),
+      () => webApp?.isVersionAtLeast?.("8.0") && webApp.requestFullscreen?.(),
+      () => webApp?.enableClosingConfirmation?.()
+    ]) {
+      try {
+        action();
+      } catch {
+        // Unsupported Telegram versions must not block authentication.
+      }
+    }
 
     const tryAuth = () => {
       attempts += 1;
-
-      const webApp = window.Telegram?.WebApp;
-
-      for (const action of [
-        () => webApp?.ready?.(),
-        () => webApp?.expand?.(),
-        () => webApp?.requestFullscreen?.(),
-        () => webApp?.enableClosingConfirmation?.()
-      ]) {
-        try {
-          action();
-        } catch {
-          // Telegram WebApp methods are version-gated; unsupported calls should not block auth.
-        }
-      }
 
       const info = {
         attempt: attempts,
