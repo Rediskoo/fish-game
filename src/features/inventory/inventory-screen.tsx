@@ -368,7 +368,7 @@ function FishSection({ fishList, capacity, superFood, isFeeding, onFeedAll, onFa
         {fishList.map((fish, index) => {
           const overCapacity = index >= capacity;
           return (
-            <div key={fish.id} className={cn("relative grid min-h-40 grid-cols-[120px_minmax(0,1fr)] items-center gap-3 overflow-hidden rounded-[24px] border p-3 text-left shadow-[0_20px_56px_rgba(0,0,0,.28)]", overCapacity ? "border-rose-300/35 bg-gradient-to-r from-rose-500/16 to-slate-950/54" : "border-cyan-100/16 bg-[linear-gradient(125deg,rgba(20,100,112,.2),rgba(5,27,44,.84)_58%,rgba(2,16,29,.94))]")}>
+            <div key={fish.id} className={cn("relative grid min-h-44 grid-cols-[120px_minmax(0,1fr)] items-center gap-3 overflow-hidden rounded-[24px] border p-3 text-left shadow-[0_20px_56px_rgba(0,0,0,.34)]", overCapacity ? "border-rose-300/35" : "border-cyan-100/20")} style={{ background: overCapacity ? "linear-gradient(125deg,rgba(159,18,57,.32),rgba(3,18,32,.96))" : `radial-gradient(circle at 18% 50%, ${fish.rarityColor}2f, transparent 38%), radial-gradient(circle at 92% 8%, ${fish.glowColor}32, transparent 34%), linear-gradient(125deg,rgba(10,67,83,.92),rgba(7,35,54,.94) 55%,rgba(2,15,29,.98))` }}>
               <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full blur-2xl" style={{ backgroundColor: fish.glowColor + "24" }} />
               <button className={cn("absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-xl bg-slate-950/42 text-cyan-100", fish.isFavorite && "bg-rose-300 text-slate-950")} onClick={() => onFavorite(fish)} aria-label="Избранное">
                 <Heart className={cn("h-4 w-4", fish.isFavorite && "fill-current")} />
@@ -381,6 +381,7 @@ function FishSection({ fishList, capacity, superFood, isFeeding, onFeedAll, onFa
                 <span className="mt-2 inline-flex rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-wide" style={{ color: fish.rarityColor, borderColor: `${fish.rarityColor}66`, backgroundColor: `${fish.rarityColor}22`, boxShadow: `0 0 18px ${fish.rarityColor}22` }}>{overCapacity ? "Перенаселение" : fish.rarityLabel}</span>
                 <div className="mt-1 line-clamp-2 text-xs leading-4 text-cyan-100/58">{fish.displayName}</div>
                 <div className={cn("mt-3 text-xs", overCapacity ? "text-rose-100/80" : "text-cyan-100/72")}>{overCapacity ? "Можно заселить после расширения" : "Сытость " + fullness(fish) + "/" + fish.maxHunger}</div>
+                {!overCapacity ? <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-950/60"><div className="h-full rounded-full bg-gradient-to-r from-rose-400 via-amber-300 to-emerald-300 transition-[width]" style={{ width: `${Math.max(0, Math.min(100, fullness(fish) / Math.max(1, fish.maxHunger) * 100))}%` }} /></div> : null}
               </div>
               <Button className="absolute bottom-3 right-3 z-20 h-9 rounded-xl border border-cyan-200/35 bg-cyan-300/24 px-4 text-[11px] font-black text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,.22)]" onClick={() => onSelect(fish)}>
                   <Info className="h-3.5 w-3.5" /> Инфо

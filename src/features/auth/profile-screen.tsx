@@ -18,9 +18,8 @@ import {
   useVisitFriendAquarium
 } from "@/features/friends/use-friends";
 import { useSellFish } from "@/features/inventory/use-fish-actions";
-import { cn } from "@/lib/cn";
 import { fishVisualAsset } from "@/lib/app-assets";
-import type { AchievementView, AcquiredFish, FishView, FriendView, PendingGiftView } from "@/types/game";
+import type { AcquiredFish, FishView, FriendView, PendingGiftView } from "@/types/game";
 
 const giftOptions = [
   { type: "FISH_CASE", label: "Кейс с рыбкой", cost: 100 },
@@ -78,7 +77,6 @@ export function ProfileScreen() {
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
   const [selectedGiftFriendId, setSelectedGiftFriendId] = useState<string | null>(null);
   const [revealedFish, setRevealedFish] = useState<AcquiredFish | null>(null);
-  const [showAllAchievements, setShowAllAchievements] = useState(false);
   const selectedFriend = useMemo(
     () => friends.data?.friends.find((friend) => friend.id === selectedFriendId) ?? null,
     [friends.data?.friends, selectedFriendId]
@@ -87,9 +85,6 @@ export function ProfileScreen() {
     () => friends.data?.friends.find((friend) => friend.id === selectedGiftFriendId) ?? null,
     [friends.data?.friends, selectedGiftFriendId]
   );
-  const achievements = player.data?.achievements ?? [];
-  const unlockedAchievements = achievements.filter((achievement) => achievement.unlockedAt).length;
-  const visibleAchievements = showAllAchievements ? achievements : achievements.slice(0, 3);
   const favoriteFish = (player.data?.fish ?? []).filter((fish) => fish.isFavorite).slice(0, 4);
   const friendsCount = friends.data?.friends.length ?? 0;
 
@@ -134,23 +129,6 @@ export function ProfileScreen() {
         <Stat icon={<Trophy className="h-5 w-5" />} label="Уровень" value={(player.data?.aquarium.level ?? 1).toString()} />
         <Stat icon={<Users className="h-5 w-5" />} label="Друзья" value={friendsCount.toString()} />
         <Stat icon={<Star className="h-5 w-5" />} label="Избранное" value={favoriteFish.length.toString()} />
-      </Panel>
-
-      <Panel className="space-y-3 overflow-hidden rounded-[18px] border-cyan-100/18 bg-[linear-gradient(145deg,rgba(8,43,59,.76),rgba(4,18,31,.86))]">
-        <div className="flex items-center justify-between gap-3">
-          <div className="text-lg font-black text-cyan-50">Последние достижения</div>
-          <div className="rounded-full bg-slate-950/45 px-3 py-1 text-xs font-black text-cyan-100">{unlockedAchievements}/{achievements.length || 10}</div>
-        </div>
-        <div className="space-y-2">
-          {visibleAchievements.map((achievement, index) => (
-            <AchievementTile key={achievement.id} achievement={achievement} index={index} />
-          ))}
-        </div>
-        {achievements.length > 3 ? (
-          <Button className="w-full bg-violet-300" onClick={() => setShowAllAchievements((value) => !value)}>
-            {showAllAchievements ? "Скрыть" : "Все достижения"}
-          </Button>
-        ) : null}
       </Panel>
 
       <Panel className="space-y-3 overflow-hidden rounded-[18px] border-cyan-100/16 bg-[linear-gradient(145deg,rgba(8,43,59,.76),rgba(4,18,31,.86))]">
@@ -289,27 +267,6 @@ export function ProfileScreen() {
           }
         />
       ) : null}
-    </div>
-  );
-}
-
-function AchievementTile({ achievement, index }: { achievement: AchievementView; index: number }) {
-  const unlocked = Boolean(achievement.unlockedAt);
-  const colors = ["from-fuchsia-300/26 to-emerald-300/12", "from-emerald-300/24 to-cyan-300/10", "from-violet-300/24 to-fuchsia-300/10", "from-lime-300/20 to-amber-300/10"];
-  const images = [aquariumAssets.achievements.firstFish, aquariumAssets.achievements.caretaker, aquariumAssets.achievements.collector, aquariumAssets.achievements.masterAquarist];
-  return (
-    <div className={cn("relative min-h-28 overflow-hidden rounded-2xl border p-3", unlocked ? "border-amber-200/24 bg-gradient-to-br text-cyan-50 shadow-[0_0_24px_rgba(251,191,36,.10)]" : "border-cyan-100/10 bg-slate-950/30 text-cyan-100/52")}>
-      <div className={cn("absolute -right-7 -top-7 h-20 w-20 rounded-full blur-2xl", unlocked ? colors[index % colors.length] : "bg-slate-400/10")} />
-      <div className="relative z-10 flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <div className="line-clamp-2 text-sm font-black">{achievement.title}</div>
-          <div className="mt-1 line-clamp-2 text-[11px] text-cyan-100/62">{unlocked ? `Открыто ${formatDate(achievement.unlockedAt)}` : achievement.description}</div>
-        </div>
-        <span className={cn("grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl", unlocked ? "bg-amber-200/15" : "bg-slate-950/45 opacity-70")}>
-          <img className="h-8 w-8 object-contain" src={unlocked ? images[index % images.length] : aquariumAssets.rewards.lockedMystery} alt="" />
-        </span>
-      </div>
-      <div className="relative z-10 mt-3 inline-flex rounded-full bg-slate-950/38 px-2 py-1 text-[11px] font-black text-amber-100">+{achievement.reward}</div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Gift, Trophy } from "lucide-react";
+import { Check, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { aquariumAssets } from "@/assets/aquarium-assets";
@@ -68,32 +68,8 @@ export function DailyRewardsScreen() {
           <div className="text-lg font-black text-cyan-50">Прогресс достижений</div>
           <div className="text-xs text-cyan-100/58">{unlockedAchievements}/{achievements.length}</div>
         </div>
-        {achievements.slice(0, 5).map((achievement, index) => <Quest key={achievement.id} title={achievement.title} reward={`+${achievement.reward}`} current={achievement.current} target={achievement.target} tone={index % 3 === 0 ? "amber" : index % 3 === 1 ? "emerald" : "cyan"} done={Boolean(achievement.unlockedAt)} />)}
+        {achievements.map((achievement, index) => <Quest key={achievement.id} title={achievement.title} reward={`+${achievement.reward}`} current={achievement.current} target={achievement.target} tone={index % 3 === 0 ? "amber" : index % 3 === 1 ? "emerald" : "cyan"} done={Boolean(achievement.unlockedAt)} />)}
         {!achievements.length ? <p className="text-sm text-cyan-100/55">Достижения ещё загружаются.</p> : null}
-      </Panel>
-
-      <Panel className="space-y-3 overflow-hidden rounded-[18px] border-cyan-100/18 bg-[linear-gradient(145deg,rgba(8,43,59,.76),rgba(4,18,31,.86))]">
-        <div className="flex items-center justify-between gap-2 font-bold">
-          <div className="flex items-center gap-2">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-amber-300/18 text-amber-100">
-              <Trophy className="h-5 w-5" />
-            </span>
-            <div>
-              <div className="text-cyan-50">Достижения</div>
-              <div className="text-xs text-cyan-100/58">открыто {unlockedAchievements}/{achievements.length || 10}</div>
-            </div>
-          </div>
-          <div className="rounded-full bg-slate-950/45 px-3 py-1 text-xs font-black text-cyan-100">{unlockedAchievements}/{achievements.length || 10}</div>
-        </div>
-        <div className="grid grid-cols-4 gap-2">
-          {achievements.slice(0, 4).map((achievement, index) => (
-            <div key={achievement.id} className="relative min-h-24 overflow-hidden rounded-2xl border border-cyan-100/12 bg-slate-950/30 p-2 text-center">
-              <img className="mx-auto h-10 w-10 object-contain" src={achievement.unlockedAt ? [aquariumAssets.achievements.firstFish, aquariumAssets.achievements.caretaker, aquariumAssets.achievements.collector, aquariumAssets.achievements.masterAquarist][index % 4] : aquariumAssets.rewards.lockedMystery} alt="" />
-              <div className="mt-2 line-clamp-2 text-[10px] font-black text-cyan-50">{achievement.title}</div>
-              <div className="mt-1 text-[10px] font-black text-amber-100">+{achievement.reward}</div>
-            </div>
-          ))}
-        </div>
       </Panel>
 
       {daily.error ? <p className="rounded-2xl bg-yellow-300/10 p-3 text-sm text-yellow-100">{daily.error.message}</p> : null}
