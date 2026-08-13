@@ -4,7 +4,7 @@ import { aquariumFishCapacity } from "@/lib/fish-capacity";
 import { breedingGeneticsVersion, createChildGenome, findHybrid } from "@/features/breeding/breeding-genetics";
 import { applyGrowthBoostTimes, applyIncubatorTimes, resolveBreedingStatus, resolveLifeStage } from "@/features/breeding/breeding-time";
 import { validateBreedingParents, type ParentEligibility } from "@/features/breeding/breeding-rules";
-import type { BreedingJobView, BreedingParentSnapshot, FishGenome } from "@/features/breeding/types";
+import type { BreedingInvitationView, BreedingJobView, BreedingParentSnapshot, FishGenome } from "@/features/breeding/types";
 import { ensureLatestSchema } from "@/server/services/schema-compat.service";
 
 const maxConcurrentJobs = 1;
@@ -68,15 +68,85 @@ export class BreedingService {
 
   async getState(userId: string, now = new Date()) {
     await ensureLatestSchema(this.db);
-    const [jobs, inventory] = await Promise.all([
+    const expired = await this.db.breedingInvitation.findMany({ where: { status: "PENDING", expiresAt: { lte: now }, OR: [{ ownerId: userId }, { friendId: userId }] }, select: { id: true, parentFishId: true } });
+    if (expired.length) await this.db.$transaction(async (tx) => { await tx.breedingInvitation.updateMany({ where: { id: { in: expired.map((item) => item.id) }, status: "PENDING" }, data: { status: "EXPIRED" } }); await tx.fish.updateMany({ where: { id: { in: expired.flatMap((item) => item.parentFishId ? [item.parentFishId] : []) } }, data: { breedingLocked: false } }); });
+    const [jobs, invitations, inventory] = await Promise.all([
       this.db.breedingJob.findMany({ where: { OR: [{ ownerId: userId }, { collaboratorId: userId }] }, include: { collaborator: { select: { profileName: true, firstName: true, username: true } }, owner: { select: { profileName: true, firstName: true, username: true } } }, orderBy: { createdAt: "desc" }, take: 20 }),
+      this.db.breedingInvitation.findMany({ where: { status: "PENDING", expiresAt: { gt: now }, OR: [{ ownerId: userId }, { friendId: userId }] }, include: { owner: { select: { profileName: true, firstName: true, username: true } }, friend: { select: { profileName: true, firstName: true, username: true } } }, orderBy: { createdAt: "desc" } }),
       this.db.inventory.findUniqueOrThrow({ where: { ownerId: userId } })
     ]);
     return {
       jobs: jobs.map((job) => jobView(job, now, userId, userId === job.ownerId ? (job.collaborator?.profileName ?? job.collaborator?.firstName ?? job.collaborator?.username ?? "Друг") : (job.owner.profileName ?? job.owner.firstName ?? job.owner.username ?? "Друг"))),
+      invitations: invitations.map((invitation): BreedingInvitationView => { const sent = invitation.ownerId === userId; const person = sent ? invitation.friend : invitation.owner; return { id: invitation.id, direction: sent ? "sent" : "received", friendId: sent ? invitation.friendId : invitation.ownerId, friendName: person.profileName ?? person.firstName ?? person.username ?? "Друг", parent: invitation.parentSnapshot as unknown as BreedingParentSnapshot, expiresAt: invitation.expiresAt.toISOString() }; }),
       inventory: { spawningNest: inventory.spawningNest, eggIncubator: inventory.eggIncubator, fryFood: inventory.fryFood, nurseryConditioner: inventory.nurseryConditioner, genealogyMedallion: inventory.genealogyMedallion },
       serverNow: now.toISOString(), maxConcurrentJobs
     };
+  }
+
+  async createParentInvitation(userId: string, input: { parentFishId: string; friendId: string; idempotencyKey: string }, now = new Date()) {
+    await ensureLatestSchema(this.db);
+    return this.db.$transaction(async (tx) => {
+      const previous = await tx.breedingInvitation.findUnique({ where: { ownerId_idempotencyKey: { ownerId: userId, idempotencyKey: input.idempotencyKey } } });
+      if (previous) return previous.id;
+      const friendship = await tx.friend.findUnique({ where: { ownerId_friendId: { ownerId: userId, friendId: input.friendId } } });
+      if (!friendship) throw new Error("Пригласить можно только друга");
+      const fish = await tx.fish.findFirst({ where: { id: input.parentFishId, ownerId: userId, sharedAquariumId: null }, include: { fishType: true } });
+      if (!fish || fish.lifeStage !== FishLifeStage.ADULT || fish.breedingLocked || fish.isGiftLocked) throw new Error("Эта рыба сейчас не может быть родителем");
+      const inventory = await tx.inventory.findUniqueOrThrow({ where: { ownerId: userId } });
+      if (inventory.spawningNest < 1) throw new Error("Для приглашения нужно нерестовое гнездо");
+      const active = await tx.breedingJob.count({ where: { OR: [{ ownerId: userId }, { collaboratorId: userId }], status: { notIn: [BreedingStatus.COMPLETED, BreedingStatus.CANCELLED] } } });
+      if (active >= maxConcurrentJobs) throw new Error("Слот питомника уже занят");
+      const locked = await tx.fish.updateMany({ where: { id: fish.id, ownerId: userId, breedingLocked: false, isGiftLocked: false }, data: { breedingLocked: true } });
+      if (locked.count !== 1) throw new Error("Рыба только что стала недоступна");
+      const invitation = await tx.breedingInvitation.create({ data: { ownerId: userId, friendId: input.friendId, parentFishId: fish.id, parentSnapshot: parentSnapshot(fish) as unknown as Prisma.InputJsonValue, idempotencyKey: input.idempotencyKey, expiresAt: new Date(now.getTime() + 24 * 60 * 60 * 1000) } });
+      return invitation.id;
+    }, { isolationLevel: "Serializable" });
+  }
+
+  async acceptParentInvitation(userId: string, invitationId: string, parentFishId: string, now = new Date()) {
+    await ensureLatestSchema(this.db);
+    return this.db.$transaction(async (tx) => {
+      const invitation = await tx.breedingInvitation.findFirst({ where: { id: invitationId, friendId: userId, status: "PENDING", expiresAt: { gt: now } } });
+      if (!invitation?.parentFishId) throw new Error("Приглашение уже недоступно");
+      const [parentA, parentB] = await Promise.all([
+        tx.fish.findFirst({ where: { id: invitation.parentFishId, ownerId: invitation.ownerId }, include: { fishType: true } }),
+        tx.fish.findFirst({ where: { id: parentFishId, ownerId: userId, sharedAquariumId: null }, include: { fishType: true } })
+      ]);
+      if (!parentA || parentA.lifeStage !== FishLifeStage.ADULT || !parentA.breedingLocked || parentA.isGiftLocked) throw new Error("Рыба друга больше недоступна");
+      if (!parentB || parentB.lifeStage !== FishLifeStage.ADULT || parentB.breedingLocked || parentB.isGiftLocked) throw new Error("Выбери свободную взрослую рыбу");
+      const snapshotA = parentSnapshot(parentA); const snapshotB = parentSnapshot(parentB);
+      const hybrid = findHybrid(snapshotA.species, snapshotB.species);
+      if (!hybrid) throw new Error("Для этих рыб пока нет готового потомства");
+      const [ownerJobs, friendJobs] = await Promise.all([
+        tx.breedingJob.count({ where: { OR: [{ ownerId: invitation.ownerId }, { collaboratorId: invitation.ownerId }], status: { notIn: [BreedingStatus.COMPLETED, BreedingStatus.CANCELLED] } } }),
+        tx.breedingJob.count({ where: { OR: [{ ownerId: userId }, { collaboratorId: userId }], status: { notIn: [BreedingStatus.COMPLETED, BreedingStatus.CANCELLED] } } })
+      ]);
+      if (ownerJobs >= maxConcurrentJobs || friendJobs >= maxConcurrentJobs) throw new Error("У одного из вас уже занят питомник");
+      const [memberAId, memberBId] = [invitation.ownerId, userId].sort(); const pairKey = `${memberAId}:${memberBId}`;
+      const shared = await tx.sharedAquarium.upsert({ where: { pairKey }, create: { pairKey, memberAId, memberBId }, update: {} });
+      const [sharedFish, reserved] = await Promise.all([tx.fish.count({ where: { sharedAquariumId: shared.id } }), tx.breedingJob.count({ where: { sharedAquariumId: shared.id, resultingFishId: null, status: { notIn: [BreedingStatus.COMPLETED, BreedingStatus.CANCELLED] } } })]);
+      if (sharedFish + reserved >= 12) throw new Error("В общем аквариуме нет места");
+      const paid = await tx.inventory.updateMany({ where: { ownerId: invitation.ownerId, spawningNest: { gt: 0 } }, data: { spawningNest: { decrement: 1 } } });
+      if (paid.count !== 1) throw new Error("У пригласившего закончилось нерестовое гнездо");
+      const lockedB = await tx.fish.updateMany({ where: { id: parentB.id, ownerId: userId, breedingLocked: false, isGiftLocked: false }, data: { breedingLocked: true } });
+      if (lockedB.count !== 1) throw new Error("Твоя рыба только что стала недоступна");
+      const seed = randomInt(1, 2_147_483_647); const genome = createChildGenome(snapshotA, snapshotB, seed);
+      const hatchAt = new Date(now.getTime() + hatchDurationMs); const babyAt = new Date(hatchAt.getTime() + fryDurationMs); const adultAt = new Date(babyAt.getTime() + babyDurationMs);
+      const job = await tx.breedingJob.create({ data: { ownerId: invitation.ownerId, collaboratorId: userId, collaborationAcceptedAt: now, sharedAquariumId: shared.id, parentAId: parentA.id, parentBId: parentB.id, parentASnapshot: snapshotA as unknown as Prisma.InputJsonValue, parentBSnapshot: snapshotB as unknown as Prisma.InputJsonValue, hybridKey: hybrid.key, genome: genome as unknown as Prisma.InputJsonValue, genomeVersion: breedingGeneticsVersion, rarity: rarityMap[hybrid.config.rarity] ?? Rarity.RARE, startedAt: now, hatchAt, babyAt, adultAt, idempotencyKey: `invite:${invitation.id}` } });
+      await tx.breedingInvitation.update({ where: { id: invitation.id }, data: { status: "ACCEPTED" } });
+      await tx.transaction.create({ data: { ownerId: invitation.ownerId, type: TransactionType.BREEDING_START, amount: -1, metadata: { jobId: job.id, invitationId: invitation.id, item: "spawning-nest" } } });
+      return job.id;
+    }, { isolationLevel: "Serializable" });
+  }
+
+  async cancelParentInvitation(userId: string, invitationId: string) {
+    await ensureLatestSchema(this.db);
+    return this.db.$transaction(async (tx) => {
+      const invitation = await tx.breedingInvitation.findFirst({ where: { id: invitationId, status: "PENDING", OR: [{ ownerId: userId }, { friendId: userId }] } });
+      if (!invitation) return;
+      await tx.breedingInvitation.update({ where: { id: invitation.id }, data: { status: userId === invitation.friendId ? "DECLINED" : "CANCELLED" } });
+      if (invitation.parentFishId) await tx.fish.updateMany({ where: { id: invitation.parentFishId }, data: { breedingLocked: false } });
+    });
   }
 
   async start(userId: string, input: { parentAId: string; parentBId: string; idempotencyKey: string }, now = new Date()) {

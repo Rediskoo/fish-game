@@ -47,8 +47,13 @@ export const startBreedingSchema = z.object({
   idempotencyKey: z.string().uuid()
 }).refine((value) => value.parentAId !== value.parentBId, { message: "Choose two different fish" });
 
+export const inviteBreedingSchema = z.object({ mode: z.literal("invite"), parentFishId: z.string().cuid(), friendId: z.string().cuid(), idempotencyKey: z.string().uuid() });
+
 export const breedingActionSchema = z.object({
-  jobId: z.string().cuid(),
-  action: z.enum(["incubate", "speed-up", "condition", "claim", "invite", "accept"]),
-  friendId: z.string().cuid().optional()
-}).refine((value) => value.action !== "invite" || Boolean(value.friendId), { message: "Choose a friend" });
+  jobId: z.string().cuid().optional(), invitationId: z.string().cuid().optional(), parentFishId: z.string().cuid().optional(),
+  action: z.enum(["incubate", "speed-up", "condition", "claim", "accept-parent-invite", "cancel-parent-invite"])
+}).superRefine((value, context) => {
+  if (["incubate", "speed-up", "condition", "claim"].includes(value.action) && !value.jobId) context.addIssue({ code: "custom", message: "Missing breeding job" });
+  if (["accept-parent-invite", "cancel-parent-invite"].includes(value.action) && !value.invitationId) context.addIssue({ code: "custom", message: "Missing invitation" });
+  if (value.action === "accept-parent-invite" && !value.parentFishId) context.addIssue({ code: "custom", message: "Choose your fish" });
+});

@@ -126,6 +126,8 @@ model User {
   sharedAquariumsA       SharedAquarium[] @relation("SharedMemberA")
   sharedAquariumsB       SharedAquarium[] @relation("SharedMemberB")
   memoryGames            MemoryGame[]
+  sentBreedingInvitations BreedingInvitation[] @relation("BreedingInviteOwner")
+  receivedBreedingInvitations BreedingInvitation[] @relation("BreedingInviteFriend")
 
   @@map("users")
 }
@@ -218,6 +220,7 @@ model Fish {
   giftedIn           FriendGift[]
   parentAJobs        BreedingJob[] @relation("BreedingParentA")
   parentBJobs        BreedingJob[] @relation("BreedingParentB")
+  breedingInvitations BreedingInvitation[]
   resultingJob       BreedingJob?  @relation("BreedingResult")
   sharedAquarium     SharedAquarium? @relation(fields: [sharedAquariumId], references: [id], onDelete: SetNull)
 
@@ -284,6 +287,27 @@ model BreedingJob {
   @@index([parentBId])
   @@index([collaboratorId, status])
   @@map("breeding_jobs")
+}
+
+model BreedingInvitation {
+  id             String   @id @default(cuid())
+  ownerId        String
+  friendId       String
+  parentFishId   String?
+  parentSnapshot Json
+  status         String   @default("PENDING")
+  idempotencyKey String
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  owner          User     @relation("BreedingInviteOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  friend         User     @relation("BreedingInviteFriend", fields: [friendId], references: [id], onDelete: Cascade)
+  parentFish     Fish?    @relation(fields: [parentFishId], references: [id], onDelete: SetNull)
+
+  @@unique([ownerId, idempotencyKey])
+  @@index([friendId, status])
+  @@index([parentFishId])
+  @@map("breeding_invitations")
 }
 
 model SharedAquarium {

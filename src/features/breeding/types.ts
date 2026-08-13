@@ -42,7 +42,17 @@ export type BreedingJobView = {
 
 export type BreedingPayload = {
   jobs: BreedingJobView[];
+  invitations: BreedingInvitationView[];
   inventory: { spawningNest: number; eggIncubator: number; fryFood: number; nurseryConditioner: number; genealogyMedallion: number };
   serverNow: string;
   maxConcurrentJobs: number;
+};
+
+export type BreedingInvitationView = {
+  id: string;
+  direction: "sent" | "received";
+  friendId: string;
+  friendName: string;
+  parent: BreedingParentSnapshot;
+  expiresAt: string;
 };
