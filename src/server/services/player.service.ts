@@ -11,10 +11,15 @@ import { aquariumFishCapacity } from "@/lib/fish-capacity";
 
 const dailyRewardAmount = 100;
 
-function nextUtcDay(date = new Date()) {
-  const next = new Date(date);
-  next.setUTCDate(next.getUTCDate() + 1);
-  return next;
+function dailyStreak(rewards: { claimedAt: Date }[], now = new Date()) {
+  if (!rewards.length || now.getTime() - rewards[0].claimedAt.getTime() >= 48 * 60 * 60 * 1000) return 0;
+  let streak = 1;
+  for (let index = 1; index < rewards.length; index += 1) {
+    const gap = rewards[index - 1].claimedAt.getTime() - rewards[index].claimedAt.getTime();
+    if (gap < 20 * 60 * 60 * 1000 || gap > 48 * 60 * 60 * 1000) break;
+    streak += 1;
+  }
+  return streak;
 }
 
 export class PlayerService {
@@ -59,11 +64,13 @@ export class PlayerService {
     }
     await evaluateAchievements(this.db, userId);
 
-    const lastDailyReward = await this.db.dailyReward.findFirst({
+    const recentDailyRewards = await this.db.dailyReward.findMany({
       where: { ownerId: userId },
-      orderBy: { claimedAt: "desc" }
+      orderBy: { claimedAt: "desc" },
+      take: 8
     });
-    const nextClaimAt = lastDailyReward ? nextUtcDay(lastDailyReward.claimedAt) : new Date(0);
+    const lastDailyReward = recentDailyRewards[0];
+    const nextClaimAt = lastDailyReward ? new Date(lastDailyReward.claimedAt.getTime() + 24 * 60 * 60 * 1000) : new Date(0);
     const claimedToday = nextClaimAt.getTime() > Date.now();
 
     const incomePerSecond = calculateFishIncome(snapshot.fish.slice(0, aquariumFishCapacity));
@@ -109,7 +116,8 @@ export class PlayerService {
       dailyReward: {
         amount: dailyRewardAmount,
         claimedToday,
-        nextClaimAt: nextClaimAt.toISOString()
+        nextClaimAt: nextClaimAt.toISOString(),
+        streak: dailyStreak(recentDailyRewards)
       },
       achievements: achievements.map((achievement) => ({
         id: achievement.id,
@@ -142,7 +150,7 @@ export class PlayerService {
         create: {
           species: FishSpecies.GOLDFISH,
           rarity: Rarity.COMMON,
-          displayName: "Р—РѕР»РѕС‚Р°СЏ СЂС‹Р±РєР°",
+          displayName: "Золотая рыбка",
           dropChanceBps: 2500,
           incomePerSecond: 1.2,
           swimSpeed: 58,

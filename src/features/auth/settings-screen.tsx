@@ -29,7 +29,7 @@ export function SettingsScreen() {
         <div className="grid gap-2">
           <Toggle icon={<Volume2 className="h-4 w-4" />} label="Все звуки" detail="Главный выключатель" checked={sounds.all} onChange={(value) => sounds.setSound("all", value)} />
           <Toggle icon={<MousePointerClick className="h-4 w-4" />} label="Кнопки" detail="Клики и подтверждения" checked={sounds.buttons} onChange={(value) => sounds.setSound("buttons", value)} />
-          <Toggle image={aquariumAssets.icons.ui.currencyCoin} label="Казино" detail=", выигрыш и ожидание" checked={sounds.roulette} onChange={(value) => sounds.setSound("roulette", value)} />
+          <Toggle image={aquariumAssets.icons.ui.currencyCoin} label="Кейсы" detail="Открытие кейса и награда" checked={sounds.roulette} onChange={(value) => sounds.setSound("roulette", value)} />
           <Toggle image={aquariumAssets.icons.ui.fishCases} label="Рыбки" detail="Тапы и реакции рыб" checked={sounds.fish} onChange={(value) => sounds.setSound("fish", value)} />
         </div>
       </Panel>

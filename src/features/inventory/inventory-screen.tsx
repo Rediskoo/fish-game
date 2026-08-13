@@ -116,7 +116,7 @@ export function InventoryScreen() {
       {!activeTab ? (
         <div className="space-y-4">
           <InventorySummary activeFish={activeFishCount} capacity={capacity} totalItems={totalItems} activeDecor={activeDecor.length} />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3">
             {inventoryTabs.map((tab) => (
               <InventoryCategoryCard
                 key={tab.id}
@@ -244,25 +244,23 @@ function InventoryCategoryCard({
   const toneClass = tab === "food" ? "border-amber-200/26" : tab === "backgrounds" ? "border-violet-200/26" : "border-cyan-100/20";
   return (
     <button
-      className={cn("group relative grid aspect-square grid-rows-[auto_1fr_auto] overflow-hidden rounded-[18px] border bg-[linear-gradient(145deg,rgba(10,48,64,.84),rgba(4,22,36,.82))] p-3 text-left shadow-[0_18px_48px_rgba(0,0,0,.26),inset_0_0_0_1px_rgba(103,232,249,.08)] transition active:scale-[.98]", toneClass)}
+      className={cn("group relative grid min-h-36 grid-cols-[104px_minmax(0,1fr)_40px] items-center gap-3 overflow-hidden rounded-[24px] border bg-[linear-gradient(125deg,rgba(12,58,76,.94),rgba(6,29,48,.9)_52%,rgba(3,18,32,.96))] p-3 text-left shadow-[0_20px_54px_rgba(0,0,0,.32),inset_0_0_0_1px_rgba(103,232,249,.1)] transition active:scale-[.98]", toneClass)}
       onClick={onClick}
       type="button"
     >
       <div className="absolute inset-0 opacity-90" style={{ background: `radial-gradient(circle at 70% 45%, ${accent}28, transparent 42%)` }} />
-      <div className="relative z-20 flex items-start justify-between gap-2">
-        <span className="grid h-11 w-11 place-items-center rounded-2xl text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,.14)]" style={{ backgroundColor: `${accent}24` }}>
+      <div className="relative z-20 grid h-28 w-[104px] place-items-center rounded-[20px] border border-white/10 bg-slate-950/24">
+        <span className="absolute left-2 top-2 grid h-9 w-9 place-items-center rounded-xl text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,.14)]" style={{ backgroundColor: `${accent}32` }}>
           <Icon className="h-6 w-6" />
         </span>
-        <span className="rounded-full bg-slate-950/48 px-2.5 py-1 text-[11px] font-black text-cyan-50/88 backdrop-blur">{badge}</span>
+        <img className="h-24 w-24 object-contain object-center drop-shadow-[0_18px_24px_rgba(0,0,0,.48)] transition duration-200 group-active:scale-95" src={image} alt="" />
       </div>
-      <div className="relative z-10 grid min-h-0 place-items-center">
-        <img className="h-full max-h-28 w-[92%] object-contain object-center drop-shadow-[0_18px_24px_rgba(0,0,0,.44)] transition duration-200 group-active:scale-95" src={image} alt="" />
+      <div className="relative z-10 min-w-0 self-stretch py-2">
+        <span className="inline-flex rounded-full bg-slate-950/42 px-2.5 py-1 text-[10px] font-black text-cyan-50/88">{badge}</span>
+        <div className="mt-3 break-words text-xl font-black leading-tight text-cyan-50 text-glow">{title}</div>
+        <div className="mt-1.5 line-clamp-3 text-xs leading-5 text-cyan-100/72">{subtitle}</div>
       </div>
-      <div className="relative z-10 min-w-0 pr-8">
-        <div className="truncate text-lg font-black text-cyan-50 text-glow">{title}</div>
-        <div className="mt-1 line-clamp-2 text-xs leading-4 text-cyan-100/72">{subtitle}</div>
-      </div>
-      <span className="absolute bottom-3 right-3 z-20 grid h-9 w-9 place-items-center rounded-xl text-cyan-50 shadow-[0_0_20px_rgba(34,211,238,.12)]" style={{ backgroundColor: `${accent}28` }}>
+      <span className="relative z-20 grid h-10 w-10 place-items-center rounded-2xl text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,.16)]" style={{ backgroundColor: `${accent}32` }}>
         <ChevronRight className="h-5 w-5" />
       </span>
     </button>
@@ -282,21 +280,21 @@ function BreedingItemsSection({ inventory }: { inventory?: AquariumSnapshot["inv
 
 function FoodSection({ food, cleaner, pollution, isBusy, onClean }: { food: number; cleaner: number; pollution: number; isBusy: boolean; onClean: () => void }) {
   return (
-    <div className="grid grid-cols-2 gap-3">
-      <div className="relative grid aspect-square overflow-hidden rounded-[22px] border border-cyan-100/12 bg-slate-950/32 p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)]">
+    <div className="grid grid-cols-1 gap-3">
+      <div className="relative grid min-h-32 grid-cols-[104px_1fr] items-center gap-3 overflow-hidden rounded-[22px] border border-cyan-100/12 bg-gradient-to-r from-emerald-300/12 to-slate-950/48 p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)]">
         <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-emerald-300/20 blur-2xl" />
         <span className="absolute left-3 top-3 rounded-full bg-slate-950/50 px-2 py-1 text-[10px] font-black text-cyan-100/76">Запас</span>
-        <img className="relative z-10 mx-auto mt-6 h-20 w-20 object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,.38)]" src={AppAssets.care.foodBasic} alt="" />
-        <div className="relative z-10 mt-auto min-w-0">
+        <img className="relative z-10 h-24 w-24 object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,.38)]" src={AppAssets.care.foodBasic} alt="" />
+        <div className="relative z-10 min-w-0">
           <div className="text-3xl font-black text-cyan-50">{food}</div>
           <div className="mt-1 text-xs text-cyan-100/62">корма в инвентаре</div>
         </div>
       </div>
-      <button className="relative grid aspect-square overflow-hidden rounded-[22px] border border-cyan-100/12 bg-slate-950/32 p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)] disabled:opacity-60" disabled={isBusy || cleaner <= 0 || pollution <= 0} onClick={onClean}>
+      <button className="relative grid min-h-32 grid-cols-[104px_1fr] items-center gap-3 overflow-hidden rounded-[22px] border border-cyan-100/12 bg-gradient-to-r from-cyan-300/12 to-slate-950/48 p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)] disabled:opacity-60" disabled={isBusy || cleaner <= 0 || pollution <= 0} onClick={onClean}>
         <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-cyan-300/20 blur-2xl" />
         <span className="absolute left-3 top-3 rounded-full bg-slate-950/50 px-2 py-1 text-[10px] font-black text-cyan-100/76">Очистка</span>
-        <img className="relative z-10 mx-auto mt-6 h-20 w-20 object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,.38)]" src={AppAssets.care.waterConditioner} alt="" />
-        <div className="relative z-10 mt-auto min-w-0">
+        <img className="relative z-10 h-24 w-24 object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,.38)]" src={AppAssets.care.waterConditioner} alt="" />
+        <div className="relative z-10 min-w-0">
           <div className="text-3xl font-black text-cyan-50">{cleaner}</div>
           <div className="mt-1 text-xs text-cyan-100/62">грязь: {pollution}</div>
         </div>
@@ -367,24 +365,25 @@ function FishSection({ fishList, capacity, onFavorite, onSelect }: { fishList: F
         </div>
         <div className={cn("text-sm font-black", fishList.length > capacity ? "text-rose-200" : "text-cyan-50")}>{fishList.length}/{capacity}</div>
       </Panel>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3">
         {fishList.map((fish, index) => {
           const overCapacity = index >= capacity;
           return (
-            <div key={fish.id} className={cn("relative min-h-[250px] overflow-hidden rounded-[22px] border p-3 text-left shadow-[0_18px_54px_rgba(0,0,0,.22)]", overCapacity ? "border-rose-300/35 bg-rose-500/10" : "border-cyan-100/12 bg-slate-950/32")}>
+            <div key={fish.id} className={cn("relative grid min-h-40 grid-cols-[120px_minmax(0,1fr)] items-center gap-3 overflow-hidden rounded-[24px] border p-3 text-left shadow-[0_20px_56px_rgba(0,0,0,.28)]", overCapacity ? "border-rose-300/35 bg-gradient-to-r from-rose-500/16 to-slate-950/54" : "border-cyan-100/16 bg-[linear-gradient(125deg,rgba(20,100,112,.2),rgba(5,27,44,.84)_58%,rgba(2,16,29,.94))]")}>
               <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full blur-2xl" style={{ backgroundColor: fish.glowColor + "24" }} />
               <span className={cn("absolute left-3 top-3 z-10 rounded-full px-2 py-1 text-[10px] font-black", overCapacity ? "bg-rose-300/18 text-rose-100" : "bg-slate-950/50 text-cyan-100/76")}>{overCapacity ? "Перенаселение" : fish.rarityLabel}</span>
               <button className={cn("absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-xl bg-slate-950/42 text-cyan-100", fish.isFavorite && "bg-rose-300 text-slate-950")} onClick={() => onFavorite(fish)} aria-label="Избранное">
                 <Heart className={cn("h-4 w-4", fish.isFavorite && "fill-current")} />
               </button>
-              <div className="absolute inset-x-3 top-12 z-10 grid h-24 place-items-center">
-                <img className="h-24 w-24 object-contain drop-shadow-[0_18px_24px_rgba(0,0,0,.34)]" src={fishVisualAsset(fish)} alt="" />
+              <div className="relative z-10 grid h-32 w-[120px] place-items-center rounded-[20px] border border-white/10 bg-slate-950/22">
+                <img className="h-28 w-28 object-contain drop-shadow-[0_18px_24px_rgba(0,0,0,.4)]" src={fishVisualAsset(fish)} alt="" />
               </div>
-              <div className="absolute inset-x-3 bottom-14 z-10 min-w-0 rounded-xl bg-slate-950/50 p-2 backdrop-blur">
-                <div className="truncate text-sm font-black leading-tight text-cyan-50">{fish.name}</div>
-                <div className={cn("mt-1 truncate text-xs", overCapacity ? "text-rose-100/80" : "text-cyan-100/62")}>{overCapacity ? "Можно заселить после расширения" : "сытость " + fullness(fish) + "/" + fish.maxHunger}</div>
+              <div className="relative z-10 min-w-0 self-stretch pb-11 pt-10">
+                <div className="break-words text-lg font-black leading-tight text-cyan-50">{fish.name}</div>
+                <div className="mt-1 line-clamp-2 text-xs leading-4 text-cyan-100/58">{fish.displayName}</div>
+                <div className={cn("mt-3 text-xs", overCapacity ? "text-rose-100/80" : "text-cyan-100/72")}>{overCapacity ? "Можно заселить после расширения" : "Сытость " + fullness(fish) + "/" + fish.maxHunger}</div>
               </div>
-              <Button className="absolute inset-x-3 bottom-3 z-20 h-9 rounded-xl border border-cyan-200/35 bg-cyan-300/24 text-[11px] font-black text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,.22)]" onClick={() => onSelect(fish)}>
+              <Button className="absolute bottom-3 right-3 z-20 h-9 rounded-xl border border-cyan-200/35 bg-cyan-300/24 px-4 text-[11px] font-black text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,.22)]" onClick={() => onSelect(fish)}>
                   <Info className="h-3.5 w-3.5" /> Инфо
                 </Button>
             </div>

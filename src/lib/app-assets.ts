@@ -105,21 +105,21 @@ export const shopCategories: Array<{ id: ShopCategory; title: string; subtitle: 
   { id: "care", title: "Корм", subtitle: "Еда и очистка", image: AppAssets.shop.careFood, accent: "#E5B74F" },
   { id: "decor", title: "Декор", subtitle: "Водоросли и пузыри", image: AppAssets.shop.decorRuins, accent: "#62D4AC" },
   { id: "backgrounds", title: "Фоны", subtitle: "Вид аквариума", image: AppAssets.shop.aquariumDisplay, accent: "#9B7BEF" },
-  { id: "fish", title: "Рыбки", subtitle: " и редкость", image: AppAssets.shop.caseChest, accent: "#49C7E8" }
+  { id: "fish", title: "Рыбки", subtitle: "Кейсы и редкость", image: AppAssets.shop.caseChest, accent: "#49C7E8" }
 ];
 
 export const shopProducts: ShopProduct[] = [
   { id: "spawning-nest", title: "Нерестовое гнездо", category: "breeding", price: 120, image: AppAssets.care.spawningNest, description: "Обязательный предмет для запуска одного скрещивания.", accent: "#F5B94E", status: "+1 запуск", repeatable: true },
   { id: "fry-food", title: "Корм для малышей", category: "breeding", price: 55, image: AppAssets.care.fryFood, description: "Ускоряет взросление малька или малыша на 2 часа. До 3 раз на процесс.", accent: "#65E7AC", status: "−2 часа", repeatable: true },
-  { id: "egg-incubator", title: "РРЅРєСѓР±Р°С‚РѕСЂ икры", category: "breeding", price: 90, image: AppAssets.care.eggIncubator, description: "Предмет питомника для будущих улучшений инкубации.", accent: "#41D9EA", repeatable: true },
+  { id: "egg-incubator", title: "Инкубатор икры", category: "breeding", price: 90, image: AppAssets.care.eggIncubator, description: "Ускоряет стадии икры и эмбриона на один час.", accent: "#41D9EA", status: "−1 час", repeatable: true },
   { id: "nursery-conditioner", title: "Кондиционер питомника", category: "breeding", price: 65, image: AppAssets.care.nurseryConditioner, description: "Запас средства для безопасного ухода за молодняком.", accent: "#62D4AC", repeatable: true },
   { id: "genealogy-medallion", title: "Медальон родословной", category: "breeding", price: 150, image: AppAssets.care.genealogyMedallion, description: "Сохраняет доступ к расширенной родословной гибридов.", accent: "#A78BFA", repeatable: true },
   { id: "big-water-cleaner", title: "Большой очиститель", category: "care", price: 150, image: AppAssets.care.waterConditioner, description: "Моментально очищает весь аквариум после покупки.", accent: "#41D9EA", status: "полная очистка", repeatable: true },
-  { id: "fish-case", title: "Рыбки", category: "fish", price: 100, image: AppAssets.shop.caseChest, description: "Открывает казино  с рыбками и призами.", accent: "#49C7E8", status: "кейс", repeatable: true },
+  { id: "fish-case", title: "Рыбный кейс", category: "fish", price: 100, image: AppAssets.shop.caseChest, description: "Открывает кейс с рыбками и призами.", accent: "#49C7E8", repeatable: true },
   { id: "food-basic", title: "Обычный корм", category: "care", price: 10, image: AppAssets.care.foodBasic, description: "+10 корма для ежедневного ухода.", accent: "#E5B74F", status: "+10", repeatable: true },
   { id: "food-premium", title: "Улучшенный корм", category: "care", price: 30, image: AppAssets.care.foodPremium, description: "Премиальная порция корма. Сейчас добавляет +25 корма.", accent: "#E5B74F", status: "+25", repeatable: true },
-  { id: "food-large", title: "Большой корм", category: "care", price: 35, image: AppAssets.care.foodPremium, description: "Одна порция снижает голод выбранной рыбы на 100.", accent: "#F5B94E", status: "−100 голода", repeatable: true },
-  { id: "food-aquarium", title: "Суперкорм", category: "care", price: 120, image: AppAssets.care.foodPremium, description: "Одной порцией полностью кормит всех рыб аквариума.", accent: "#65E7AC", status: "всем рыбам", repeatable: true },
+  { id: "food-large", title: "Большой корм", category: "care", price: 35, image: AppAssets.care.foodPremium, description: "Снижает голод выбранной рыбы на 100.", accent: "#F5B94E", status: "−100 голода", repeatable: true },
+  { id: "food-aquarium", title: "Суперкорм", category: "care", price: 120, image: AppAssets.care.foodPremium, description: "Полностью кормит всех рыб аквариума.", accent: "#65E7AC", status: "для всех", repeatable: true },
       { id: "water-conditioner", title: "Очиститель воды", category: "care", price: 45, image: AppAssets.care.waterConditioner, description: "Средство очистки убирает загрязнение в аквариуме.", accent: "#62D4AC", status: "очистка", repeatable: true },
   { id: "plant-small", title: "Малое растение", category: "decor", price: 35, image: AppAssets.decor.plantSmall, description: "Компактная зелень у дна аквариума.", accent: "#62D4AC", repeatable: false },
   { id: "plant-tall", title: "Высокое растение", category: "decor", price: 55, image: AppAssets.decor.plantTall, description: "Высокое растение для глубины сцены.", accent: "#62D4AC", repeatable: false },

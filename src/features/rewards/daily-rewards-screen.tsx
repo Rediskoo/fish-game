@@ -20,6 +20,8 @@ export function DailyRewardsScreen() {
   const daily = useDailyReward();
   const claimedToday = player.data?.dailyReward.claimedToday ?? false;
   const rewardAmount = player.data?.dailyReward.amount ?? 100;
+  const streak = player.data?.dailyReward.streak ?? 0;
+  const cycleDay = Math.max(0, Math.min(6, claimedToday ? (streak - 1 + 7) % 7 : streak % 7));
   const nextClaimTime = formatClaimTime(player.data?.dailyReward.nextClaimAt);
   const achievements = player.data?.achievements ?? [];
   const unlockedAchievements = achievements.filter((achievement) => achievement.unlockedAt).length;
@@ -37,8 +39,8 @@ export function DailyRewardsScreen() {
           <div className="text-lg font-black text-cyan-50">Ежедневный бонус</div>
           <div className="mt-3 grid grid-cols-7 gap-1">
             {Array.from({ length: 7 }).map((_, index) => {
-              const active = !claimedToday && index === 4;
-              const done = claimedToday ? index <= 4 : index < 4;
+              const active = !claimedToday && index === cycleDay;
+              const done = claimedToday ? index <= cycleDay : index < cycleDay;
               return (
                 <div key={index} className={cn("grid min-h-12 place-items-center rounded-xl border text-[10px] font-black", active ? "border-cyan-100/35 bg-cyan-300 text-slate-950" : done ? "border-emerald-200/22 bg-emerald-300/16 text-emerald-100" : "border-cyan-100/10 bg-slate-950/30 text-cyan-100/42")}>
                   <span>Д{index + 1}</span>

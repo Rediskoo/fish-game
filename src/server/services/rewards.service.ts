@@ -27,7 +27,7 @@ export class RewardsService {
         data: { ownerId: userId, type: TransactionType.DAILY_REWARD, amount, metadata: { rewardDate } }
       });
       return { amount };
-    });
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
   }
 
   listAchievements(userId: string) {

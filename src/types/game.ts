@@ -67,6 +67,7 @@ export type AquariumSnapshot = {
     amount: number;
     claimedToday: boolean;
     nextClaimAt: string;
+    streak: number;
   };
   achievements: AchievementView[];
   fish: FishView[];

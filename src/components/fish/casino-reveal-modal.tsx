@@ -73,7 +73,7 @@ export function CasinoRevealModal({ result, isBusy, error, onClose, onSell, onRe
     <div data-app-modal="true" className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/82 p-3">
       <div className="glass relative w-full max-w-md overflow-hidden rounded-2xl p-4 text-center shadow-2xl">
         <button className="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-xl bg-slate-950/45 text-cyan-100 disabled:opacity-40" disabled={started} onClick={onClose} aria-label="Закрыть"><X className="h-5 w-5" /></button>
-        <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-xs font-bold uppercase text-cyan-100"><Sparkles className="h-4 w-4" /> Рыбное казино</div>
+        <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-xs font-bold uppercase text-cyan-100"><Sparkles className="h-4 w-4" /> Рыбный кейс</div>
         <h2 className="mb-4 text-2xl font-black text-cyan-50">Поймай три одинаковых</h2>
 
         <div className="grid h-36 grid-cols-3 gap-2 rounded-2xl bg-slate-950/60 p-2">
