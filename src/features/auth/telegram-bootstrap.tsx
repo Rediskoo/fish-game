@@ -61,15 +61,15 @@ export function TelegramBootstrap() {
 
   useEffect(() => {
     let attempts = 0;
-    const webApp = window.Telegram?.WebApp;
+    const initialWebApp = window.Telegram?.WebApp;
 
     // Lifecycle methods must run once. Repeating version-gated methods while
     // waiting for initData floods the console in ordinary web browsers.
     for (const action of [
-      () => webApp?.ready?.(),
-      () => webApp?.expand?.(),
-      () => webApp?.isVersionAtLeast?.("8.0") && webApp.requestFullscreen?.(),
-      () => webApp?.enableClosingConfirmation?.()
+      () => initialWebApp?.ready?.(),
+      () => initialWebApp?.expand?.(),
+      () => initialWebApp?.isVersionAtLeast?.("8.0") && initialWebApp.requestFullscreen?.(),
+      () => initialWebApp?.enableClosingConfirmation?.()
     ]) {
       try {
         action();
@@ -80,6 +80,9 @@ export function TelegramBootstrap() {
 
     const tryAuth = () => {
       attempts += 1;
+      // Telegram may inject WebApp after React has mounted (especially in an
+      // older Android/iOS WebView). Never retain the first undefined value.
+      const webApp = window.Telegram?.WebApp;
 
       const info = {
         attempt: attempts,
@@ -92,6 +95,12 @@ export function TelegramBootstrap() {
       setDebug(JSON.stringify(info, null, 2));
 
       if (webApp?.initData && !startedRef.current) {
+        try {
+          webApp.ready?.();
+          webApp.expand?.();
+        } catch {
+          // Authentication must still continue on older Telegram clients.
+        }
         startedRef.current = true;
         authenticate(webApp.initData);
       }
