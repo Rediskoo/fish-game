@@ -2,8 +2,10 @@
 .env*.local
 node_modules
 .next
-dist
 coverage
+*.log
+*.tsbuildinfo
+dist
 *.log
 tsconfig.tsbuildinfo
 postgres_data

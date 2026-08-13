@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Bell, ChevronRight, Globe2, Info, MessageCircle, Moon, MousePointerClick, Smartphone, Volume2 } from "lucide-react";
+import { Bell, ChevronRight, GraduationCap, Globe2, Info, MessageCircle, Moon, MousePointerClick, Smartphone, Volume2 } from "lucide-react";
 import { Panel } from "@/components/ui/panel";
 import { aquariumAssets } from "@/assets/aquarium-assets";
 import { cn } from "@/lib/cn";
@@ -35,6 +35,7 @@ export function SettingsScreen() {
       </Panel>
 
       <Panel className="space-y-1 overflow-hidden rounded-[18px] border-cyan-100/16 bg-[linear-gradient(145deg,rgba(8,43,59,.72),rgba(4,18,31,.86))]">
+        <SettingsRow icon={<GraduationCap className="h-4 w-4" />} label="Повторить обучение" value="" onClick={() => window.dispatchEvent(new Event("aquarium:restart-onboarding"))} />
         <SettingsRow icon={<Globe2 className="h-4 w-4" />} label="Язык" value="Русский" />
         <SettingsRow icon={<Moon className="h-4 w-4" />} label="Тема" value="По умолчанию" />
         <SettingsRow icon={<Info className="h-4 w-4" />} label="О приложении" value="Версия 1.0.0" />
@@ -92,9 +93,9 @@ function Toggle({
   );
 }
 
-function SettingsRow({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
+function SettingsRow({ icon, label, value, onClick }: { icon: ReactNode; label: string; value: string; onClick?: () => void }) {
   return (
-    <button className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl px-2.5 text-left transition active:bg-cyan-300/8" type="button">
+    <button className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl px-2.5 text-left transition active:bg-cyan-300/8" type="button" onClick={onClick}>
       <span className="flex min-w-0 items-center gap-3">
         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-slate-950/36 text-cyan-100">{icon}</span>
         <span className="truncate text-sm font-bold text-cyan-50">{label}</span>

@@ -11,6 +11,7 @@ import { useFriends } from "@/features/friends/use-friends";
 import { useLiveIncome } from "@/features/income/use-live-income";
 import { cn } from "@/lib/cn";
 import { useIncomeStore } from "@/stores/income-store";
+import { Onboarding } from "@/components/layout/onboarding";
 
 const navItems = [
   { href: "/aquarium", label: "Главная", icon: aquariumAssets.icons.navigation.home },
@@ -51,6 +52,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <main className="ocean-shell relative min-h-dvh overflow-hidden pb-[calc(128px+var(--safe-bottom))] pt-[var(--safe-top)]">
       <TelegramBootstrap />
+      <Onboarding />
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <span className="screen-glow absolute left-[8%] top-[14%] h-32 w-32 rounded-full bg-cyan-300/10 blur-3xl" />
         <span className="screen-glow screen-glow-delayed absolute right-[5%] top-[48%] h-40 w-40 rounded-full bg-blue-300/8 blur-3xl" />

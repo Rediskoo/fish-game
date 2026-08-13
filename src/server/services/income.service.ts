@@ -1,14 +1,11 @@
 import { TransactionType, type PrismaClient } from "@prisma/client";
 import { applyHungerDecay } from "@/server/services/hunger.service";
 import { aquariumFishCapacity } from "@/lib/fish-capacity";
-
-const maxOfflineSeconds = 60 * 60 * 24 * 7;
+import { calculateOfflineSeconds, hungerIncomeMultiplier } from "@/lib/game-mechanics";
 
 export function calculateFishIncome(fish: Array<{ fishType: { incomePerSecond: number; maxHunger: number }; hunger: number; incomeMultiplier: number }>) {
   return fish.reduce((sum, item) => {
-    const hungerPercent = (item.hunger / item.fishType.maxHunger) * 100;
-    const hungerPenalty = hungerPercent >= 90 ? 0.25 : hungerPercent >= 70 ? 0.6 : 1;
-    return sum + item.fishType.incomePerSecond * item.incomeMultiplier * hungerPenalty;
+    return sum + item.fishType.incomePerSecond * item.incomeMultiplier * hungerIncomeMultiplier(item.hunger, item.fishType.maxHunger);
   }, 0);
 }
 
@@ -28,10 +25,7 @@ export async function claimOfflineIncome(db: PrismaClient, userId: string) {
   }
 
   const now = new Date();
-  const offlineSeconds = Math.min(
-    maxOfflineSeconds,
-    Math.max(0, Math.floor((now.getTime() - snapshot.aquarium.lastIncomeAt.getTime()) / 1000))
-  );
+  const offlineSeconds = calculateOfflineSeconds(snapshot.aquarium.lastIncomeAt, now);
   const incomePerSecond = calculateFishIncome(snapshot.fish.slice(0, aquariumFishCapacity));
   const amount = Math.floor(incomePerSecond * offlineSeconds);
 

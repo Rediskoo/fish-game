@@ -1,6 +1,5 @@
 import { type Prisma, type PrismaClient } from "@prisma/client";
-
-const feedAmount = 10;
+import { calculateHunger, feedHunger } from "@/lib/game-mechanics";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -15,7 +14,7 @@ export async function applyHungerDecay(db: DbClient, userId: string, now = new D
       const elapsedMinutes = Math.floor((now.getTime() - item.hungerUpdatedAt.getTime()) / 60000);
       if (elapsedMinutes <= 0) return Promise.resolve();
 
-      const hunger = Math.min(item.fishType.maxHunger, item.hunger + elapsedMinutes * item.fishType.hungerPerMinute);
+      const hunger = calculateHunger(item.hunger, item.fishType.maxHunger, item.fishType.hungerPerMinute, elapsedMinutes);
       return db.fish.update({
         where: { id: item.id },
         data: { hunger, hungerUpdatedAt: now }
@@ -25,5 +24,5 @@ export async function applyHungerDecay(db: DbClient, userId: string, now = new D
 }
 
 export function feedFishHunger(currentHunger: number) {
-  return Math.max(0, currentHunger - feedAmount);
+  return feedHunger(currentHunger);
 }
